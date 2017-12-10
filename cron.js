@@ -3,9 +3,9 @@ const url = require('url');
 const moment = require('moment');
 const { Post, Member, Comment, Setting } = require('./src/model');
 const FB = require('fb');
-const fb = new FB.Facebook();
 
 require('dotenv').config();
+const fb = new FB.Facebook();
 fb.options({ Promise: Promise });
 
 console.log('CRON: Start');
@@ -15,10 +15,9 @@ let nextDayUpdateUserPost = moment()
   .add(1, 'day');
 
 //setting
-let setting_newfeed_limit;
-let setting_newfeed_max;
-let setting_newfeed_since;
-let setting_newfeed_since_new;
+const setting_newsfeed_limit = parseInt(process.env.NEWSFEED_LIMIT, 10) || 100;
+const setting_newsfeed_max = parseInt(process.env.NEWSFEED_MAX, 10) || 300;
+let setting_newsfeed_since;
 
 async function recountUserPost() {
   console.log('CRON: recountUserPost.');
@@ -77,51 +76,14 @@ async function recountUserPost() {
   }
 }
 
-async function getSettings() {
-  // get last get feed
-  let lastUpdate = await Setting.findById('last_updated');
-  if (lastUpdate) {
-    lastUpdate = moment(lastUpdate.value);
-  } else {
-    lastUpdate = moment().add(-6, 'hours');
-  }
-  const mLastUpdate = lastUpdate.add(-30, 'minutes');
-  console.log(`mLastUpdate = ${mLastUpdate}`);
-  setting_newfeed_since = mLastUpdate.unix();
-
-  // get limit feed
-  let limit = await Setting.findById('newfeed_limit');
-  if (!limit) {
-    const setting = new Setting({
-      _id: 'newfeed_limit',
-      value: 100
-    });
-    await setting.save();
-    limit = setting;
-  }
-  setting_newfeed_limit = limit.value;
-
-  // get max feed
-  let max = await Setting.findById('newfeed_max');
-  if (!max) {
-    const setting = new Setting({
-      _id: 'newfeed_max',
-      value: 300
-    });
-    await setting.save();
-    max = setting;
-  }
-  setting_newfeed_max = max.value;
-}
-
-async function getNewFeed(group_id, since, limit, max) {
+async function getNewsFeed(group_id, since, limit, max) {
   let data = [];
 
   let run = true;
 
-  limit = limit || setting_newfeed_limit;
-  since = since || setting_newfeed_since;
-  max = max || setting_newfeed_max;
+  limit = limit || setting_newsfeed_limit;
+  since = since || setting_newsfeed_since;
+  max = max || setting_newsfeed_max;
 
   let until = undefined;
   let icon_size = undefined;
@@ -243,12 +205,21 @@ async function startJob() {
       }
     }
 
-    setting_newfeed_since_new = new Date();
-    await getSettings();
-    const newFeedData = await getNewFeed(process.env.FACEBOOK_GROUP_ID);
-    console.log(`CRON: Get total ${newFeedData.length} posts`);
+    const setting_newsfeed_since_new = new Date();
+    let lastUpdate = await Setting.findById('last_updated');
+    if (lastUpdate) {
+      lastUpdate = moment(lastUpdate.value);
+    } else {
+      lastUpdate = moment().add(-6, 'hours');
+    }
+    const mLastUpdate = lastUpdate.add(-30, 'minutes');
+    console.log(`mLastUpdate = ${mLastUpdate}`);
+    setting_newsfeed_since = mLastUpdate.unix();
 
-    for (const item of newFeedData) {
+    const newsFeedData = await getNewsFeed(process.env.FACEBOOK_GROUP_ID);
+    console.log(`CRON: Get total ${newsFeedData.length} posts`);
+
+    for (const item of newsFeedData) {
       let post = await Post.findById(item.id);
 
       if (!post) {
@@ -328,7 +299,7 @@ async function startJob() {
     }
 
     // save last crawl data
-    await Setting.findByIdAndUpdate('last_updated', { value: setting_newfeed_since_new }, { upsert: true });
+    await Setting.findByIdAndUpdate('last_updated', { value: setting_newsfeed_since_new }, { upsert: true });
   } catch (error) {
     console.log(`CRON: ERROR ${error}`);
   }

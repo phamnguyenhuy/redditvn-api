@@ -11,3 +11,7 @@ Enviroment Variable need config:
 `REACT_FRONTEND_DIR`
 
 `PORT`
+
+`NEWSFEED_LIMIT`
+
+`NEWSFEED_MAX`
