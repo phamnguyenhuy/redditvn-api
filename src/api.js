@@ -208,7 +208,15 @@ router.get('/random', async (req, res, next) => {
 });
 
 router.get('/search', async (req, res, next) => {
-  const q = req.query.q || '';
+  let q = req.query.q || '';
+  q = q.toLowerCase();
+  if (q.startsWith('regex:')) {
+    q = q.substr(6);
+  }
+  else {
+    q = q.replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
+  }
+
   let dbQuery =
     q === ''
       ? {}
