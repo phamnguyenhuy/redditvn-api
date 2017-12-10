@@ -5,7 +5,7 @@ const cors = require('cors');
 const path = require('path');
 const bodyParser = require('body-parser');
 const http = require('http');
-const api = require('./src/api');
+const api = require('./api');
 
 require('dotenv').config();
 
@@ -25,12 +25,18 @@ function checkDatabaseConnection(req, res, next) {
   return next(new Error(`Error establishing a database connection.`));
 }
 
+function handlePaginationRequest(req, res, next) {
+  req.query.page = (typeof req.query.page === 'string') ? parseInt(req.query.page, 10) || 1 : 1;
+  req.query.limit = (typeof req.query.limit === 'string') ? parseInt(req.query.limit, 10) || 0 : 10;
+  next();
+}
+
 const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/api', checkDatabaseConnection, api);
+app.use('/api', checkDatabaseConnection, handlePaginationRequest, api);
 
 if (process.env.USE_REACT_FRONTEND) {
   const reactFrontendDir = process.env.REACT_FRONTEND_DIR || 'build';

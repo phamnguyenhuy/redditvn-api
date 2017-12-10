@@ -352,10 +352,6 @@ mongoose.connect(process.env.DATABASE_URI, async function(err, res) {
   } else {
     console.log('CRON: Succeeded connected to database.');
     await startJob();
-    if (process.argv[2] === 'user') {
-      console.log('CRON: update user top.');
-      await recountUserPost();
-    }
     console.log('CRON: Finish');
     mongoose.connection.close();
     process.exit();
