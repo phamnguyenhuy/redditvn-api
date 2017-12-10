@@ -1,4 +1,4 @@
-const { Post, Member, Comment } = require('./model');
+const { Post, Member, Comment } = require('../model');
 
 module.exports.getPostHour = async function getPostHour() {
   try {
