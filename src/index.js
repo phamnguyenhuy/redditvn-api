@@ -62,7 +62,7 @@ app.use(function (req, res, next) {
 // error handler
 app.use(function (err, req, res, next) {
   const errCode = err.status || 500;
-  return res.status(errCode).json(err);
+  return res.status(errCode).json(err.message ? err.message : 'Something when wrong...');
 });
 
 const port = process.env.PORT || 3000;
