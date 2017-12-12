@@ -9,7 +9,9 @@ const http = require('http');
 require('dotenv').config();
 
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.DATABASE_URI, function (err, res) {
+mongoose.connect(process.env.DATABASE_URI, {
+  useMongoClient: true
+}, function (err, res) {
   if (err) {
     console.log('ERROR connecting to database: ' + err);
   } else {
@@ -61,8 +63,11 @@ app.use(function (req, res, next) {
 
 // error handler
 app.use(function (err, req, res, next) {
+  console.log(err);
   const errCode = err.status || 500;
-  return res.status(errCode).json(err.message ? err.message : 'Something when wrong...');
+  return res.status(errCode).json({
+    message: err.message ? err.message : 'Something when wrong...'
+  });
 });
 
 const port = process.env.PORT || 3000;
