@@ -317,7 +317,9 @@ async function startJob() {
 }
 
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.DATABASE_URI, async function(err, res) {
+mongoose.connect(process.env.DATABASE_URI, {
+  useMongoClient: true
+}, async function(err, res) {
   if (err) {
     console.log('CRON: ERROR connecting to database: ' + err);
   } else {
