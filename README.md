@@ -6,10 +6,6 @@ Enviroment Variable need config:
 
 `DATABASE_URI`
 
-`USE_REACT_FRONTEND`
-
-`REACT_FRONTEND_DIR`
-
 `PORT`
 
 `NEWSFEED_LIMIT`

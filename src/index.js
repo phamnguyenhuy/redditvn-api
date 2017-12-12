@@ -42,18 +42,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api', checkDatabaseConnection, handlePaginationRequest, require('./api'));
 
-if (process.env.USE_REACT_FRONTEND) {
-  const reactFrontendDir = process.env.REACT_FRONTEND_DIR || 'build';
-
-  // Serve static assets
-  app.use(express.static(path.resolve(__dirname, '..', reactFrontendDir)));
-
-  // Always return the main index.html, so react-router render the route in the client
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '..', reactFrontendDir, 'index.html'));
-  });
-}
-
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   const err = new Error('Not Found');
