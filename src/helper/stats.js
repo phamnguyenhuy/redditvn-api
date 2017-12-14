@@ -81,11 +81,21 @@ module.exports.getStats = async (type, group) => {
       break;
   }
 
-  let label = dbResponse.map(value => value._id.toString());
-  if (group === 'dow') {
-    label = dbResponse.map(value => {
-      return dowArray[value._id.dayOfWeek - 1];
-    });
+  let label;
+  switch (group) {
+    case 'dow':
+      label = dbResponse.map(value => {
+        return dowArray[value._id - 1];
+      });
+      break;
+    case 'month':
+      label = dbResponse.map(value => {
+        return `${value._id.month}/${value._id.year}`;
+      });
+      break;
+    default:
+      label = dbResponse.map(value => value._id.toString());
+      break;
   }
 
   return {
