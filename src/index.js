@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const path = require('path');
 const bodyParser = require('body-parser');
+const http = require('http');
 const https = require('https');
 const fs = require('fs');
 
@@ -59,13 +60,18 @@ app.use(function (err, req, res, next) {
   });
 });
 
-const options = {
-  cert: fs.readFileSync(process.env.HTTPS_CERT_FILE),
-  key: fs.readFileSync(process.env.HTTPS_KEY_FILE)
-};
-
 const port = process.env.PORT || 3000;
-const server = https.createServer(options, app);
+let server;
+if (process.env.RUN_HTTP) {
+  server = http.createServer(app);
+}
+else {
+  const options = {
+    cert: fs.readFileSync(process.env.HTTPS_CERT_FILE),
+    key: fs.readFileSync(process.env.HTTPS_KEY_FILE)
+  };
+  server = https.createServer(options, app);
+}
 
 server.listen(port, () => {
   console.log('Server API listening on %d', server.address().port);

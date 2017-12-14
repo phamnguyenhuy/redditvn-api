@@ -39,7 +39,7 @@ router.get('/post/:post_id', async (req, res, next) => {
       .sort('-created_time')
       .limit(1);
 
-    var result = {
+    const result = {
       ...post,
       prev_post: prev_post,
       next_post: next_post
