@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
-import express from 'express';
-import FB from 'fb';
-import { Post, Member, Comment } from '../model';
+const mongoose = require('mongoose');
+const express = require('express');
+const FB = require('fb');
+const { Post, Member, Comment } = require('../model');
 
 const router = express.Router();
 const fb = new FB.Facebook();
@@ -10,7 +10,7 @@ fb.options({ Promise: Promise });
 router.get('/post/:post_id', async (req, res, next) => {
   try {
     const post_id = req.params.post_id;
-    let post = await Post.findById(post_id, {
+    const post = await Post.findById(post_id, {
       _id: 1,
       from: 1,
       message: 1,
@@ -38,7 +38,7 @@ router.get('/post/:post_id', async (req, res, next) => {
       .limit(1);
 
     return res.status(200).json({
-      ...post.toObject(),
+      ...(post.toObject()),
       prev_post: prev_post,
       next_post: next_post
     });
@@ -224,4 +224,4 @@ router.get('/search', async (req, res, next) => {
   }
 });
 
-export default router;
+module.exports = router;

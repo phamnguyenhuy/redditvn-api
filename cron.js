@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
-import url from 'url';
-import moment from 'moment';
-import { Post, Member, Comment, Setting } from './src/model';
-import FB from 'fb';
-import { config } from 'dotenv'
+const mongoose = require('mongoose');
+const url = require('url');
+const moment = require('moment');
+const { Post, Member, Comment, Setting } = require('./src/model');
+const FB = require('fb');
+const { config } = require('dotenv');
 
 config();
 const fb = new FB.Facebook();
@@ -75,7 +75,7 @@ recountUserPost = async () => {
   } catch (error) {
     console.log(`CRON: ERROR recountUserPost: ${error}`);
   }
-}
+};
 
 getNewsFeed = async (group_id, since, limit, max) => {
   let data = [];
@@ -134,7 +134,7 @@ getNewsFeed = async (group_id, since, limit, max) => {
   }
 
   return data;
-}
+};
 
 getComment = async (post_id, since, limit) => {
   let data = [];
@@ -181,9 +181,9 @@ getComment = async (post_id, since, limit) => {
   }
 
   return data;
-}
+};
 
-checkDeletedPost = async (numberOfPosts) => {
+checkDeletedPost = async numberOfPosts => {
   const lastPosts = await Post.find({})
     .sort('-updated_time')
     .limit(numberOfPosts);
@@ -202,7 +202,7 @@ checkDeletedPost = async (numberOfPosts) => {
       }
     }
   }
-}
+};
 
 startJob = async () => {
   console.log('CRON: startJob.');
@@ -319,7 +319,7 @@ startJob = async () => {
   } catch (error) {
     console.log(`CRON: ERROR check recountUserPost: ${error}`);
   }
-}
+};
 
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.DATABASE_URI, { useMongoClient: true }, async (err, res) => {

@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import mongoosePaginate from 'mongoose-paginate';
+const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate');
 
 const commentSchema = new mongoose.Schema({
   _id: String,
@@ -16,4 +16,4 @@ const commentSchema = new mongoose.Schema({
 });
 
 commentSchema.plugin(mongoosePaginate);
-export default mongoose.model('comments', commentSchema);
+module.exports = mongoose.model('comments', commentSchema);

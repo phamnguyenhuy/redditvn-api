@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import express from 'express';
-import { Post, Member } from '../model';
+const mongoose = require('mongoose');
+const express = require('express');
+const { Post, Member } = require('../model');
 
 const router = express.Router();
 
@@ -51,4 +51,4 @@ router.get('/user/:user_id/posts', async (req, res, next) => {
   }
 });
 
-export default router;
+module.exports = router;

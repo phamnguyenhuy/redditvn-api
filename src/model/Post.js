@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import mongoosePaginate from 'mongoose-paginate';
+const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate');
 
 const postSchema = new mongoose.Schema({
   _id: String,
@@ -19,4 +19,4 @@ const postSchema = new mongoose.Schema({
 });
 
 postSchema.plugin(mongoosePaginate);
-export default mongoose.model('posts', postSchema);
+module.exports = mongoose.model('posts', postSchema);

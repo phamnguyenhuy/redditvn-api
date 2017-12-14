@@ -1,4 +1,4 @@
-import { Post, Comment } from '../model';
+const { Post, Comment } = require('../model');
 
 const millisecondsFromUTC = 7 * 60 * 60 * 1000; //PST is +7 hours from UTC
 const matchIsNotDeleted = {
@@ -50,25 +50,25 @@ const sortMonthAsc = {
 };
 const dowArray = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-export const getStats = async (type, group) => {
-  let group;
+module.exports.getStats = async (type, group) => {
+  let groupDb;
   let sort = sortAsc;
   switch (group) {
     case 'hour':
-      group = groupHour;
+      groupDb = groupHour;
       break;
     case 'dow':
-      group = groupDow;
+      groupDb = groupDow;
       break;
     case 'dom':
-      group = groupDom;
+      groupDb = groupDom;
       break;
     default:
-      group = groupMonth;
+      groupDb = groupMonth;
       sort = sortMonthAsc;
       break;
   }
-  const aggregatorOpts = [matchIsNotDeleted, projectGtm7, group, sort];
+  const aggregatorOpts = [matchIsNotDeleted, projectGtm7, groupDb, sort];
 
   let dbResponse;
   switch (type) {
@@ -81,11 +81,11 @@ export const getStats = async (type, group) => {
       break;
   }
 
-  let label = dbResponse.map(value => value._id.toString())
+  let label = dbResponse.map(value => value._id.toString());
   if (group === 'dow') {
     label = dbResponse.map(value => {
       return dowArray[value._id.dayOfWeek - 1];
-    })
+    });
   }
 
   return {

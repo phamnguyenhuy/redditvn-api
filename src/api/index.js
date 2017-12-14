@@ -1,10 +1,14 @@
-import express from 'express';
+const express = require('express');
+const home = require('./home');
+const post = require('./post');
+const stats = require('./stats');
+const user = require('./user');
 
 const router = express.Router();
 
-router.use(import('./home'));
-router.use(import('./post'));
-router.use(import('./stats'));
-router.use(import('./user'));
+router.use(home);
+router.use(post);
+router.use(stats);
+router.use(user);
 
-export default router;
+module.exports = router;

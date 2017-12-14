@@ -1,14 +1,14 @@
-import mongoose from 'mongoose';
-import express from 'express';
-import helmet from 'helmet';
-import cors from 'cors';
-import path from 'path';
-import mongoose from 'mongoose';
-import bodyParser from 'body-parser';
-import http from 'http';
-import https from 'https';
-import fs from 'fs';
-import { config } from 'dotenv'
+const mongoose = require('mongoose');
+const express = require('express');
+const helmet = require('helmet');
+const cors = require('cors');
+const path = require('path');
+const bodyParser = require('body-parser');
+const http = require('http');
+const https = require('https');
+const fs = require('fs');
+const { config } = require('dotenv');
+const api = require('./api');
 
 config();
 
@@ -26,7 +26,7 @@ checkDatabaseConnection = (req, res, next) => {
     return next();
   }
   return next(new Error(`Error establishing a database connection.`));
-}
+};
 
 handlePaginationRequest = (req, res, next) => {
   req.query.page = typeof req.query.page === 'string' ? parseInt(req.query.page, 10) || 1 : 1;
@@ -35,14 +35,14 @@ handlePaginationRequest = (req, res, next) => {
     req.query.limit = 10;
   }
   next();
-}
+};
 
 const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/', checkDatabaseConnection, handlePaginationRequest, import('./api'));
+app.use('/', checkDatabaseConnection, handlePaginationRequest, api);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
