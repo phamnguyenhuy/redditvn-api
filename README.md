@@ -22,9 +22,11 @@ node cron.js
 
 ## Enviroment
 
-Node.js 8.x.x
+Node.js 8.9.x
 
 MongoDB 3.x.x
+
+Npm 4.x.x
 
 ## Enviroment Variable
 

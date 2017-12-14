@@ -24,7 +24,6 @@ app.use('/', checkDatabaseConnection, handlePaginationRequest, api);
 app.use((req, res, next) => {
   const error = new Error();
   error.status = 404;
-  error.title = 'page not found';
   error.message = 'the page you requested does not exist';
   next(error);
 });
@@ -35,7 +34,6 @@ app.use((err, req, res, next) => {
   const errCode = err.status || 500;
   return res.status(errCode).json({
     status: err.status,
-    title: err.title || 'something when wrong...',
     message: err.message || 'something when wrong...'
   });
 });
