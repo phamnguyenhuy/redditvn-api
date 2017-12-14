@@ -1,13 +1,50 @@
-Enviroment Variable need config:
+# search-redditvn-api
 
-`FACEBOOK_ACCESS_TOKEN`
+## Installing
 
-`FACEBOOK_GROUP_ID`
+Install dependencies from npm:
 
-`DATABASE_URI`
+```
+npm install
+```
 
-`PORT`
+Run backend server
 
-`NEWSFEED_LIMIT`
+```
+npm start
+```
 
-`NEWSFEED_MAX`
+Run cron to crawl posts
+
+```
+node cron.js
+```
+
+## Enviroment
+
+Node.js 8.x.x
+
+MongoDB 3.x.x
+
+## Enviroment Variable
+
+Create .env file in project folder
+
+```
+FACEBOOK_ACCESS_TOKEN
+FACEBOOK_GROUP_ID
+DATABASE_URI
+PORT
+NEWSFEED_LIMIT
+NEWSFEED_MAX
+```
+
+Example
+```
+FACEBOOK_ACCESS_TOKEN=************
+FACEBOOK_GROUP_ID=366378530426222
+DATABASE_URI=mongodb://root:root@localhost:27017/redditvn
+PORT=443
+NEWSFEED_LIMIT=100
+NEWSFEED_MAX=300
+```
