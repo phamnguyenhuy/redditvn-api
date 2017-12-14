@@ -1,7 +1,7 @@
 {
-  "name": "search-redditvn-api",
+  "name": "redditvn-api",
   "version": "1.0.0",
-  "description": "Search RedditVN API",
+  "description": "RedditVN API",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

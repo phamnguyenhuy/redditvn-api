@@ -72,7 +72,7 @@ router.get('/stats/top', async (req, res, next) => {
         $limit: limit
       }
     ];
-    const topUsers = await Post.aggregate(aggregatorOpts).exec();
+    const topUsers = await Post.aggregate(aggregatorOpts);
 
     const topLikes = await Post.find({
       created_time: {
@@ -80,8 +80,7 @@ router.get('/stats/top', async (req, res, next) => {
       }
     }, { _id: 1, likes_count: 1, comments_count: 1, from: 1 })
       .sort('-likes_count')
-      .limit(limit)
-      .exec();
+      .limit(limit);
 
     const topComments = await Post.find({
       created_time: {
@@ -89,8 +88,7 @@ router.get('/stats/top', async (req, res, next) => {
       }
     }, { _id: 1, likes_count: 1, comments_count: 1, from: 1 })
       .sort('-comments_count')
-      .limit(limit)
-      .exec();
+      .limit(limit);
 
     return res.status(200).json({
       top_users: topUsers,

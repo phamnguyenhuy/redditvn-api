@@ -9,7 +9,7 @@ const https = require('https');
 const fs = require('fs');
 const { config } = require('dotenv');
 const api = require('./api');
-const { checkDatabaseConnection, handlePaginationRequest } = require('../helper/middleware');
+const { checkDatabaseConnection, handlePaginationRequest } = require('./helper/middleware');
 
 config();
 

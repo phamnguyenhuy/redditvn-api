@@ -8,7 +8,11 @@ router.get('/user/:user_id', async (req, res, next) => {
   const user_id = req.params.user_id;
 
   try {
-    const user = await Member.findById(user_id);
+    const user = await Member.findById(user_id, {
+      _id: 1,
+      name: 1,
+      post_count: 1
+    });
     if (!user) {
       return res.status(404).json({
         status: 404,

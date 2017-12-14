@@ -45,7 +45,7 @@ recountUserPost = async () => {
       }
     ];
 
-    const memberList = await Post.aggregate(aggregatorOpts).exec();
+    const memberList = await Post.aggregate(aggregatorOpts);
     await Member.update({}, { $unset: { post_count: 1 } }, { multi: true });
 
     await Promise.all(

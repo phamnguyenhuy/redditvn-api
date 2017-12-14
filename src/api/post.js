@@ -136,10 +136,21 @@ router.get('/post/:post_id/comments', async (req, res, next) => {
   try {
     const post_id = req.params.post_id;
     // get root comment
-    const root_comments = await Comment.find({ post_id: post_id, parent: { $eq: null } }, undefined, { lean: true }).sort('created_time');
+    const root_comments = await Comment.find({ post_id: post_id, parent: { $eq: null } }, {
+      _id: 1,
+      from: 1,
+      created_time: 1,
+      message
+    }, { lean: true }).sort('created_time');
 
     // get reply comment
-    const reply_comments = await Comment.find({ post_id: post_id, parent: { $ne: null } }, undefined, { lean: true }).sort('created_time');
+    const reply_comments = await Comment.find({ post_id: post_id, parent: { $ne: null } }, {
+      _id: 1,
+      parent: 1,
+      from: 1,
+      created_time: 1,
+      message
+    }, { lean: true }).sort('created_time');
 
     // merge 2 type comment
     reply_comments.forEach((value, index) => {
@@ -148,6 +159,7 @@ router.get('/post/:post_id/comments', async (req, res, next) => {
         if (root_comments[idx].replies === undefined) {
           root_comments[idx].replies = [];
         }
+        delete value.parent;
         root_comments[idx].replies.push(value);
       }
     });
@@ -194,11 +206,11 @@ router.get('/search', async (req, res, next) => {
     q === ''
       ? {}
       : {
-          message: {
-            $regex: new RegExp(q),
-            $options: 'i'
-          }
-        };
+        message: {
+          $regex: new RegExp(q),
+          $options: 'i'
+        }
+      };
 
   try {
     const posts = await Post.paginate(dbQuery, {
