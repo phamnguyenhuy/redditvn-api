@@ -9,33 +9,9 @@ const https = require('https');
 const fs = require('fs');
 const { config } = require('dotenv');
 const api = require('./api');
+const { checkDatabaseConnection, handlePaginationRequest } = require('../helper/middleware');
 
 config();
-
-mongoose.Promise = global.Promise;
-mongoose.connect(process.env.DATABASE_URI, { useMongoClient: true }, (err, res) => {
-  if (err) {
-    console.log('ERROR connecting to database: ' + err);
-  } else {
-    console.log('Succeeded connected to database');
-  }
-});
-
-checkDatabaseConnection = (req, res, next) => {
-  if (mongoose.connection.readyState === mongoose.STATES.connected) {
-    return next();
-  }
-  return next(new Error(`Error establishing a database connection.`));
-};
-
-handlePaginationRequest = (req, res, next) => {
-  req.query.page = typeof req.query.page === 'string' ? parseInt(req.query.page, 10) || 1 : 1;
-  req.query.limit = typeof req.query.limit === 'string' ? parseInt(req.query.limit, 10) || 0 : 10;
-  if (req.query.limit < 0 || 50 < req.query.limit) {
-    req.query.limit = 10;
-  }
-  next();
-};
 
 const app = express();
 app.use(helmet());
@@ -46,9 +22,11 @@ app.use('/', checkDatabaseConnection, handlePaginationRequest, api);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-  const err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+  const error = new Error();
+  error.status = 404;
+  error.title = 'page not found';
+  error.message = 'the page you requested does not exist';
+  next(error);
 });
 
 // error handler
@@ -56,7 +34,9 @@ app.use((err, req, res, next) => {
   console.log(err);
   const errCode = err.status || 500;
   return res.status(errCode).json({
-    message: err.message ? err.message : 'Something when wrong...'
+    status: err.status,
+    title: err.title || 'something when wrong...',
+    message: err.message || 'something when wrong...'
   });
 });
 
@@ -74,4 +54,13 @@ if (process.env.RUN_HTTP) {
 
 server.listen(port, () => {
   console.log('Server API listening on %d', server.address().port);
+
+  mongoose.Promise = global.Promise;
+  mongoose.connect(process.env.DATABASE_URI, { useMongoClient: true }, (err, res) => {
+    if (err) {
+      console.log('ERROR connecting to database: ' + err);
+    } else {
+      console.log('Succeeded connected to database');
+    }
+  });
 });
