@@ -6,6 +6,22 @@ const { Post, Member, Comment } = require('../model');
 
 const router = express.Router();
 
+router.get('/stats/count', async (req, res, next) => {
+  try {
+    const postCount = await Post.count({ is_deleted: { $ne: true } });
+    const memberCount = await Member.count({ post_count: { $gt: 0 } });
+    const commentCount = await Comment.count();
+
+    return res.status(200).json({
+      post_count: postCount,
+      member_count: memberCount,
+      comment_count: commentCount
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 router.get('/stats/top', async (req, res, next) => {
   let limit = req.query.limit || 10;
   const group = req.query.group || 'today';
@@ -77,9 +93,9 @@ router.get('/stats/top', async (req, res, next) => {
       .exec();
 
     return res.status(200).json({
-      topUsers,
-      topLikes,
-      topComments
+      top_users: topUsers,
+      top_likes: topLikes,
+      top_comments: topComments
     });
   } catch (error) {
     return next(error);
@@ -91,6 +107,11 @@ router.get('/stats/user', async (req, res, next) => {
     const users = await Member.paginate(
       { post_count: { $gt: 0 } },
       {
+        select: {
+          _id: 1,
+          name: 1,
+          post_count: 1
+        },
         page: req.query.page,
         limit: req.query.limit,
         sort: {
@@ -105,7 +126,7 @@ router.get('/stats/user', async (req, res, next) => {
   }
 });
 
-router.get('/stats', async (req, res, next) => {
+router.get('/stats/chart', async (req, res, next) => {
   const type = req.query.type || 'posts';
   const group = req.query.group || 'month';
 
@@ -115,7 +136,7 @@ router.get('/stats', async (req, res, next) => {
     return res.status(200).json({
       type,
       group,
-      stats
+      chart_data: stats
     });
   } catch (error) {
     return next(error);
