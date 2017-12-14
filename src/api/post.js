@@ -140,7 +140,7 @@ router.get('/post/:post_id/comments', async (req, res, next) => {
       _id: 1,
       from: 1,
       created_time: 1,
-      message
+      message: 1
     }, { lean: true }).sort('created_time');
 
     // get reply comment
@@ -149,7 +149,7 @@ router.get('/post/:post_id/comments', async (req, res, next) => {
       parent: 1,
       from: 1,
       created_time: 1,
-      message
+      message: 1
     }, { lean: true }).sort('created_time');
 
     // merge 2 type comment
