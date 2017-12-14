@@ -1,9 +1,10 @@
-const express = require('express');
+import express from 'express';
+
 const router = express.Router();
 
-router.use(require('./home'));
-router.use(require('./post'));
-router.use(require('./stats'));
-router.use(require('./user'));
+router.use(import('./home'));
+router.use(import('./post'));
+router.use(import('./stats'));
+router.use(import('./user'));
 
-module.exports = router;
+export default router;

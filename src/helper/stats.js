@@ -1,395 +1,95 @@
-const { Post, Member, Comment } = require('../model');
+import { Post, Comment } from '../model';
 
-module.exports.getPostHour = async function getPostHour() {
-  try {
-    const millisecondsFromUTC = 7 * 60 * 60 * 1000; //PST is +7 hours from UTC
-    const aggregatorOpts = [
-      {
-        $match: {
-          is_deleted: { $ne: true }
-        }
-      },
-      {
-        $project: {
-          gmt7time: {
-            $add: ['$created_time', millisecondsFromUTC]
-          }
-        }
-      },
-      {
-        $group: {
-          _id: { hour: { $hour: '$gmt7time' } },
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $sort: {
-          '_id.hour': 1
-        }
-      }
-    ];
-
-    const dbResponse = await Post.aggregate(aggregatorOpts).exec();
-    const labels = dbResponse.map(function(value, index) {
-      return `${value._id.hour}`;
-    });
-    const data = dbResponse.map(function(value, index) {
-      return value.count;
-    });
-
-    return {
-      labels: labels,
-      data: data
-    };
-  } catch (error) {
-    return {
-      labels: [],
-      data: []
-    };
+const millisecondsFromUTC = 7 * 60 * 60 * 1000; //PST is +7 hours from UTC
+const matchIsNotDeleted = {
+  $match: {
+    is_deleted: { $ne: true }
   }
-}
-
-module.exports.getPostDayOfWeek = async function getPostDayOfWeek() {
-  try {
-    const millisecondsFromUTC = 7 * 60 * 60 * 1000; //PST is +7 hours from UTC
-    const aggregatorOpts = [
-      {
-        $match: {
-          is_deleted: { $ne: true }
-        }
-      },
-      {
-        $project: {
-          gmt7time: {
-            $add: ['$created_time', millisecondsFromUTC]
-          }
-        }
-      },
-      {
-        $group: {
-          _id: { dayOfWeek: { $dayOfWeek: '$gmt7time' } },
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $sort: {
-          '_id.dayOfWeek': 1
-        }
-      }
-    ];
-
-    const dbResponse = await Post.aggregate(aggregatorOpts).exec();
-    const labels = dbResponse.map(function(value, index) {
-      return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][value._id.dayOfWeek - 1];
-    });
-    const data = dbResponse.map(function(value, index) {
-      return value.count;
-    });
-
-    return {
-      labels: labels,
-      data: data
-    };
-  } catch (error) {
-    return {
-      labels: [],
-      data: []
-    };
+};
+const projectGtm7 = {
+  $project: {
+    created_time_gmt7: {
+      $add: ['$created_time', millisecondsFromUTC]
+    }
   }
-}
-
-module.exports.getPostDayOfMonth = async function getPostDayOfMonth() {
-  try {
-    const millisecondsFromUTC = 7 * 60 * 60 * 1000; //PST is +7 hours from UTC
-    const aggregatorOpts = [
-      {
-        $match: {
-          is_deleted: { $ne: true }
-        }
-      },
-      {
-        $project: {
-          gmt7time: {
-            $add: ['$created_time', millisecondsFromUTC]
-          }
-        }
-      },
-      {
-        $group: {
-          _id: { dayOfMonth: { $dayOfMonth: '$gmt7time' } },
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $sort: {
-          '_id.dayOfMonth': 1
-        }
-      }
-    ];
-
-    const dbResponse = await Post.aggregate(aggregatorOpts).exec();
-    const labels = dbResponse.map(function(value, index) {
-      return `${value._id.dayOfMonth}`;
-    });
-    const data = dbResponse.map(function(value, index) {
-      return value.count;
-    });
-
-    return {
-      labels: labels,
-      data: data
-    };
-  } catch (error) {
-    return {
-      labels: [],
-      data: []
-    };
+};
+const groupHour = {
+  $group: {
+    _id: { $hour: '$created_time_gmt7' },
+    count: { $sum: 1 }
   }
-}
-
-module.exports.getPostMonth = async function getPostMonth() {
-  try {
-    const millisecondsFromUTC = 7 * 60 * 60 * 1000; //PST is +7 hours from UTC
-    const aggregatorOpts = [
-      {
-        $match: {
-          is_deleted: { $ne: true }
-        }
-      },
-      {
-        $project: {
-          gmt7time: {
-            $add: ['$created_time', millisecondsFromUTC]
-          }
-        }
-      },
-      {
-        $group: {
-          _id: { year: { $year: '$gmt7time' }, month: { $month: '$gmt7time' } },
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $sort: {
-          '_id.year': 1,
-          '_id.month': 1
-        }
-      }
-    ];
-
-    const dbResponse = await Post.aggregate(aggregatorOpts).exec();
-    const labels = dbResponse.map(function(value, index) {
-      return `${value._id.month}/${value._id.year}`;
-    });
-    const data = dbResponse.map(function(value, index) {
-      return value.count;
-    });
-
-    return {
-      labels: labels,
-      data: data
-    };
-  } catch (error) {
-    return {
-      labels: [],
-      data: []
-    };
+};
+const groupDow = {
+  $group: {
+    _id: { $dayOfWeek: '$created_time_gmt7' },
+    count: { $sum: 1 }
   }
-}
-
-module.exports.getCommentHour = async function getCommentHour() {
-  try {
-    const millisecondsFromUTC = 7 * 60 * 60 * 1000; //PST is +7 hours from UTC
-    const aggregatorOpts = [
-      {
-        $match: {
-          is_deleted: { $ne: true }
-        }
-      },
-      {
-        $project: {
-          gmt7time: {
-            $add: ['$created_time', millisecondsFromUTC]
-          }
-        }
-      },
-      {
-        $group: {
-          _id: { hour: { $hour: '$gmt7time' } },
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $sort: {
-          '_id.hour': 1
-        }
-      }
-    ];
-
-    const dbResponse = await Comment.aggregate(aggregatorOpts).exec();
-    const labels = dbResponse.map(function(value, index) {
-      return `${value._id.hour}`;
-    });
-    const data = dbResponse.map(function(value, index) {
-      return value.count;
-    });
-
-    return {
-      labels: labels,
-      data: data
-    };
-  } catch (error) {
-    return {
-      labels: [],
-      data: []
-    };
+};
+const groupDom = {
+  $group: {
+    _id: { $dayOfMonth: '$created_time_gmt7' },
+    count: { $sum: 1 }
   }
-}
-
-module.exports.getCommentDayOfWeek = async function getCommentDayOfWeek() {
-  try {
-    const millisecondsFromUTC = 7 * 60 * 60 * 1000; //PST is +7 hours from UTC
-    const aggregatorOpts = [
-      {
-        $match: {
-          is_deleted: { $ne: true }
-        }
-      },
-      {
-        $project: {
-          gmt7time: {
-            $add: ['$created_time', millisecondsFromUTC]
-          }
-        }
-      },
-      {
-        $group: {
-          _id: { dayOfWeek: { $dayOfWeek: '$gmt7time' } },
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $sort: {
-          '_id.dayOfWeek': 1
-        }
-      }
-    ];
-
-    const dbResponse = await Comment.aggregate(aggregatorOpts).exec();
-    const labels = dbResponse.map(function(value, index) {
-      return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][value._id.dayOfWeek - 1];
-    });
-    const data = dbResponse.map(function(value, index) {
-      return value.count;
-    });
-
-    return {
-      labels: labels,
-      data: data
-    };
-  } catch (error) {
-    return {
-      labels: [],
-      data: []
-    };
+};
+const groupMonth = {
+  $group: {
+    _id: { year: { $year: '$created_time_gmt7' }, month: { $month: '$created_time_gmt7' } },
+    count: { $sum: 1 }
   }
-}
-
-module.exports.getCommentDayOfMonth = async function getCommentDayOfMonth() {
-  try {
-    const millisecondsFromUTC = 7 * 60 * 60 * 1000; //PST is +7 hours from UTC
-    const aggregatorOpts = [
-      {
-        $match: {
-          is_deleted: { $ne: true }
-        }
-      },
-      {
-        $project: {
-          gmt7time: {
-            $add: ['$created_time', millisecondsFromUTC]
-          }
-        }
-      },
-      {
-        $group: {
-          _id: { dayOfMonth: { $dayOfMonth: '$gmt7time' } },
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $sort: {
-          '_id.dayOfMonth': 1
-        }
-      }
-    ];
-
-    const dbResponse = await Comment.aggregate(aggregatorOpts).exec();
-    const labels = dbResponse.map(function(value, index) {
-      return `${value._id.dayOfMonth}`;
-    });
-    const data = dbResponse.map(function(value, index) {
-      return value.count;
-    });
-
-    return {
-      labels: labels,
-      data: data
-    };
-  } catch (error) {
-    return {
-      labels: [],
-      data: []
-    };
+};
+const sortAsc = {
+  $sort: {
+    _id: 1
   }
-}
-
-module.exports.getCommentMonth = async function getCommentMonth() {
-  try {
-    const millisecondsFromUTC = 7 * 60 * 60 * 1000; //PST is +7 hours from UTC
-    const aggregatorOpts = [
-      {
-        $match: {
-          is_deleted: { $ne: true }
-        }
-      },
-      {
-        $project: {
-          gmt7time: {
-            $add: ['$created_time', millisecondsFromUTC]
-          }
-        }
-      },
-      {
-        $group: {
-          _id: { year: { $year: '$gmt7time' }, month: { $month: '$gmt7time' } },
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $sort: {
-          '_id.year': 1,
-          '_id.month': 1
-        }
-      }
-    ];
-
-    const dbResponse = await Comment.aggregate(aggregatorOpts).exec();
-    const labels = dbResponse.map(function(value, index) {
-      return `${value._id.month}/${value._id.year}`;
-    });
-    const data = dbResponse.map(function(value, index) {
-      return value.count;
-    });
-
-    return {
-      labels: labels,
-      data: data
-    };
-  } catch (error) {
-    return {
-      labels: [],
-      data: []
-    };
+};
+const sortMonthAsc = {
+  $sort: {
+    '_id.year': 1,
+    '_id.month': 1
   }
-}
+};
+const dowArray = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+export const getStats = async (type, group) => {
+  let group;
+  let sort = sortAsc;
+  switch (group) {
+    case 'hour':
+      group = groupHour;
+      break;
+    case 'dow':
+      group = groupDow;
+      break;
+    case 'dom':
+      group = groupDom;
+      break;
+    default:
+      group = groupMonth;
+      sort = sortMonthAsc;
+      break;
+  }
+  const aggregatorOpts = [matchIsNotDeleted, projectGtm7, group, sort];
+
+  let dbResponse;
+  switch (type) {
+    case 'comments':
+      dbResponse = await Comment.aggregate(aggregatorOpts);
+      break;
+
+    default:
+      dbResponse = await Post.aggregate(aggregatorOpts);
+      break;
+  }
+
+  let label = dbResponse.map(value => value._id.toString())
+  if (group === 'dow') {
+    label = dbResponse.map(value => {
+      return dowArray[value._id.dayOfWeek - 1];
+    })
+  }
+
+  return {
+    label,
+    data: dbResponse.map(value => value.count)
+  };
+};

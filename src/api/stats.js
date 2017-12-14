@@ -1,12 +1,13 @@
-const mongoose = require('mongoose');
-const express = require('express');
+import mongoose from 'mongoose';
+import express from 'express';
+import moment from 'moment';
+import { getStats } from '../helper/stats';
+import { Post, Member, Comment } from '../model';
+
 const router = express.Router();
-const { Post, Member, Comment } = require('../model');
-const statsHelper = require('../helper/stats');
-const moment = require('moment');
 
 router.get('/stats/top', async (req, res, next) => {
-  let limit = req.query.limit;
+  let limit = req.query.limit || 10;
   const group = req.query.group || 'today';
   let time = moment();
 
@@ -109,61 +110,16 @@ router.get('/stats', async (req, res, next) => {
   const group = req.query.group || 'month';
 
   try {
-    let dbStats;
-    if (type === 'posts') {
-      if (group === 'month') {
-        dbStats = await statsHelper.getPostMonth();
-        dbStats.xLabel = 'Month';
-        dbStats.yLabel = 'Posts';
-        dbStats.title = 'Posts per Month';
-      } else if (group === 'hour') {
-        dbStats = await statsHelper.getPostHour();
-        dbStats.xLabel = 'Hour';
-        dbStats.yLabel = 'Posts';
-        dbStats.title = 'Posts per Hour';
-      } else if (group === 'dow') {
-        dbStats = await statsHelper.getPostDayOfWeek();
-        dbStats.xLabel = 'Day of Week';
-        dbStats.yLabel = 'Posts';
-        dbStats.title = 'Posts per Day of Week';
-      } else if (group === 'dom') {
-        dbStats = await statsHelper.getPostDayOfMonth();
-        dbStats.xLabel = 'Day of Month';
-        dbStats.yLabel = 'Posts';
-        dbStats.title = 'Posts per Day of Month';
-      }
-    } else if (type === 'comments') {
-      if (group === 'month') {
-        dbStats = await statsHelper.getCommentMonth();
-        dbStats.xLabel = 'Month';
-        dbStats.yLabel = 'Comments';
-        dbStats.title = 'Comments per Month';
-      } else if (group === 'hour') {
-        dbStats = await statsHelper.getCommentHour();
-        dbStats.xLabel = 'Hour';
-        dbStats.yLabel = 'Comments';
-        dbStats.title = 'Comments per Hour';
-      } else if (group === 'dow') {
-        dbStats = await statsHelper.getCommentDayOfWeek();
-        dbStats.xLabel = 'Day of Week';
-        dbStats.yLabel = 'Comments';
-        dbStats.title = 'Comments per Day of Week';
-      } else if (group === 'dom') {
-        dbStats = await statsHelper.getCommentDayOfMonth();
-        dbStats.xLabel = 'Day of Month';
-        dbStats.yLabel = 'Comments';
-        dbStats.title = 'Comments per Day of Month';
-      }
-    }
+    const stats = await getStats(type, group);
 
     return res.status(200).json({
       type,
       group,
-      dbStats
+      stats
     });
   } catch (error) {
     return next(error);
   }
 });
 
-module.exports = router;
+export default router;

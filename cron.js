@@ -1,10 +1,11 @@
-const mongoose = require('mongoose');
-const url = require('url');
-const moment = require('moment');
-const { Post, Member, Comment, Setting } = require('./src/model');
-const FB = require('fb');
+import mongoose from 'mongoose';
+import url from 'url';
+import moment from 'moment';
+import { Post, Member, Comment, Setting } from './src/model';
+import FB from 'fb';
+import { config } from 'dotenv'
 
-require('dotenv').config();
+config();
 const fb = new FB.Facebook();
 fb.options({ Promise: Promise });
 
@@ -19,7 +20,7 @@ const setting_newsfeed_limit = parseInt(process.env.NEWSFEED_LIMIT, 10) || 100;
 const setting_newsfeed_max = parseInt(process.env.NEWSFEED_MAX, 10) || 300;
 let setting_newsfeed_since;
 
-async function recountUserPost() {
+recountUserPost = async () => {
   console.log('CRON: recountUserPost.');
   try {
     const aggregatorOpts = [
@@ -76,7 +77,7 @@ async function recountUserPost() {
   }
 }
 
-async function getNewsFeed(group_id, since, limit, max) {
+getNewsFeed = async (group_id, since, limit, max) => {
   let data = [];
 
   let run = true;
@@ -135,7 +136,7 @@ async function getNewsFeed(group_id, since, limit, max) {
   return data;
 }
 
-async function getComment(post_id, since, limit) {
+getComment = async (post_id, since, limit) => {
   let data = [];
 
   let run = true;
@@ -182,28 +183,32 @@ async function getComment(post_id, since, limit) {
   return data;
 }
 
-async function startJob() {
-  console.log('CRON: startJob.');
-  try {
-    // check last 20 post if delete
-    const last20posts = await Post.find({})
-      .sort('-updated_time')
-      .limit(20);
-    for (const item of last20posts) {
-      try {
-        const fbPost = await fb.api(item._id, {
-          fields: ['id'],
-          access_token: process.env.FACEBOOK_ACCESS_TOKEN
-        });
-      } catch (error) {
-        if (error.name === 'FacebookApiException') {
-          const errorObj = JSON.parse(error.message);
-          if (errorObj.error.code === 100 && errorObj.error.error_subcode === 33) {
-            await Post.update({ _id: item._id }, { is_deleted: true });
-          }
+checkDeletedPost = async (numberOfPosts) => {
+  const lastPosts = await Post.find({})
+    .sort('-updated_time')
+    .limit(numberOfPosts);
+  for (const item of lastPosts) {
+    try {
+      const fbPost = await fb.api(item._id, {
+        fields: ['id'],
+        access_token: process.env.FACEBOOK_ACCESS_TOKEN
+      });
+    } catch (error) {
+      if (error.name === 'FacebookApiException') {
+        const errorObj = JSON.parse(error.message);
+        if (errorObj.error.code === 100 && errorObj.error.error_subcode === 33) {
+          await Post.update({ _id: item._id }, { is_deleted: true });
         }
       }
     }
+  }
+}
+
+startJob = async () => {
+  console.log('CRON: startJob.');
+  try {
+    // check last 20 post if delete
+    await checkDeletedPost(20);
 
     const setting_newsfeed_since_new = new Date();
     let lastUpdate = await Setting.findById('last_updated');
@@ -256,8 +261,8 @@ async function startJob() {
       const comments_time = new Date();
       const comments = await getComment(post._id, post.comments_time);
       await Promise.all(
-        comments.map(async (comment) => {
-          if (!comment.message || comment.message === '') {
+        comments.map(async comment => {
+          if (!comment.message || comment.message === '' || comment.message === '.' || comment.message === ',') {
             return;
           }
 
@@ -317,9 +322,7 @@ async function startJob() {
 }
 
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.DATABASE_URI, {
-  useMongoClient: true
-}, async function(err, res) {
+mongoose.connect(process.env.DATABASE_URI, { useMongoClient: true }, async (err, res) => {
   if (err) {
     console.log('CRON: ERROR connecting to database: ' + err);
   } else {

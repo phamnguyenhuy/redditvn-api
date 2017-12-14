@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
-const mongoosePaginate = require('mongoose-paginate');
+import mongoose from 'mongoose';
 
 const settingSchema = new mongoose.Schema({
   _id: String,
   value: mongoose.Schema.Types.Mixed
 });
 
-module.exports = mongoose.model('settings', settingSchema);
+export default mongoose.model('settings', settingSchema);

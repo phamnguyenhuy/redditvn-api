@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
-const express = require('express');
-const router = express.Router();
-const { Post, Member, Comment } = require('../model');
-const FB = require('fb');
+import mongoose from 'mongoose';
+import express from 'express';
+import FB from 'fb';
+import { Post, Member, Comment } from '../model';
 
+const router = express.Router();
 const fb = new FB.Facebook();
 fb.options({ Promise: Promise });
 
@@ -27,8 +27,6 @@ router.get('/post/:post_id', async (req, res, next) => {
       });
     }
 
-    post = post.toObject();
-
     // get next post
     const next_post = await Post.findOne({ created_time: { $gt: post.created_time } }, { _id: 1 })
       .sort('created_time')
@@ -39,12 +37,11 @@ router.get('/post/:post_id', async (req, res, next) => {
       .sort('-created_time')
       .limit(1);
 
-    const result = {
-      ...post,
+    return res.status(200).json({
+      ...post.toObject(),
       prev_post: prev_post,
       next_post: next_post
-    };
-    return res.status(200).json(result);
+    });
   } catch (error) {
     return next(error);
   }
@@ -189,8 +186,7 @@ router.get('/search', async (req, res, next) => {
   q = q.toLowerCase();
   if (q.startsWith('regex:')) {
     q = q.substr(6);
-  }
-  else {
+  } else {
     q = q.replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
   }
 
@@ -228,4 +224,4 @@ router.get('/search', async (req, res, next) => {
   }
 });
 
-module.exports = router;
+export default router;

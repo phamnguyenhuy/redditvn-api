@@ -1,6 +1,4 @@
-const Comment = require('./Comment');
-const Member = require('./Member');
-const Post = require('./Post');
-const Setting = require('./Setting');
-
-module.exports = { Comment, Member, Post, Setting };
+export { default as Comment } from './Comment';
+export { default as Member } from './Member';
+export { default as Post } from './Post';
+export { default as Setting } from './Setting';
