@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { config } = require('dotenv');
-const { Post } = require('../model/Post');
+const { Post } = require('../model');
 const { findSubreddit } = require('../helper/utils')
 
 config();
@@ -17,10 +17,11 @@ mongoose.connect(process.env.DATABASE_URI, { useMongoClient: true }, async (err,
       _id: 1,
       message: 1
     });
-    for (const post of posts) {
+
+    await Promise.all(posts.map(post => {
       var subreddit = findSubreddit(post.message);
       await Post.update({ _id: post.id }, { r: subreddit});
-    };
+    }));
 
     console.log('== FINISH');
     mongoose.connection.close();
