@@ -36,7 +36,7 @@ findSubreddit = (s) => {
   if (!s) return null;
 
   result = s.match(subredditRegex);
-  if (result && result.length >= 2) return result[1];
+  if (result && result.length >= 2) return result[1].toLowerCase();
   return null;
 }
 
