@@ -63,7 +63,7 @@ router.get('/stats/top/users', async (req, res, next) => {
         }
       },
       {
-        $limit: limit
+        $limit: req.query.limit
       }
     ];
     const topUsers = await Post.aggregate(aggregatorOpts);
@@ -92,7 +92,7 @@ router.get('/stats/top/likes', async (req, res, next) => {
       { _id: 1, likes_count: 1, comments_count: 1, from: 1 }
     )
       .sort('-likes_count')
-      .limit(limit);
+      .limit(req.query.limit);
 
     return res.status(200).json({
       since: since.unix(),
@@ -118,7 +118,7 @@ router.get('/stats/top/comments', async (req, res, next) => {
       { _id: 1, likes_count: 1, comments_count: 1, from: 1 }
     )
       .sort('-comments_count')
-      .limit(limit);
+      .limit(req.query.limit);
 
     return res.status(200).json({
       since: since.unix(),
