@@ -26,7 +26,7 @@ recountUserPost = async () => {
     const aggregatorOpts = [
       {
         $match: {
-          is_deleted: { $ne: true }
+          is_deleted: { $eq: false }
         }
       },
       {

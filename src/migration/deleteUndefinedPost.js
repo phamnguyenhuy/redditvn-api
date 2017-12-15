@@ -13,10 +13,10 @@ mongoose.connect(process.env.DATABASE_URI, { useMongoClient: true }, async (err,
   } else {
     console.log('== SUCCEEDED connected to database.');
 
-    const deleted1 = await Post.delete({ message: { $eq: null } });
+    const deleted1 = await Post.remove({ message: { $eq: null } });
     console.log(deleted1);
 
-    const deleted2 = await Post.delete({ message: { $exists: false } });
+    const deleted2 = await Post.remove({ message: { $exists: false } });
     console.log(deleted2);
 
     console.log('== FINISH');

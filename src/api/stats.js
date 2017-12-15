@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get('/stats/count/posts', async (req, res, next) => {
   try {
-    const postCount = await Post.count({ is_deleted: { $ne: true } });
+    const postCount = await Post.count({ is_deleted: { $eq: false } });
     return res.status(200).json({ count: postCount });
   } catch (error) {
     return next(error);
@@ -40,7 +40,7 @@ router.get('/stats/top/users', async (req, res, next) => {
     const aggregatorOpts = [
       {
         $match: {
-          is_deleted: { $ne: true },
+          is_deleted: { $eq: false },
           created_time: {
             $gte: since.toDate(),
             $lt: until.toDate()
