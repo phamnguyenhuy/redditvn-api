@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const express = require('express');
 const FB = require('fb');
-const { Post, Member, Comment } = require('../model');
+const { Post, User, Comment } = require('../model');
 const { regexp_escape, makeSearchQuery } = require('../helper/utils');
 
 const router = express.Router();

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const express = require('express');
-const { Post, Member } = require('../model');
+const { Post, User } = require('../model');
 
 const router = express.Router();
 
@@ -26,7 +26,8 @@ router.get('/r/:r', async (req, res, next) => {
           created_time: 1,
           comments_count: 1,
           likes_count: 1,
-          is_deleted: 1
+          is_deleted: 1,
+          r: 1
         },
         page: req.query.page,
         limit: req.query.limit,

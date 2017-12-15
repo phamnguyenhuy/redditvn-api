@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const moment = require('moment');
 const { getStats } = require('../helper/stats');
-const { Post, Member, Comment } = require('../model');
+const { Post, User, Comment } = require('../model');
 
 const router = express.Router();
 
@@ -17,8 +17,8 @@ router.get('/stats/count/posts', async (req, res, next) => {
 
 router.get('/stats/count/users', async (req, res, next) => {
   try {
-    const memberCount = await Member.count({ post_count: { $gt: 0 } });
-    return res.status(200).json({ count: memberCount });
+    const userCount = await User.count({ post_count: { $gt: 0 } });
+    return res.status(200).json({ count: userCount });
   } catch (error) {
     return next(error);
   }

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const url = require('url');
 const moment = require('moment');
-const { Post, Member, Comment, Setting } = require('./src/model');
+const { Post, User, Comment, Setting } = require('./src/model');
 const FB = require('fb');
 const { config } = require('dotenv');
 
@@ -45,11 +45,11 @@ recountUserPost = async () => {
       }
     ];
 
-    const memberList = await Post.aggregate(aggregatorOpts);
-    await Member.update({}, { $unset: { post_count: 1 } }, { multi: true });
+    const userList = await Post.aggregate(aggregatorOpts);
+    await User.update({}, { $unset: { post_count: 1 } }, { multi: true });
 
     await Promise.all(
-      memberList.map(async (item, index) => {
+      userList.map(async (item, index) => {
         const resp = await Post.findOne(
           {
             'from.id': item._id
@@ -63,12 +63,12 @@ recountUserPost = async () => {
         );
 
         if (resp) {
-          let member = new Member({
+          let user = new User({
             _id: item._id,
             name: resp.from.name,
             post_count: item.count
           });
-          await Member.findByIdAndUpdate(item._id, member, { upsert: true });
+          await User.findByIdAndUpdate(item._id, user, { upsert: true });
         }
       })
     );
@@ -243,14 +243,14 @@ startJob = async () => {
           await post.save();
 
           // find user and inc post count
-          const member = {
+          const user = {
             $set: {
               _id: item.from.id,
               name: item.from.name
             },
             $inc: { post_count: 1 }
           };
-          await Member.findByIdAndUpdate(item.from.id, member, { upsert: true });
+          await User.findByIdAndUpdate(item.from.id, user, { upsert: true });
           console.log(`CRON: New post ${item.id}`);
         } catch (error) {
           console.log(`CRON: ERROR New post ${item.id} >> ${error}`);
