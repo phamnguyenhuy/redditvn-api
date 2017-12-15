@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const express = require('express');
 const { Post, Member } = require('../model');
+const { regexp_escape } = require('../helper/utils')
 
 const router = express.Router();
 
