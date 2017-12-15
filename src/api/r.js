@@ -38,7 +38,7 @@ router.get('/r/count', reqSinceUntil, async (req, res, next) => {
   }
 });
 
-router.get('/r/top', reqSinceUntil, async (req, res, next) => {
+router.get('/r/top', reqSinceUntil, reqPageLimit, async (req, res, next) => {
   try {
     const since = moment.unix(req.query.since);
     const until = moment.unix(req.query.until);

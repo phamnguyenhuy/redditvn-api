@@ -53,7 +53,7 @@ router.get('/posts/count/comments', reqSinceUntil, async (req, res, next) => {
   }
 });
 
-router.get('/posts/top/likes', reqSinceUntil, async (req, res, next) => {
+router.get('/posts/top/likes', reqSinceUntil, reqPageLimit, async (req, res, next) => {
   try {
     const since = moment.unix(req.query.since);
     const until = moment.unix(req.query.until);
@@ -80,7 +80,7 @@ router.get('/posts/top/likes', reqSinceUntil, async (req, res, next) => {
   }
 });
 
-router.get('/posts/top/comments', reqSinceUntil, async (req, res, next) => {
+router.get('/posts/top/comments', reqSinceUntil, reqPageLimit, async (req, res, next) => {
   try {
     const since = moment.unix(req.query.since);
     const until = moment.unix(req.query.until);
