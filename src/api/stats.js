@@ -154,11 +154,17 @@ router.get('/stats/top/comments', async (req, res, next) => {
 
 router.get('/stats/top/r', async (req, res, next) => {
   try {
+    const since = moment.unix(req.query.since);
+    const until = moment.unix(req.query.until);
     const aggregatorOpts = [
       {
         $match: {
           is_deleted: { $eq: false },
-          r: { $ne: null }
+          r: { $ne: null },
+          created_time: {
+            $gte: since.toDate(),
+            $lt: until.toDate()
+          }
         }
       },
       {
@@ -178,7 +184,11 @@ router.get('/stats/top/r', async (req, res, next) => {
     ];
     const reddits = await Post.aggregate(aggregatorOpts);
 
-    return res.status(200).json(reddits);
+    return res.status(200).json({
+      since: since.unix(),
+      until: until.unix(),
+      data: reddits
+    });
   } catch (error) {
     return next(error);
   }
