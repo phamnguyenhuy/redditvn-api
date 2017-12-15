@@ -14,7 +14,8 @@ router.get('/r', async (req, res, next) => {
       },
       {
         $group: {
-          _id: '$r'
+          _id: '$r',
+          post_count: { $sum: 1 }
         }
       },
       {

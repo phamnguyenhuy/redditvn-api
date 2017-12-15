@@ -136,6 +136,7 @@ router.get('/stats/top/r', async (req, res, next) => {
       {
         $match: {
           is_deleted: { $eq: false },
+          r: { $ne: null }
         }
       },
       {
