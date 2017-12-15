@@ -33,6 +33,28 @@ router.get('/stats/count/comments', async (req, res, next) => {
   }
 });
 
+router.get('/stats/count/r', async (req, res, next) => {
+  try {
+    const aggregatorOpts = [
+      {
+        $match: {
+          is_deleted: { $eq: false },
+          r: { $ne: null }
+        }
+      },
+      {
+        $group: {
+          _id: '$r',
+        }
+      },
+    ];
+    const reddits = await Post.aggregate(aggregatorOpts);
+    return res.status(200).json({ count: reddits.length });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 router.get('/stats/top/users', async (req, res, next) => {
   try {
     const since = moment.unix(req.query.since);

@@ -26,7 +26,7 @@ router.get('/r', async (req, res, next) => {
     ];
     const reddits = await Post.aggregate(aggregatorOpts);
     const redditsArray = reddits.filter(r => {
-      if (r) return true;
+      if (r._id) return true;
       return false;
     }).map(r => {
       return r._id;
