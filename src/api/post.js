@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const FB = require('fb');
 const { Post, Member, Comment } = require('../model');
+const { regexp_escape, makeSearchQuery } = require('../helper/utils');
 
 const router = express.Router();
 const fb = new FB.Facebook();
@@ -17,7 +18,8 @@ router.get('/post/:post_id', async (req, res, next) => {
       created_time: 1,
       comments_count: 1,
       likes_count: 1,
-      is_deleted: 1
+      is_deleted: 1,
+      r: 1
     });
 
     if (!post) {
@@ -38,7 +40,7 @@ router.get('/post/:post_id', async (req, res, next) => {
       .limit(1);
 
     return res.status(200).json({
-      ...(post.toObject()),
+      ...post.toObject(),
       prev_post: prev_post,
       next_post: next_post
     });
@@ -135,22 +137,60 @@ router.get('/post/:post_id/attachments', async (req, res, next) => {
 router.get('/post/:post_id/comments', async (req, res, next) => {
   try {
     const post_id = req.params.post_id;
+    // get reply comment
+    const comments = await Comment.paginate(
+      { post_id: post_id },
+      {
+        select: {
+          _id: 1,
+          parent: 1,
+          from: 1,
+          created_time: 1,
+          message: 1
+        },
+        page: req.query.page,
+        limit: req.query.limit,
+        sort: {
+          _id: 1
+        },
+        lean: true
+      }
+    );
+
+    return res.status(200).json(comments);
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// deprecated
+router.get('/post/:post_id/comments-merge', async (req, res, next) => {
+  try {
+    const post_id = req.params.post_id;
     // get root comment
-    const root_comments = await Comment.find({ post_id: post_id, parent: { $eq: null } }, {
-      _id: 1,
-      from: 1,
-      created_time: 1,
-      message: 1
-    }, { lean: true }).sort('created_time');
+    const root_comments = await Comment.find(
+      { post_id: post_id, parent: { $eq: null } },
+      {
+        _id: 1,
+        from: 1,
+        created_time: 1,
+        message: 1
+      },
+      { lean: true }
+    ).sort('created_time');
 
     // get reply comment
-    const reply_comments = await Comment.find({ post_id: post_id, parent: { $ne: null } }, {
-      _id: 1,
-      parent: 1,
-      from: 1,
-      created_time: 1,
-      message: 1
-    }, { lean: true }).sort('created_time');
+    const reply_comments = await Comment.find(
+      { post_id: post_id, parent: { $ne: null } },
+      {
+        _id: 1,
+        parent: 1,
+        from: 1,
+        created_time: 1,
+        message: 1
+      },
+      { lean: true }
+    ).sort('created_time');
 
     // merge 2 type comment
     reply_comments.forEach((value, index) => {
@@ -172,19 +212,10 @@ router.get('/post/:post_id/comments', async (req, res, next) => {
 
 router.get('/random', async (req, res, next) => {
   try {
-    const q = req.query.q || '';
-    const query = {
-      message: {
-        $regex: new RegExp(q),
-        $options: 'i'
-      }
-    };
-
-    const dbQuery = q === '' ? {} : query;
-
-    const count = await Post.count(dbQuery);
+    const query = makeSearchQuery(req.query.r, req.query.q);
+    const count = await Post.count(query);
     const random = Math.floor(Math.random() * count);
-    const randomPost = await Post.findOne(dbQuery, { _id: 1 }).skip(random);
+    const randomPost = await Post.findOne(query, { _id: 1 }).skip(random);
     return res.status(200).json({
       _id: randomPost._id
     });
@@ -194,26 +225,9 @@ router.get('/random', async (req, res, next) => {
 });
 
 router.get('/search', async (req, res, next) => {
-  let q = req.query.q || '';
-  q = q.toLowerCase();
-  if (q.startsWith('regex:')) {
-    q = q.substr(6);
-  } else {
-    q = q.replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
-  }
-
-  let dbQuery =
-    q === ''
-      ? {}
-      : {
-        message: {
-          $regex: new RegExp(q),
-          $options: 'i'
-        }
-      };
-
   try {
-    const posts = await Post.paginate(dbQuery, {
+    const query = makeSearchQuery(req.query.r, req.query.q);
+    const posts = await Post.paginate(query, {
       select: {
         _id: 1,
         from: 1,
@@ -221,7 +235,8 @@ router.get('/search', async (req, res, next) => {
         created_time: 1,
         comments_count: 1,
         likes_count: 1,
-        is_deleted: 1
+        is_deleted: 1,
+        r: 1
       },
       page: req.query.page,
       limit: req.query.limit,

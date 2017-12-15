@@ -6,50 +6,44 @@ const { Post, Member, Comment } = require('../model');
 
 const router = express.Router();
 
-router.get('/stats/count', async (req, res, next) => {
+router.get('/stats/count/posts', async (req, res, next) => {
   try {
     const postCount = await Post.count({ is_deleted: { $ne: true } });
-    const memberCount = await Member.count({ post_count: { $gt: 0 } });
-    const commentCount = await Comment.count();
-
-    return res.status(200).json({
-      post_count: postCount,
-      member_count: memberCount,
-      comment_count: commentCount
-    });
+    return res.status(200).json({ count: postCount });
   } catch (error) {
     return next(error);
   }
 });
 
-router.get('/stats/top', async (req, res, next) => {
-  let limit = req.query.limit || 10;
-  const group = req.query.group || 'today';
-  let time = moment();
-
-  switch (group) {
-    case 'today':
-      time = time.startOf('day');
-      break;
-    case '7days':
-      time = time.add(-7, 'day');
-      break;
-    case '30days':
-      time = time.add(-30, 'day');
-      break;
-    default:
-      time = moment(0);
-      break;
-  }
-
+router.get('/stats/count/users', async (req, res, next) => {
   try {
-    // top all time
+    const memberCount = await Member.count({ post_count: { $gt: 0 } });
+    return res.status(200).json({ count: memberCount });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/stats/count/comments', async (req, res, next) => {
+  try {
+    const commentCount = await Comment.count();
+    return res.status(200).json({ count: commentCount });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/stats/top/users', async (req, res, next) => {
+  try {
+    const since = moment.unix(req.query.since);
+    const until = moment.unix(req.query.until);
     const aggregatorOpts = [
       {
         $match: {
           is_deleted: { $ne: true },
           created_time: {
-            $gte: time.toDate()
+            $gte: since.toDate(),
+            $lt: until.toDate()
           }
         }
       },
@@ -59,7 +53,7 @@ router.get('/stats/top', async (req, res, next) => {
       {
         $group: {
           _id: '$from.id',
-          name: { $first: '$from.name'},
+          name: { $first: '$from.name' },
           count: { $sum: 1 }
         }
       },
@@ -74,51 +68,63 @@ router.get('/stats/top', async (req, res, next) => {
     ];
     const topUsers = await Post.aggregate(aggregatorOpts);
 
-    const topLikes = await Post.find({
-      created_time: {
-        $gte: time.toDate()
-      }
-    }, { _id: 1, likes_count: 1, comments_count: 1, from: 1 })
-      .sort('-likes_count')
-      .limit(limit);
-
-    const topComments = await Post.find({
-      created_time: {
-        $gte: time.toDate()
-      }
-    }, { _id: 1, likes_count: 1, comments_count: 1, from: 1 })
-      .sort('-comments_count')
-      .limit(limit);
-
     return res.status(200).json({
-      top_users: topUsers,
-      top_likes: topLikes,
-      top_comments: topComments
+      since: since.unix(),
+      until: until.unix(),
+      data: topUsers
     });
   } catch (error) {
     return next(error);
   }
 });
 
-router.get('/stats/user', async (req, res, next) => {
+router.get('/stats/top/likes', async (req, res, next) => {
   try {
-    const users = await Member.paginate(
-      { post_count: { $gt: 0 } },
+    const since = moment.unix(req.query.since);
+    const until = moment.unix(req.query.until);
+    const topLikes = await Post.find(
       {
-        select: {
-          _id: 1,
-          name: 1,
-          post_count: 1
-        },
-        page: req.query.page,
-        limit: req.query.limit,
-        sort: {
-          post_count: -1
+        created_time: {
+          $gte: since.toDate(),
+          $lt: until.toDate()
         }
-      }
-    );
+      },
+      { _id: 1, likes_count: 1, comments_count: 1, from: 1 }
+    )
+      .sort('-likes_count')
+      .limit(limit);
 
-    return res.status(200).json(users);
+    return res.status(200).json({
+      since: since.unix(),
+      until: until.unix(),
+      data: topLikes
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/stats/top/comments', async (req, res, next) => {
+  try {
+    const since = moment.unix(req.query.since);
+    const until = moment.unix(req.query.until);
+    const topComments = await Post.find(
+      {
+        created_time: {
+          $gte: since.toDate(),
+          $lt: until.toDate()
+        }
+      },
+      { _id: 1, likes_count: 1, comments_count: 1, from: 1 }
+    )
+      .sort('-comments_count')
+      .limit(limit);
+
+    return res.status(200).json({
+      since: since.unix(),
+      until: until.unix(),
+      data: topComments
+    });
   } catch (error) {
     return next(error);
   }

@@ -40,7 +40,8 @@ router.get('/user/:user_id/posts', async (req, res, next) => {
           created_time: 1,
           comments_count: 1,
           likes_count: 1,
-          is_deleted: 1
+          is_deleted: 1,
+          r
         },
         page: req.query.page,
         limit: req.query.limit,
@@ -50,6 +51,40 @@ router.get('/user/:user_id/posts', async (req, res, next) => {
       }
     );
     return res.status(200).json(posts);
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/user', async (req, res, next) => {
+  const q = req.params.q || '';
+  q = regexp_escape(q);
+
+  try {
+    const query = {
+      post_count: { $gt: 0 }
+    };
+    if (q) {
+      query.name = {
+        $regex: new RegExp(q),
+        $options: 'i'
+      };
+    }
+
+    const users = await Member.paginate(query, {
+      select: {
+        _id: 1,
+        name: 1,
+        post_count: 1
+      },
+      page: req.query.page,
+      limit: req.query.limit,
+      sort: {
+        post_count: -1
+      }
+    });
+
+    return res.status(200).json(users);
   } catch (error) {
     return next(error);
   }
