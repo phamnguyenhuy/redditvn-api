@@ -6,28 +6,28 @@ const { Post, User, Comment } = require('../model');
 
 const router = express.Router();
 
-router.get('/stats/count/posts', async (req, res, next) => {
+router.get('/stats/count/post', async (req, res, next) => {
   try {
     const postCount = await Post.count({ is_deleted: { $eq: false } });
-    return res.status(200).json({ count: postCount });
+    return res.status(200).json({ post_count: postCount });
   } catch (error) {
     return next(error);
   }
 });
 
-router.get('/stats/count/users', async (req, res, next) => {
+router.get('/stats/count/user', async (req, res, next) => {
   try {
     const userCount = await User.count({ post_count: { $gt: 0 } });
-    return res.status(200).json({ count: userCount });
+    return res.status(200).json({ user_count: userCount });
   } catch (error) {
     return next(error);
   }
 });
 
-router.get('/stats/count/comments', async (req, res, next) => {
+router.get('/stats/count/comment', async (req, res, next) => {
   try {
     const commentCount = await Comment.count();
-    return res.status(200).json({ count: commentCount });
+    return res.status(200).json({ comment_count: commentCount });
   } catch (error) {
     return next(error);
   }
@@ -49,13 +49,13 @@ router.get('/stats/count/r', async (req, res, next) => {
       },
     ];
     const reddits = await Post.aggregate(aggregatorOpts);
-    return res.status(200).json({ count: reddits.length });
+    return res.status(200).json({ r_count: reddits.length });
   } catch (error) {
     return next(error);
   }
 });
 
-router.get('/stats/top/users', async (req, res, next) => {
+router.get('/stats/top/user', async (req, res, next) => {
   try {
     const since = moment.unix(req.query.since);
     const until = moment.unix(req.query.until);
@@ -76,12 +76,12 @@ router.get('/stats/top/users', async (req, res, next) => {
         $group: {
           _id: '$from.id',
           name: { $first: '$from.name' },
-          count: { $sum: 1 }
+          post_count: { $sum: 1 }
         }
       },
       {
         $sort: {
-          count: -1
+          post_count: -1
         }
       },
       {
@@ -100,7 +100,7 @@ router.get('/stats/top/users', async (req, res, next) => {
   }
 });
 
-router.get('/stats/top/likes', async (req, res, next) => {
+router.get('/stats/top/like', async (req, res, next) => {
   try {
     const since = moment.unix(req.query.since);
     const until = moment.unix(req.query.until);
@@ -126,7 +126,7 @@ router.get('/stats/top/likes', async (req, res, next) => {
   }
 });
 
-router.get('/stats/top/comments', async (req, res, next) => {
+router.get('/stats/top/comment', async (req, res, next) => {
   try {
     const since = moment.unix(req.query.since);
     const until = moment.unix(req.query.until);
