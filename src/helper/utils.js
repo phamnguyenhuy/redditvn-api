@@ -1,4 +1,6 @@
-regexp_escape = (s) => {
+const subredditRegex = /[r]\/([a-z0-9\-_]+)/;
+
+regexpEscape = (s) => {
   return String(s).replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
@@ -11,7 +13,7 @@ makeSearchQuery = (subreddit, querystring) => {
   if (q.startsWith('regex:')) {
     q = q.substr(6);
   } else {
-    q = regexp_escape(q);
+    q = regexpEscape(q);
   }
 
   let query = {};
@@ -30,7 +32,14 @@ makeSearchQuery = (subreddit, querystring) => {
   return query;
 }
 
+findSubreddit = (s) => {
+  result = s.match(subredditRegex);
+  if (result && result.length >= 2) return result[1];
+  return null;
+}
+
 module.exports = {
-  regexp_escape,
-  makeSearchQuery
+  regexpEscape,
+  makeSearchQuery,
+  findSubreddit
 }

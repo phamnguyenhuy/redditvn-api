@@ -131,10 +131,10 @@ router.get('/stats/top/comments', async (req, res, next) => {
 });
 
 router.get('/stats/chart', async (req, res, next) => {
-  const type = req.query.type || 'posts';
-  const group = req.query.group || 'month';
-
   try {
+    const type = req.query.type || 'posts';
+    const group = req.query.group || 'month';
+
     const stats = await getStats(type, group);
 
     return res.status(200).json({

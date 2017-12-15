@@ -1,13 +1,12 @@
 const mongoose = require('mongoose');
 const express = require('express');
 const { Post, User } = require('../model');
-const { regexp_escape } = require('../helper/utils')
+const { regexpEscape } = require('../helper/utils')
 
 const router = express.Router();
 
 router.get('/user/:user_id', async (req, res, next) => {
   const user_id = req.params.user_id;
-
   try {
     const user = await User.findById(user_id, {
       _id: 1,
@@ -29,7 +28,6 @@ router.get('/user/:user_id', async (req, res, next) => {
 
 router.get('/user/:user_id/posts', async (req, res, next) => {
   const user_id = req.params.user_id;
-
   try {
     const posts = await Post.paginate(
       { 'from.id': user_id },
@@ -51,6 +49,7 @@ router.get('/user/:user_id/posts', async (req, res, next) => {
         }
       }
     );
+
     return res.status(200).json(posts);
   } catch (error) {
     return next(error);
@@ -58,10 +57,10 @@ router.get('/user/:user_id/posts', async (req, res, next) => {
 });
 
 router.get('/user', async (req, res, next) => {
-  let q = req.params.q || '';
-  q = regexp_escape(q);
-
   try {
+    let q = req.params.q || '';
+    q = regexpEscape(q);
+
     const query = {
       post_count: { $gt: 0 }
     };

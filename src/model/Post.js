@@ -16,7 +16,11 @@ const postSchema = new mongoose.Schema({
   is_deleted: { type: Boolean, default: false },
   comments_time: { type: Date, default: new Date(2000, 1, 1) },
   edit_history: [String],
-  r: [String]
+  r: {
+    type: String,
+    trim: true,
+    lowercase: true
+  }
 });
 
 postSchema.plugin(mongoosePaginate);

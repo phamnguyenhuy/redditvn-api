@@ -13,11 +13,11 @@ router.get('/r', async (req, res, next) => {
   }
 });
 
-router.get('/r/:r', async (req, res, next) => {
-  const r = req.params.r;
+router.get('/r/:subreddit', async (req, res, next) => {
   try {
+    const r = req.params.subreddit.toLowerCase();
     const posts = await Post.paginate(
-      { r: { $in: [r] } },
+      { r: { $eq: r } },
       {
         select: {
           _id: 1,
