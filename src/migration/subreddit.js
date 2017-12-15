@@ -20,7 +20,7 @@ mongoose.connect(process.env.DATABASE_URI, { useMongoClient: true }, async (err,
 
     await Promise.all(posts.map(post => {
       var subreddit = findSubreddit(post.message);
-      await Post.update({ _id: post.id }, { r: subreddit});
+      await Post.update({ _id: post._id }, { r: subreddit});
     }));
 
     console.log('== FINISH');
