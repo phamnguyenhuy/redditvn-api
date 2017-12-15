@@ -4,8 +4,6 @@ const { Post } = require('../model/Post');
 const { findSubreddit } = require('../helper/utils')
 
 config();
-const fb = new FB.Facebook();
-fb.options({ Promise: Promise });
 
 console.log('== START');
 mongoose.Promise = global.Promise;
