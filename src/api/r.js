@@ -1,8 +1,73 @@
 const mongoose = require('mongoose');
 const express = require('express');
 const { Post, User } = require('../model');
+const moment = require('moment');
 
 const router = express.Router();
+
+router.get('/r/count', async (req, res, next) => {
+  try {
+    const aggregatorOpts = [
+      {
+        $match: {
+          is_deleted: { $eq: false },
+          r: { $ne: null }
+        }
+      },
+      {
+        $group: {
+          _id: '$r',
+        }
+      },
+    ];
+    const reddits = await Post.aggregate(aggregatorOpts);
+    return res.status(200).json({ count: reddits.length });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/r/top', async (req, res, next) => {
+  try {
+    const since = moment.unix(req.query.since);
+    const until = moment.unix(req.query.until);
+    const aggregatorOpts = [
+      {
+        $match: {
+          is_deleted: { $eq: false },
+          r: { $ne: null },
+          created_time: {
+            $gte: since.toDate(),
+            $lt: until.toDate()
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$r',
+          post_count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: {
+          post_count: -1
+        }
+      },
+      {
+        $limit: req.query.limit
+      }
+    ];
+    const reddits = await Post.aggregate(aggregatorOpts);
+
+    return res.status(200).json({
+      since: since.unix(),
+      until: until.unix(),
+      data: reddits
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
 
 router.get('/r', async (req, res, next) => {
   try {

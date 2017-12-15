@@ -3,12 +3,83 @@ const express = require('express');
 const FB = require('fb');
 const { Post, User, Comment } = require('../model');
 const { regexpEscape, makeSearchQuery } = require('../helper/utils');
+const moment = require('moment');
 
 const router = express.Router();
 const fb = new FB.Facebook();
 fb.options({ Promise: Promise });
 
-router.get('/post/:post_id', async (req, res, next) => {
+router.get('/posts/count', async (req, res, next) => {
+  try {
+    const postCount = await Post.count({ is_deleted: { $eq: false } });
+    return res.status(200).json({ count: postCount });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/posts/count/comments', async (req, res, next) => {
+  try {
+    const commentCount = await Comment.count();
+    return res.status(200).json({ count: commentCount });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/posts/top/likes', async (req, res, next) => {
+  try {
+    const since = moment.unix(req.query.since);
+    const until = moment.unix(req.query.until);
+    const topLikes = await Post.find(
+      {
+        created_time: {
+          $gte: since.toDate(),
+          $lt: until.toDate()
+        }
+      },
+      { _id: 1, likes_count: 1, comments_count: 1, from: 1 }
+    )
+      .sort('-likes_count')
+      .limit(req.query.limit);
+
+    return res.status(200).json({
+      since: since.unix(),
+      until: until.unix(),
+      data: topLikes
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/posts/top/comments', async (req, res, next) => {
+  try {
+    const since = moment.unix(req.query.since);
+    const until = moment.unix(req.query.until);
+    const topComments = await Post.find(
+      {
+        created_time: {
+          $gte: since.toDate(),
+          $lt: until.toDate()
+        }
+      },
+      { _id: 1, likes_count: 1, comments_count: 1, from: 1 }
+    )
+      .sort('-comments_count')
+      .limit(req.query.limit);
+
+    return res.status(200).json({
+      since: since.unix(),
+      until: until.unix(),
+      data: topComments
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/posts/:post_id', async (req, res, next) => {
   try {
     const post_id = req.params.post_id;
     const post = await Post.findById(post_id, {
@@ -49,7 +120,7 @@ router.get('/post/:post_id', async (req, res, next) => {
   }
 });
 
-router.get('/post/:post_id/attachments', async (req, res, next) => {
+router.get('/posts/:post_id/attachments', async (req, res, next) => {
   try {
     const post_id = req.params.post_id;
 
@@ -134,7 +205,7 @@ router.get('/post/:post_id/attachments', async (req, res, next) => {
   }
 });
 
-router.get('/post/:post_id/comments', async (req, res, next) => {
+router.get('/posts/:post_id/comments', async (req, res, next) => {
   try {
     const post_id = req.params.post_id;
     // get reply comment
@@ -164,7 +235,7 @@ router.get('/post/:post_id/comments', async (req, res, next) => {
 });
 
 // deprecated
-router.get('/post/:post_id/comments-merge', async (req, res, next) => {
+router.get('/posts/:post_id/comments-merge', async (req, res, next) => {
   try {
     const post_id = req.params.post_id;
     // get root comment

@@ -2,10 +2,65 @@ const mongoose = require('mongoose');
 const express = require('express');
 const { Post, User } = require('../model');
 const { regexpEscape } = require('../helper/utils')
+const moment = require('moment');
 
 const router = express.Router();
 
-router.get('/user/:user_id', async (req, res, next) => {
+router.get('/users/count', async (req, res, next) => {
+  try {
+    const userCount = await User.count({ post_count: { $gt: 0 } });
+    return res.status(200).json({ count: userCount });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/users/top', async (req, res, next) => {
+  try {
+    const since = moment.unix(req.query.since);
+    const until = moment.unix(req.query.until);
+    const aggregatorOpts = [
+      {
+        $match: {
+          is_deleted: { $eq: false },
+          created_time: {
+            $gte: since.toDate(),
+            $lt: until.toDate()
+          }
+        }
+      },
+      {
+        $unwind: '$from'
+      },
+      {
+        $group: {
+          _id: '$from.id',
+          name: { $first: '$from.name' },
+          post_count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: {
+          post_count: -1
+        }
+      },
+      {
+        $limit: req.query.limit
+      }
+    ];
+    const topUsers = await Post.aggregate(aggregatorOpts);
+
+    return res.status(200).json({
+      since: since.unix(),
+      until: until.unix(),
+      data: topUsers
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/users/:user_id', async (req, res, next) => {
   const user_id = req.params.user_id;
   try {
     const user = await User.findById(user_id, {
@@ -26,7 +81,7 @@ router.get('/user/:user_id', async (req, res, next) => {
   }
 });
 
-router.get('/user/:user_id/posts', async (req, res, next) => {
+router.get('/users/:user_id/posts', async (req, res, next) => {
   const user_id = req.params.user_id;
   try {
     const posts = await Post.paginate(
@@ -56,7 +111,7 @@ router.get('/user/:user_id/posts', async (req, res, next) => {
   }
 });
 
-router.get('/user', async (req, res, next) => {
+router.get('/users', async (req, res, next) => {
   try {
     let q = req.params.q || '';
     q = regexpEscape(q);
