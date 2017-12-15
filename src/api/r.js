@@ -10,7 +10,7 @@ router.get('/r/count', async (req, res, next) => {
     const aggregatorOpts = [
       {
         $match: {
-          is_deleted: { $eq: false },
+          is_deleted: { $ne: true },
           r: { $ne: null }
         }
       },
@@ -34,7 +34,7 @@ router.get('/r/top', async (req, res, next) => {
     const aggregatorOpts = [
       {
         $match: {
-          is_deleted: { $eq: false },
+          is_deleted: { $ne: true },
           r: { $ne: null },
           created_time: {
             $gte: since.toDate(),
@@ -74,7 +74,7 @@ router.get('/r', async (req, res, next) => {
     const aggregatorOpts = [
       {
         $match: {
-          is_deleted: { $eq: false },
+          is_deleted: { $ne: true },
         }
       },
       {

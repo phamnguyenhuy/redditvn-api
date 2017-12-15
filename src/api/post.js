@@ -11,7 +11,7 @@ fb.options({ Promise: Promise });
 
 router.get('/posts/count', async (req, res, next) => {
   try {
-    const postCount = await Post.count({ is_deleted: { $eq: false } });
+    const postCount = await Post.count({ is_deleted: { $ne: true } });
     return res.status(200).json({ count: postCount });
   } catch (error) {
     return next(error);

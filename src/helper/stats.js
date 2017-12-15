@@ -3,7 +3,7 @@ const { Post, Comment } = require('../model');
 const millisecondsFromUTC = 7 * 60 * 60 * 1000; //PST is +7 hours from UTC
 const matchIsNotDeleted = {
   $match: {
-    is_deleted: { $eq: false }
+    is_deleted: { $ne: true }
   }
 };
 const projectGtm7 = {

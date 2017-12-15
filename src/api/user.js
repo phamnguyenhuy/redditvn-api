@@ -22,7 +22,7 @@ router.get('/users/top', async (req, res, next) => {
     const aggregatorOpts = [
       {
         $match: {
-          is_deleted: { $eq: false },
+          is_deleted: { $ne: true },
           created_time: {
             $gte: since.toDate(),
             $lt: until.toDate()
