@@ -24,7 +24,7 @@ module.exports = async () => {
 
     // update news feed item to database
     for (const item of newsFeedData) {
-      if (item.message === '') {
+      if (!item.message || item.message === '') {
         continue;
       }
 
