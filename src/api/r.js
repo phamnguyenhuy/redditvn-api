@@ -2,32 +2,43 @@ const mongoose = require('mongoose');
 const express = require('express');
 const { Post, User } = require('../model');
 const moment = require('moment');
+const { reqPageLimit, reqSinceUntil} = require('../middleware');
 
 const router = express.Router();
 
-router.get('/r/count', async (req, res, next) => {
+router.get('/r/count', reqSinceUntil, async (req, res, next) => {
   try {
+    const since = moment.unix(req.query.since);
+    const until = moment.unix(req.query.until);
     const aggregatorOpts = [
       {
         $match: {
+          created_time: {
+            $gte: since.toDate(),
+            $lt: until.toDate()
+          },
           is_deleted: { $ne: true },
           r: { $ne: null }
         }
       },
       {
         $group: {
-          _id: '$r',
+          _id: '$r'
         }
-      },
+      }
     ];
     const reddits = await Post.aggregate(aggregatorOpts);
-    return res.status(200).json({ count: reddits.length });
+    return res.status(200).json({
+      since: since.unix(),
+      until: until.unix(),
+      count: reddits.length
+    });
   } catch (error) {
     return next(error);
   }
 });
 
-router.get('/r/top', async (req, res, next) => {
+router.get('/r/top', reqSinceUntil, async (req, res, next) => {
   try {
     const since = moment.unix(req.query.since);
     const until = moment.unix(req.query.until);
@@ -74,7 +85,7 @@ router.get('/r', async (req, res, next) => {
     const aggregatorOpts = [
       {
         $match: {
-          is_deleted: { $ne: true },
+          is_deleted: { $ne: true }
         }
       },
       {
@@ -90,12 +101,14 @@ router.get('/r', async (req, res, next) => {
       }
     ];
     const reddits = await Post.aggregate(aggregatorOpts);
-    const redditsArray = reddits.filter(r => {
-      if (r._id) return true;
-      return false;
-    }).map(r => {
-      return r._id;
-    });
+    const redditsArray = reddits
+      .filter(r => {
+        if (r._id) return true;
+        return false;
+      })
+      .map(r => {
+        return r._id;
+      });
 
     return res.status(200).json(redditsArray);
   } catch (error) {
@@ -103,7 +116,7 @@ router.get('/r', async (req, res, next) => {
   }
 });
 
-router.get('/r/:subreddit', async (req, res, next) => {
+router.get('/r/:subreddit', reqPageLimit, async (req, res, next) => {
   try {
     let r = req.params.subreddit.toLowerCase();
     if (r === '[null]') r = null;

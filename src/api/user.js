@@ -3,6 +3,7 @@ const express = require('express');
 const { Post, User } = require('../model');
 const { regexpEscape } = require('../helper/utils')
 const moment = require('moment');
+const { reqPageLimit, reqSinceUntil} = require('../middleware');
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ router.get('/users/count', async (req, res, next) => {
   }
 });
 
-router.get('/users/top', async (req, res, next) => {
+router.get('/users/top', reqSinceUntil, async (req, res, next) => {
   try {
     const since = moment.unix(req.query.since);
     const until = moment.unix(req.query.until);
@@ -81,7 +82,7 @@ router.get('/users/:user_id', async (req, res, next) => {
   }
 });
 
-router.get('/users/:user_id/posts', async (req, res, next) => {
+router.get('/users/:user_id/posts', reqPageLimit, async (req, res, next) => {
   const user_id = req.params.user_id;
   try {
     const posts = await Post.paginate(
@@ -111,7 +112,7 @@ router.get('/users/:user_id/posts', async (req, res, next) => {
   }
 });
 
-router.get('/users', async (req, res, next) => {
+router.get('/users', reqPageLimit, async (req, res, next) => {
   try {
     let q = req.params.q || '';
     q = regexpEscape(q);

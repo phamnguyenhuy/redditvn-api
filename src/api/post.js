@@ -4,30 +4,56 @@ const FB = require('fb');
 const { Post, User, Comment } = require('../model');
 const { regexpEscape, makeSearchQuery } = require('../helper/utils');
 const moment = require('moment');
+const { reqPageLimit, reqSinceUntil} = require('../middleware');
 
 const router = express.Router();
 const fb = new FB.Facebook();
 fb.options({ Promise: Promise });
 
-router.get('/posts/count', async (req, res, next) => {
+router.get('/posts/count', reqSinceUntil, async (req, res, next) => {
   try {
-    const postCount = await Post.count({ is_deleted: { $ne: true } });
-    return res.status(200).json({ count: postCount });
+    const since = moment.unix(req.query.since);
+    const until = moment.unix(req.query.until);
+    const postCount = await Post.count({
+      created_time: {
+        $gte: since.toDate(),
+        $lt: until.toDate()
+      },
+      is_deleted: { $ne: true }
+    });
+
+    return res.status(200).json({
+      since: since.unix(),
+      until: until.unix(),
+      count: postCount
+    });
   } catch (error) {
     return next(error);
   }
 });
 
-router.get('/posts/count/comments', async (req, res, next) => {
+router.get('/posts/count/comments', reqSinceUntil, async (req, res, next) => {
   try {
-    const commentCount = await Comment.count();
-    return res.status(200).json({ count: commentCount });
+    const since = moment.unix(req.query.since);
+    const until = moment.unix(req.query.until);
+    const commentCount = await Comment.count({
+      created_time: {
+        $gte: since.toDate(),
+        $lt: until.toDate()
+      }
+    });
+
+    return res.status(200).json({
+      since: since.unix(),
+      until: until.unix(),
+      count: commentCount
+    });
   } catch (error) {
     return next(error);
   }
 });
 
-router.get('/posts/top/likes', async (req, res, next) => {
+router.get('/posts/top/likes', reqSinceUntil, async (req, res, next) => {
   try {
     const since = moment.unix(req.query.since);
     const until = moment.unix(req.query.until);
@@ -36,9 +62,10 @@ router.get('/posts/top/likes', async (req, res, next) => {
         created_time: {
           $gte: since.toDate(),
           $lt: until.toDate()
-        }
+        },
+        is_deleted: { $ne: true }
       },
-      { _id: 1, likes_count: 1, comments_count: 1, from: 1 }
+      { _id: 1, likes_count: 1, from: 1 }
     )
       .sort('-likes_count')
       .limit(req.query.limit);
@@ -53,7 +80,7 @@ router.get('/posts/top/likes', async (req, res, next) => {
   }
 });
 
-router.get('/posts/top/comments', async (req, res, next) => {
+router.get('/posts/top/comments', reqSinceUntil, async (req, res, next) => {
   try {
     const since = moment.unix(req.query.since);
     const until = moment.unix(req.query.until);
@@ -62,9 +89,10 @@ router.get('/posts/top/comments', async (req, res, next) => {
         created_time: {
           $gte: since.toDate(),
           $lt: until.toDate()
-        }
+        },
+        is_deleted: { $ne: true }
       },
-      { _id: 1, likes_count: 1, comments_count: 1, from: 1 }
+      { _id: 1, comments_count: 1, from: 1 }
     )
       .sort('-comments_count')
       .limit(req.query.limit);
@@ -205,7 +233,7 @@ router.get('/posts/:post_id/attachments', async (req, res, next) => {
   }
 });
 
-router.get('/posts/:post_id/comments', async (req, res, next) => {
+router.get('/posts/:post_id/comments', reqPageLimit, async (req, res, next) => {
   try {
     const post_id = req.params.post_id;
     // get reply comment
@@ -229,6 +257,47 @@ router.get('/posts/:post_id/comments', async (req, res, next) => {
     );
 
     return res.status(200).json(comments);
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/random', async (req, res, next) => {
+  try {
+    const query = makeSearchQuery(req.query.r, req.query.q);
+    const count = await Post.count(query);
+    const random = Math.floor(Math.random() * count);
+    const randomPost = await Post.findOne(query, { _id: 1 }).skip(random);
+    return res.status(200).json({
+      _id: randomPost._id
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/search', reqPageLimit, async (req, res, next) => {
+  try {
+    const query = makeSearchQuery(req.query.r, req.query.q);
+    const posts = await Post.paginate(query, {
+      select: {
+        _id: 1,
+        from: 1,
+        message: 1,
+        created_time: 1,
+        comments_count: 1,
+        likes_count: 1,
+        is_deleted: 1,
+        r: 1
+      },
+      page: req.query.page,
+      limit: req.query.limit,
+      sort: {
+        created_time: -1
+      }
+    });
+
+    return res.status(200).json(posts);
   } catch (error) {
     return next(error);
   }
@@ -276,47 +345,6 @@ router.get('/posts/:post_id/comments-merge', async (req, res, next) => {
     });
 
     return res.status(200).json(root_comments);
-  } catch (error) {
-    return next(error);
-  }
-});
-
-router.get('/random', async (req, res, next) => {
-  try {
-    const query = makeSearchQuery(req.query.r, req.query.q);
-    const count = await Post.count(query);
-    const random = Math.floor(Math.random() * count);
-    const randomPost = await Post.findOne(query, { _id: 1 }).skip(random);
-    return res.status(200).json({
-      _id: randomPost._id
-    });
-  } catch (error) {
-    return next(error);
-  }
-});
-
-router.get('/search', async (req, res, next) => {
-  try {
-    const query = makeSearchQuery(req.query.r, req.query.q);
-    const posts = await Post.paginate(query, {
-      select: {
-        _id: 1,
-        from: 1,
-        message: 1,
-        created_time: 1,
-        comments_count: 1,
-        likes_count: 1,
-        is_deleted: 1,
-        r: 1
-      },
-      page: req.query.page,
-      limit: req.query.limit,
-      sort: {
-        created_time: -1
-      }
-    });
-
-    return res.status(200).json(posts);
   } catch (error) {
     return next(error);
   }

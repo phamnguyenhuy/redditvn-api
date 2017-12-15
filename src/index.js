@@ -9,7 +9,7 @@ const https = require('https');
 const fs = require('fs');
 const { config } = require('dotenv');
 const api = require('./api');
-const { checkDatabaseConnection, handlePaginationRequest } = require('./helper/middleware');
+const { checkDbConnection } = require('./middleware');
 
 config();
 
@@ -18,7 +18,7 @@ app.use(helmet());
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/', checkDatabaseConnection, handlePaginationRequest, api);
+app.use('/', checkDbConnection, api);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
