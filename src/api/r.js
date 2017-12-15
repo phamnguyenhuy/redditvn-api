@@ -14,8 +14,7 @@ router.get('/r', async (req, res, next) => {
       },
       {
         $group: {
-          _id: '$r',
-          post_count: { $sum: 1 }
+          _id: '$r'
         }
       },
       {
@@ -25,8 +24,14 @@ router.get('/r', async (req, res, next) => {
       }
     ];
     const reddits = await Post.aggregate(aggregatorOpts);
+    const redditsArray = reddits.filter(r => {
+      if (r) return true;
+      return false;
+    }).map(r => {
+      return r._id;
+    });
 
-    return res.status(200).json(reddits);
+    return res.status(200).json(redditsArray);
   } catch (error) {
     return next(error);
   }
@@ -34,7 +39,9 @@ router.get('/r', async (req, res, next) => {
 
 router.get('/r/:subreddit', async (req, res, next) => {
   try {
-    const r = req.params.subreddit.toLowerCase();
+    let r = req.params.subreddit.toLowerCase();
+    if (r === '[null]') r = null;
+
     const posts = await Post.paginate(
       { r: { $eq: r } },
       {
