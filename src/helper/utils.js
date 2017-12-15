@@ -1,8 +1,8 @@
-module.exports.regexp_escape = (s) => {
+regexp_escape = (s) => {
   return String(s).replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
-module.exports.makeSearchQuery = (subreddit, querystring) => {
+makeSearchQuery = (subreddit, querystring) => {
   let r = subreddit || '';
   r = r.toLowerCase();
 
@@ -28,4 +28,9 @@ module.exports.makeSearchQuery = (subreddit, querystring) => {
   }
 
   return query;
+}
+
+module.exports = {
+  regexp_escape,
+  makeSearchQuery
 }
