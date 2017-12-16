@@ -39,6 +39,7 @@ DATABASE_URI
 PORT
 NEWSFEED_LIMIT
 NEWSFEED_MAX
+RUN_HTTP
 ```
 
 Example
@@ -49,6 +50,7 @@ DATABASE_URI=mongodb://root:root@localhost:27017/redditvn
 PORT=443
 NEWSFEED_LIMIT=100
 NEWSFEED_MAX=300
+RUN_HTTP=true
 ```
 
 ## API
