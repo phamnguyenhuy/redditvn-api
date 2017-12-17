@@ -6,7 +6,7 @@ const addPost = require('./addPost');
 const updateComments = require('./updateComments');
 const updatePost = require('./updatePost');
 
-const { Setting } = require('../model');
+const { Post, Setting } = require('../model');
 
 module.exports = async () => {
   try {

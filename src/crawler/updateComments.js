@@ -1,3 +1,4 @@
+const { Comment } = require('../model');
 const getPostComment = require('./getPostComment');
 
 module.exports = async post => {
@@ -28,7 +29,7 @@ module.exports = async post => {
     // return comment count and comment update time
     const result = {
       count: await Comment.count({ post_id: post._id }),
-      time
+      time: comments_time
     };
 
     return result;

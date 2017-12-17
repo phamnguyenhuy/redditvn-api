@@ -3,8 +3,6 @@ const { config } = require('dotenv');
 const crawler = require('./crawler');
 
 config();
-const fb = new FB.Facebook();
-fb.options({ Promise: Promise });
 
 console.log('== START');
 mongoose.Promise = global.Promise;

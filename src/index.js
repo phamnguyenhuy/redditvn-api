@@ -33,16 +33,23 @@ app.use((err, req, res, next) => {
   console.log(err);
   const errCode = err.status || 500;
   return res.status(errCode).json({
-    status: err.status,
-    message: err.message || 'something when wrong...'
+    error: {
+      message: err.message || 'something when wrong...',
+      type: err.type || 'Exception',
+      code: err.status,
+    }
   });
 });
 
 const port = process.env.PORT || 3000;
 let server;
-if (process.env.RUN_HTTP) {
+if (process.env.RUN_HTTP === 'true') {
   server = http.createServer(app);
 } else {
+  if (!process.env.HTTPS_CERT_FILE || !process.env.HTTPS_KEY_FILE) {
+    console.log('You need config ssl certificates.')
+    return process.exit(1);
+  }
   const options = {
     cert: fs.readFileSync(process.env.HTTPS_CERT_FILE),
     key: fs.readFileSync(process.env.HTTPS_KEY_FILE)
