@@ -1,4 +1,4 @@
-const { Post } = require('../model');
+const { Post, User } = require('../model');
 const { findSubreddit } = require('../helper/utils');
 
 module.exports = async item => {

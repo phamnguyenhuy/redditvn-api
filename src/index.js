@@ -23,7 +23,7 @@ app.use('/', checkDbConnection, api);
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   const error = new Error();
-  error.status = 404;
+  error.code = 404;
   error.message = 'the page you requested does not exist';
   next(error);
 });
@@ -31,12 +31,12 @@ app.use((req, res, next) => {
 // error handler
 app.use((err, req, res, next) => {
   console.log(err);
-  const errCode = err.status || 500;
+  const errCode = err.code || 500;
   return res.status(errCode).json({
     error: {
       message: err.message || 'something when wrong...',
       type: err.type || 'Exception',
-      code: err.status,
+      code: err.code,
     }
   });
 });
