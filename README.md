@@ -11,13 +11,13 @@ npm install
 Run backend server
 
 ```
-npm start
+npm run start
 ```
 
 Run cron to crawl posts
 
 ```
-node cron.js
+npm run crawl
 ```
 
 ## Enviroment
@@ -55,4 +55,4 @@ RUN_HTTP=true
 
 ## API
 
-[In Wiki] (https://github.com/RedditVN/redditvn-api/wiki)
+[In Wiki](https://github.com/RedditVN/redditvn-api/wiki)
