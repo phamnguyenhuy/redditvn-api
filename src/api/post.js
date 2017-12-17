@@ -122,10 +122,9 @@ router.get('/posts/:post_id', async (req, res, next) => {
     });
 
     if (!post) {
-      return res.status(404).json({
-        status: 404,
-        message: `Not found post_id = ${post_id}`
-      });
+      var err = new Error('Not found post.');
+      err.code = 404;
+      return next(err);
     }
 
     // get next post

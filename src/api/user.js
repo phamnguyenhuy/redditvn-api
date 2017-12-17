@@ -70,10 +70,9 @@ router.get('/users/:user_id', async (req, res, next) => {
       post_count: 1
     });
     if (!user) {
-      return res.status(404).json({
-        status: 404,
-        message: `Not found user_id ${user_id}`
-      });
+      var err = new Error('Not found user.');
+      err.code = 404;
+      return next(err);
     }
 
     return res.status(200).json(user);
