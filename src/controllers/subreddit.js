@@ -3,8 +3,12 @@ const moment = require('moment');
 const { subreddit } = require('../services');
 const { findSubreddits, findSubredditTop } = subreddit;
 
-module.exports.getSubreddits = async () => {
-  return (await findSubreddits()).map(r => r._id);
+module.exports.getSubreddits = async (since, until) => {
+  return {
+    docs: (await findSubreddits()).map(r => r._id),
+    since: moment(since).unix(),
+    until: moment(until).unix()
+  };
 };
 
 module.exports.getSubredditTop = async (since, until, limit) => {

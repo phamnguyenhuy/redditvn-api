@@ -21,10 +21,11 @@ module.exports.findSubredditTop = (since, until, limit) => {
   ]).exec();
 };
 
-module.exports.findSubreddits = () => {
+module.exports.findSubreddits = (since, until) => {
   return Post.aggregate([
     {
       $match: {
+        created_time: { $gte: since, $lt: until },
         is_deleted: { $ne: true },
         r: { $ne: null }
       }

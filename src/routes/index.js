@@ -48,7 +48,7 @@ router.get('/search', c(post.getPostsBySearch, (req, res, next) => [req.query.r,
 
 router.get('/r/top', c(subreddit.getSubredditTop, (req, res, next) => [req.query.since, req.query.until, req.query.limit]));
 router.get('/r/:subreddit', c(post.getPostsBySubreddit, (req, res, next) => [req.params.subreddit, req.query.since, req.query.until, req.query.page, req.query.limit]));
-router.get('/r', c(subreddit.getSubreddits, (req, res, next) => []));
+router.get('/r', c(subreddit.getSubreddits, (req, res, next) => [req.query.since, req.query.until]));
 
 router.get('/users/top', c(user.getUsersTop, (req, res, next) => [req.query.since, req.query.until, req.query.limit]));
 router.get('/users/count', c(user.getUsersCount, (req, res, next) => []));
