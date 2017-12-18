@@ -3,8 +3,13 @@ const { user } = require('../services');
 const { findUserById, findUsersCount, findUsersList, findUsersTop } = user;
 const moment = require('moment');
 
-module.exports.getUserById = user_id => {
-  return findUserById(user_id);
+module.exports.getUserById = async user_id => {
+  const user = await findUserById(user_id);
+  if (!user) {
+    throw new ServerError('Not found user.', 404);
+  }
+
+  return user;
 };
 
 module.exports.getUsersCount = async () => {
