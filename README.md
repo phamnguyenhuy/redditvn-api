@@ -55,4 +55,4 @@ RUN_HTTP=true
 
 ## API
 
-[In Wiki](https://github.com/RedditVN/redditvn-api/wiki)
+[In apiary](https://redditvn.docs.apiary.io)
