@@ -18,7 +18,7 @@ module.exports.getPostsCount = async (since, until) => {
   return {
     count: await findPostsCount(since, until),
     since: moment(since).unix(),
-    until: moment(until).unix(),
+    until: moment(until).unix()
   };
 };
 
@@ -64,8 +64,12 @@ module.exports.getPostsBySearch = (r, q, since, until, page, limit) => {
   return findPostsBySearch(r, q, since, until, page, limit);
 };
 
-module.exports.getPostsBySubreddit = (r, page, limit) => {
-  return findPostsBySubreddit(r, page, limit);
+module.exports.getPostsBySubreddit = async (r, since, until, page, limit) => {
+  return {
+    ...(await findPostsBySubreddit(r, since, until, page, limit)),
+    since: moment(since).unix(),
+    until: moment(until).unix()
+  };
 };
 
 module.exports.getPostsByUserId = (user_id, page, limit) => {

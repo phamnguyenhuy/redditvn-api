@@ -67,12 +67,15 @@ module.exports.findPostsByUserId = (user_id, page, limit) => {
   );
 };
 
-module.exports.findPostsBySubreddit = (r, page, limit) => {
+module.exports.findPostsBySubreddit = (r, since, until, page, limit) => {
   if (r === undefined) r = null;
   if (r && r.toLowerCase() === '[null]') r = null;
 
   return Post.paginate(
-    { r: { $eq: r } },
+    {
+      created_time: { $gte: since, $lt: until },
+      r: { $eq: r }
+    },
     {
       select: {
         _id: 1,

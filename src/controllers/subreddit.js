@@ -4,7 +4,7 @@ const { subreddit } = require('../services');
 const { findSubreddits, findSubredditTop } = subreddit;
 
 module.exports.getSubreddits = async () => {
-  return await findSubreddits().map(r => r._id);
+  return (await findSubreddits()).map(r => r._id);
 };
 
 module.exports.getSubredditTop = async (since, until, limit) => {
