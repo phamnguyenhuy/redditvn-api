@@ -41,6 +41,7 @@ router.get('/posts/:post_id/attachments', c(facebook.getAttachmentsByPostId, (re
 router.get('/posts/:post_id/comments', c(comment.getCommentsByPostId, (req, res, next) => [req.params.post_id, req.query.since, req.query.until, req.query.page, req.query.limit]));
 router.get('/posts/:post_id/comments-merge', c(comment.getCommentsByPostIdOld, (req, res, next) => [req.params.post_id]));
 router.get('/posts/:post_id', c(post.getPostById, (req, res, next) => [req.params.post_id]));
+router.get('/posts', c(post.getPosts, (req, res, next) => [req.query.since, req.query.until, req.query.page, req.query.limit]));
 
 router.get('/random', c(post.getPostByRandom, (req, res, next) => [req.query.r, req.query.q]));
 router.get('/search', c(post.getPostsBySearch, (req, res, next) => [req.query.r, req.query.q, req.query.since, req.query.until, req.query.page, req.query.limit]));

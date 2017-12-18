@@ -143,3 +143,26 @@ module.exports.findPostsBySearch = (r, q, since, until, page, limit) => {
     sort: { created_time: -1 }
   });
 };
+
+module.exports.findPosts = (since, until, page, limit) => {
+  return Post.paginate(
+    {
+      created_time: { $gte: since, $lt: until },
+      is_deleted: { $ne: true }
+    },
+    {
+      select: {
+        _id: 1,
+        from: 1,
+        message: 1,
+        created_time: 1,
+        comments_count: 1,
+        likes_count: 1,
+        is_deleted: 1
+      },
+      page: page,
+      limit: limit,
+      sort: { created_time: -1 }
+    }
+  );
+};

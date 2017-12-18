@@ -11,7 +11,8 @@ const {
   findPostsCount,
   findPostsOrderByComments,
   findPostsOrderByLikes,
-  findPreviousPost
+  findPreviousPost,
+  findPosts
 } = post;
 
 module.exports.getPostsCount = async (since, until) => {
@@ -75,3 +76,11 @@ module.exports.getPostsBySubreddit = async (r, since, until, page, limit) => {
 module.exports.getPostsByUserId = (user_id, page, limit) => {
   return findPostsByUserId(user_id, page, limit);
 };
+
+module.exports.getPosts = async (since, until, page, limit) => {
+  return {
+    ...(await findPosts(since, until, page, limit)),
+    since: moment(since).unix(),
+    until: moment(until).unix()
+  };
+}
