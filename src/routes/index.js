@@ -38,7 +38,7 @@ router.get('/posts/top/likes', c(post.getPostsOrderByLikes, (req, res, next) => 
 router.get('/posts/top/comments', c(post.getPostsOrderByComments, (req, res, next) => [req.query.since, req.query.until, req.query.limit]));
 
 router.get('/posts/:post_id/attachments', c(facebook.getAttachmentsByPostId, (req, res, next) => [req.params.post_id]));
-router.get('/posts/:post_id/comments', c(comment.getCommentsByPostId, (req, res, next) => [req.params.post_id, req.query.page, req.query.limit]));
+router.get('/posts/:post_id/comments', c(comment.getCommentsByPostId, (req, res, next) => [req.params.post_id, req.query.since, req.query.until, req.query.page, req.query.limit]));
 router.get('/posts/:post_id/comments-merge', c(comment.getCommentsByPostIdOld, (req, res, next) => [req.params.post_id]));
 router.get('/posts/:post_id', c(post.getPostById, (req, res, next) => [req.params.post_id]));
 
@@ -47,7 +47,7 @@ router.get('/search', c(post.getPostsBySearch, (req, res, next) => [req.query.r,
 
 router.get('/r/top', c(subreddit.getSubredditTop, (req, res, next) => [req.query.since, req.query.until, req.query.limit]));
 router.get('/r/:subreddit', c(post.getPostsBySubreddit, (req, res, next) => [req.params.subreddit, req.query.page, req.query.limit]));
-router.get('/r', c(subreddit.getSubreddits, (req, res, next) => [req.query.limit]));
+router.get('/r', c(subreddit.getSubreddits, (req, res, next) => []));
 
 router.get('/users/top', c(user.getUsersTop, (req, res, next) => [req.query.since, req.query.until, req.query.limit]));
 router.get('/users/count', c(user.getUsersCount, (req, res, next) => []));

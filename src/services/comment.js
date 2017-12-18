@@ -5,9 +5,12 @@ module.exports.findCommentsCount = (since, until) => {
   return Comment.count({ created_time: { $gte: since, $lt: until } }).exec();
 };
 
-module.exports.findCommentsByPostId = (post_id, page, limit) => {
+module.exports.findCommentsByPostId = (post_id, since, until, page, limit) => {
   return Comment.paginate(
-    { post_id: post_id },
+    {
+      post_id: post_id,
+      created_time: { $gte: since, $lt: until }
+    },
     {
       select: {
         _id: 1,

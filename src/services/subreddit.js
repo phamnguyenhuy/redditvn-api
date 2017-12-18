@@ -21,7 +21,7 @@ module.exports.findSubredditTop = (since, until, limit) => {
   ]).exec();
 };
 
-module.exports.findSubreddits = limit => {
+module.exports.findSubreddits = () => {
   return Post.aggregate([
     {
       $match: {
@@ -36,7 +36,6 @@ module.exports.findSubreddits = limit => {
       }
     },
     { $sort: { post_count: -1 } },
-    { $limit: limit },
     { $project: { _id: 1 } }
   ]).exec();
 };

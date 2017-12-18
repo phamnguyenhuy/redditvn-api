@@ -17,8 +17,8 @@ module.exports.getUsersList = (q, page, limit) => {
 
 module.exports.getUsersTop = async (since, until, limit) => {
   return {
+    docs: await findUsersTop(since, until, limit),
     since: moment(since).unix(),
-    until: moment(until).unix(),
-    docs: await findUsersTop(since, until, limit)
+    until: moment(until).unix()
   };
 };

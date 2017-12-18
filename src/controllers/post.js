@@ -14,16 +14,30 @@ const {
   findPreviousPost
 } = post;
 
-module.exports.getPostsCount = (since, until) => {
-  return findPostsCount(since, until);
+module.exports.getPostsCount = async (since, until) => {
+  return {
+    count: await findPostsCount(since, until),
+    since: moment(since).unix(),
+    until: moment(until).unix(),
+  };
 };
 
-module.exports.getPostsOrderByLikes = (since, until, limit) => {
-  return findPostsOrderByLikes(since, until, limit);
+module.exports.getPostsOrderByLikes = async (since, until, limit) => {
+  return {
+    docs: await findPostsOrderByLikes(since, until, limit),
+    since: moment(since).unix(),
+    until: moment(until).unix(),
+    limit: limit
+  };
 };
 
-module.exports.getPostsOrderByComments = (since, until, limit) => {
-  return findPostsOrderByComments(since, until, limit);
+module.exports.getPostsOrderByComments = async (since, until, limit) => {
+  return {
+    docs: await findPostsOrderByComments(since, until, limit),
+    since: moment(since).unix(),
+    until: moment(until).unix(),
+    limit: limit
+  };
 };
 
 module.exports.getPostById = async post_id => {
@@ -46,8 +60,8 @@ module.exports.getPostByRandom = (r, q) => {
   return findPostByRandom(r, q);
 };
 
-module.exports.getPostsBySearch = (r, q, since, until) => {
-  return findPostsBySearch(r, q, since, until);
+module.exports.getPostsBySearch = (r, q, since, until, page, limit) => {
+  return findPostsBySearch(r, q, since, until, page, limit);
 };
 
 module.exports.getPostsBySubreddit = (r, page, limit) => {

@@ -39,16 +39,20 @@ module.exports.findPostsOrderByComments = (since, until, limit) => {
 };
 
 module.exports.findPostById = post_id => {
-  return Post.findById(post_id, {
-    _id: 1,
-    from: 1,
-    message: 1,
-    created_time: 1,
-    comments_count: 1,
-    likes_count: 1,
-    is_deleted: 1,
-    r: 1
-  }, { lean: true }).exec();
+  return Post.findById(
+    post_id,
+    {
+      _id: 1,
+      from: 1,
+      message: 1,
+      created_time: 1,
+      comments_count: 1,
+      likes_count: 1,
+      is_deleted: 1,
+      r: 1
+    },
+    { lean: true }
+  ).exec();
 };
 
 module.exports.findPostsByUserId = (user_id, page, limit) => {
@@ -77,14 +81,11 @@ module.exports.findPostsBySubreddit = (r, page, limit) => {
         created_time: 1,
         comments_count: 1,
         likes_count: 1,
-        is_deleted: 1,
-        r: 1
+        is_deleted: 1
       },
       page: page,
       limit: limit,
-      sort: {
-        created_time: -1
-      }
+      sort: { created_time: -1 }
     }
   );
 };
