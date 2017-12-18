@@ -61,8 +61,12 @@ module.exports.getPostByRandom = (r, q) => {
   return findPostByRandom(r, q);
 };
 
-module.exports.getPostsBySearch = (r, q, since, until, page, limit) => {
-  return findPostsBySearch(r, q, since, until, page, limit);
+module.exports.getPostsBySearch = async (r, q, since, until, page, limit) => {
+  return {
+    ...(await findPostsBySearch(r, q, since, until, page, limit)),
+    since: moment(since).unix(),
+    until: moment(until).unix()
+  };
 };
 
 module.exports.getPostsBySubreddit = async (r, since, until, page, limit) => {
