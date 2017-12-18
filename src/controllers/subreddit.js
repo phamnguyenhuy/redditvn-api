@@ -5,7 +5,7 @@ const { findSubreddits, findSubredditTop } = subreddit;
 
 module.exports.getSubreddits = async (since, until) => {
   return {
-    docs: (await findSubreddits()).map(r => r._id),
+    docs: (await findSubreddits(since, until)).map(r => r._id),
     since: moment(since).unix(),
     until: moment(until).unix()
   };
