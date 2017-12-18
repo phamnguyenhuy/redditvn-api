@@ -1,4 +1,4 @@
-const { Post, Comment } = require('../model');
+const { Post, Comment } = require('../models');
 
 const millisecondsFromUTC = 7 * 60 * 60 * 1000; //PST is +7 hours from UTC
 const matchIsNotDeleted = {
@@ -50,7 +50,7 @@ const sortMonthAsc = {
 };
 const dowArray = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-module.exports.getStats = async (type, group) => {
+module.exports.getChart = async (type, group) => {
   let groupDb;
   let sort = sortAsc;
   switch (group) {

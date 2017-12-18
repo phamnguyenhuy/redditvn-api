@@ -1,5 +1,5 @@
 const moment = require('moment');
-const { Setting } = require('../model');
+const { Setting } = require('../models');
 
 module.exports = async () => {
   let lastUpdate = await Setting.findById('last_updated');

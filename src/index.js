@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -7,47 +7,36 @@ const bodyParser = require('body-parser');
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
-const { config } = require('dotenv');
-const api = require('./api');
-const { checkDbConnection } = require('./middleware');
+const routes = require('./routes');
+const morgan = require('morgan');
+const log = require('./helpers/log');
 
-config();
+const databases = require('./databases');
+
+
+// Database
+databases.mongodb();
 
 const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/', checkDbConnection, api);
 
-// catch 404 and forward to error handler
-app.use((req, res, next) => {
-  const error = new Error();
-  error.code = 404;
-  error.message = 'the page you requested does not exist';
-  next(error);
-});
+// Logging (debug only).
+app.use(morgan('combined', { stream: { write: msg => log.info(msg) } }));
 
-// error handler
-app.use((err, req, res, next) => {
-  console.log(err);
-  const errCode = err.code || 500;
-  return res.status(errCode).json({
-    error: {
-      message: err.message || 'something when wrong...',
-      type: err.type || 'Exception',
-      code: err.code,
-    }
-  });
-});
+// URLs.
+app.use('/', routes);
 
+// Server
 const port = process.env.PORT || 3000;
 let server;
 if (process.env.RUN_HTTP === 'true') {
   server = http.createServer(app);
 } else {
   if (!process.env.HTTPS_CERT_FILE || !process.env.HTTPS_KEY_FILE) {
-    console.log('You need config ssl certificates.')
+    console.log('You need config ssl certificates.');
     return process.exit(1);
   }
   const options = {
@@ -58,14 +47,9 @@ if (process.env.RUN_HTTP === 'true') {
 }
 
 server.listen(port, () => {
-  console.log('Server API listening on %d', server.address().port);
-
-  mongoose.Promise = global.Promise;
-  mongoose.connect(process.env.DATABASE_URI, { useMongoClient: true }, (err, res) => {
-    if (err) {
-      console.log('ERROR connecting to database: ' + err);
-    } else {
-      console.log('Succeeded connected to database');
-    }
-  });
+  log.info('-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-');
+  log.info(`  API listening on port ${server.address().port}`);
+  log.info('-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-');
 });
+
+module.exports = server;

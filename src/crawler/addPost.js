@@ -1,5 +1,5 @@
-const { Post, User } = require('../model');
-const { findSubreddit } = require('../helper/utils');
+const { Post, User } = require('../models');
+const { findSubreddit } = require('../helpers/utils');
 
 module.exports = async item => {
   const post = new Post({

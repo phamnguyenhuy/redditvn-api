@@ -1,4 +1,4 @@
-const { Post, User } = require('../model');
+const { Post, User } = require('../models');
 
 module.exports = async () => {
   console.log('CRON: recountUserPost.');
