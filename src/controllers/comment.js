@@ -13,7 +13,7 @@ module.exports.getCommentsCount = async (since, until) => {
 
 module.exports.getCommentsByPostId = async (post_id, since, until, page, limit) => {
   return {
-    ...(await findCommentsByPostId(post_id, since, limit, page, limit)),
+    ...(await findCommentsByPostId(post_id, since, until, page, limit)),
     since: moment(since).unix(),
     until: moment(until).unix()
   };
