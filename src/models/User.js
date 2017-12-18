@@ -4,7 +4,11 @@ const mongoosePaginate = require('mongoose-paginate');
 const userSchema = new mongoose.Schema({
   _id: String,
   name: String,
-  post_count: { type: Number, default: 0 }
+  post_count: { type: Number, default: 0 },
+  token: [{
+    jwt_token: String,
+    fb_access_token: String
+  }]
 });
 
 userSchema.plugin(mongoosePaginate);

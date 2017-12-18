@@ -7,7 +7,7 @@ const controllers = require('../controllers');
 const { checkDbConnection, checkPageLimit, checkSinceUntil } = require('../middlewares');
 
 const router = express.Router();
-const { comment, facebook, post, stats, subreddit, user } = controllers;
+const { auth, comment, facebook, post, stats, subreddit, user } = controllers;
 
 /**
  * Handles controller execution and responds to user (API version).
@@ -30,6 +30,9 @@ const c = controllerHandler;
 router.use(checkDbConnection);
 router.use(checkPageLimit);
 router.use(checkSinceUntil);
+
+// router.post('/authorize', c(auth.authorize, (req, res, next) => [req.body.user_id, req.body.access_token]));
+// router.post('/authorize/refresh');
 
 router.get('/posts/count', c(post.getPostsCount, (req, res, next) => [req.query.since, req.query.until]));
 router.get('/posts/count/comments', c(comment.getCommentsCount, (req, res, next) => [req.query.since, req.query.until]));
