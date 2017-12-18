@@ -51,6 +51,9 @@ const sortMonthAsc = {
 const dowArray = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 module.exports.getChart = async (type, group) => {
+  type = type || 'posts';
+  group = group || 'month';
+
   let groupDb;
   let sort = sortAsc;
   switch (group) {
