@@ -7,7 +7,8 @@ const controllers = require('../controllers');
 const { checkDbConnection, checkPageLimit, checkSinceUntil } = require('../middlewares');
 
 const router = express.Router();
-const { auth, comment, attachment, info, post, stats, subreddit, user } = controllers;
+const { auth, comment, attachment, info, me, post, stats, subreddit, user } = controllers;
+const passport = require('passport');
 
 /**
  * Handles controller execution and responds to user (API version).
@@ -27,16 +28,23 @@ const controllerHandler = (promise, params) => async (req, res, next) => {
 };
 const c = controllerHandler;
 
-// router.use(checkDbConnection);
+const authenticate =  (req, res, next) =>
+  passport.authenticate(
+    'jwt',
+    { session: false }
+    // (error, user, info, status) => {}
+  )(req, res, next);
+const a = authenticate;
+
+router.use(checkDbConnection);
 router.use(checkPageLimit);
 router.use(checkSinceUntil);
 
-// router.post('/authorize', c(auth.authorize, (req, res, next) => [req.body.user_id, req.body.access_token]));
-// router.post('/authorize/refresh');
+router.post('/authorize/facebook', c(auth.postAuthorizeFacebook, (req, res, next) => [req.body.user_id, req.body.access_token]));
+router.get('/authorize/refresh', a, c(auth.getRefreshToken, (req, res, next) => [req.user]));
 
 router.get('/posts/count', c(post.getPostsCount, (req, res, next) => [req.query.since, req.query.until]));
 router.get('/posts/count/comments', c(comment.getCommentsCount, (req, res, next) => [req.query.since, req.query.until]));
-
 router.get('/posts/top/likes', c(post.getPostsOrderByLikes, (req, res, next) => [req.query.since, req.query.until, req.query.limit]));
 router.get('/posts/top/comments', c(post.getPostsOrderByComments, (req, res, next) => [req.query.since, req.query.until, req.query.limit]));
 
@@ -44,8 +52,8 @@ router.get('/posts/:post_id/attachments', c(attachment.getAttachmentsByPostId, (
 router.get('/posts/:post_id/comments', c(comment.getCommentsByPostId, (req, res, next) => [req.params.post_id, req.query.since, req.query.until, req.query.page, req.query.limit]));
 router.get('/posts/:post_id/comments-merge', c(comment.getCommentsByPostIdOld, (req, res, next) => [req.params.post_id]));
 router.get('/posts/:post_id', c(post.getPostById, (req, res, next) => [req.params.post_id]));
-router.get('/posts', c(post.getPosts, (req, res, next) => [req.query.since, req.query.until, req.query.page, req.query.limit]));
 
+router.get('/posts', c(post.getPosts, (req, res, next) => [req.query.since, req.query.until, req.query.page, req.query.limit]));
 router.get('/random', c(post.getPostByRandom, (req, res, next) => [req.query.r, req.query.q]));
 router.get('/search', c(post.getPostsBySearch, (req, res, next) => [req.query.r, req.query.q, req.query.since, req.query.until, req.query.page, req.query.limit]));
 
@@ -53,11 +61,22 @@ router.get('/r/top', c(subreddit.getSubredditTop, (req, res, next) => [req.query
 router.get('/r/:subreddit', c(post.getPostsBySubreddit, (req, res, next) => [req.params.subreddit, req.query.since, req.query.until, req.query.page, req.query.limit]));
 router.get('/r', c(subreddit.getSubreddits, (req, res, next) => [req.query.since, req.query.until]));
 
+// router.get('/users/me/prefs', a, c(me.getPrefs, [req.user]));
+// router.get('/users/me/save', a, c(me.getSave, [req.user]));
+// router.post('/users/me/save', a, c(me.postSave, [req.user]));
+// router.post('/users/me/unsave', a, c(me.postUnsave, [req.user]));
+
+router.get('/users/me/picture', a, c(user.getUserPicture, (req, res, next) => [req.user._id, req.query.size, res]));
+router.get('/users/me/posts', a, c(post.getPostsByUserId, (req, res, next) => [req.user._id, req.query.page, req.query.limit]));
+router.get('/users/me', a, c(user.getUserById, (req, res, next) => [req.user._id]));
+
 router.get('/users/top', c(user.getUsersTop, (req, res, next) => [req.query.since, req.query.until, req.query.limit]));
 router.get('/users/count', c(user.getUsersCount, (req, res, next) => []));
+
 router.get('/users/:user_id/picture', c(user.getUserPicture, (req, res, next) => [req.params.user_id, req.query.size, res]));
 router.get('/users/:user_id/posts', c(post.getPostsByUserId, (req, res, next) => [req.params.user_id, req.query.page, req.query.limit]));
 router.get('/users/:user_id', c(user.getUserById, (req, res, next) => [req.params.user_id]));
+
 router.get('/users', c(user.getUsersList, (req, res, next) => [req.query.q, req.query.page, req.query.limit]));
 
 router.get('/stats/chart', c(stats.getStatsChart, (req, res, next) => [req.query.type, req.query.group]));

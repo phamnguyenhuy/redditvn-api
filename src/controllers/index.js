@@ -2,6 +2,7 @@ const auth = require('./auth');
 const comment = require('./comment');
 const attachment = require('./attachment');
 const info = require('./info');
+const me = require('./me');
 const post = require('./post');
 const stats = require('./stats');
 const subreddit = require('./subreddit');
@@ -12,6 +13,7 @@ module.exports = {
   comment,
   attachment,
   info,
+  me,
   post,
   stats,
   user,

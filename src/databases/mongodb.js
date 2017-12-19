@@ -8,7 +8,7 @@ const dbURI = process.env.DATABASE_URI;
 const reconnectTimeout = parseInt(process.env.DATABASE_RECONNECT_TIMEOUT, 10) || 10000;
 
 connect = () => {
-  mongoose.connect(dbURI, { auto_reconnect: true, useMongoClient: true })
+  mongoose.connect(dbURI, { useMongoClient: true })
     .catch(() => {});
 }
 

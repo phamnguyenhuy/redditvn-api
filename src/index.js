@@ -10,9 +10,9 @@ const fs = require('fs');
 const routes = require('./routes');
 const morgan = require('morgan');
 const log = require('./helpers/log');
+const passport = require('passport');
 
 const databases = require('./databases');
-
 
 // Database
 databases.mongodb();
@@ -22,6 +22,7 @@ app.use(helmet());
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(passport.initialize());
 
 // Logging (debug only).
 app.use(morgan('combined', { stream: { write: msg => log.info(msg) } }));
