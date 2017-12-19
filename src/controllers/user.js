@@ -1,6 +1,8 @@
 const { ServerError } = require('../helpers/server');
 const { user } = require('../services');
 const { findUserById, findUsersCount, findUsersList, findUsersTop } = user;
+const { facebook } = require('../services');
+const { findUserPicture } = facebook;
 const moment = require('moment');
 
 module.exports.getUserById = async user_id => {
@@ -28,3 +30,7 @@ module.exports.getUsersTop = async (since, until, limit) => {
     limit: limit
   };
 };
+
+module.exports.getUserPicture = (user_id, size = 64, res) => {
+  res.redirect(301, findUserPicture(user_id, size));
+}

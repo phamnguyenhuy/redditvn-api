@@ -7,7 +7,7 @@ const controllers = require('../controllers');
 const { checkDbConnection, checkPageLimit, checkSinceUntil } = require('../middlewares');
 
 const router = express.Router();
-const { auth, comment, facebook, post, stats, subreddit, user } = controllers;
+const { auth, comment, attachment, post, stats, subreddit, user } = controllers;
 
 /**
  * Handles controller execution and responds to user (API version).
@@ -20,14 +20,14 @@ const controllerHandler = (promise, params) => async (req, res, next) => {
   const boundParams = params ? params(req, res, next) : [];
   try {
     const result = await promise(...boundParams);
-    return res.json(result || { message: 'OK' });
+    if (!res._headerSent) return res.json(result || { message: 'OK' });
   } catch (error) {
     return res.status(500) && next(error);
   }
 };
 const c = controllerHandler;
 
-router.use(checkDbConnection);
+// router.use(checkDbConnection);
 router.use(checkPageLimit);
 router.use(checkSinceUntil);
 
@@ -40,7 +40,7 @@ router.get('/posts/count/comments', c(comment.getCommentsCount, (req, res, next)
 router.get('/posts/top/likes', c(post.getPostsOrderByLikes, (req, res, next) => [req.query.since, req.query.until, req.query.limit]));
 router.get('/posts/top/comments', c(post.getPostsOrderByComments, (req, res, next) => [req.query.since, req.query.until, req.query.limit]));
 
-router.get('/posts/:post_id/attachments', c(facebook.getAttachmentsByPostId, (req, res, next) => [req.params.post_id]));
+router.get('/posts/:post_id/attachments', c(attachment.getAttachmentsByPostId, (req, res, next) => [req.params.post_id]));
 router.get('/posts/:post_id/comments', c(comment.getCommentsByPostId, (req, res, next) => [req.params.post_id, req.query.since, req.query.until, req.query.page, req.query.limit]));
 router.get('/posts/:post_id/comments-merge', c(comment.getCommentsByPostIdOld, (req, res, next) => [req.params.post_id]));
 router.get('/posts/:post_id', c(post.getPostById, (req, res, next) => [req.params.post_id]));
@@ -55,6 +55,7 @@ router.get('/r', c(subreddit.getSubreddits, (req, res, next) => [req.query.since
 
 router.get('/users/top', c(user.getUsersTop, (req, res, next) => [req.query.since, req.query.until, req.query.limit]));
 router.get('/users/count', c(user.getUsersCount, (req, res, next) => []));
+router.get('/users/:user_id/picture', c(user.getUserPicture, (req, res, next) => [req.params.user_id, req.query.size, res]));
 router.get('/users/:user_id/posts', c(post.getPostsByUserId, (req, res, next) => [req.params.user_id, req.query.page, req.query.limit]));
 router.get('/users/:user_id', c(user.getUserById, (req, res, next) => [req.params.user_id]));
 router.get('/users', c(user.getUsersList, (req, res, next) => [req.query.q, req.query.page, req.query.limit]));

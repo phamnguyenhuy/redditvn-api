@@ -20,13 +20,15 @@ module.exports = async () => {
     await checkDeletedPost(20);
 
     // get last crawl time
-    const since_new = new Date();
+    const since_new = moment();
     const since = await getLastCrawl();
-    console.log(`=== SINCE: ${since}`)
+    console.log(`=== SINCE: ${moment.unix(since)}`)
 
     // get news feed of group
     const limit = parseInt(process.env.NEWSFEED_LIMIT, 10) || 100;
     const max = parseInt(process.env.NEWSFEED_MAX, 10) || 500;
+    console.log(`=== LIMIT: ${limit}`)
+    console.log(`=== MAX: ${max}`)
     const newsFeedData = await getNewsFeed(process.env.FACEBOOK_GROUP_ID, since, limit, max);
     console.log(`=== NEWSFEED: ${newsFeedData.length} posts`);
 
@@ -52,7 +54,7 @@ module.exports = async () => {
     }
 
     // save new crawl time
-    await Setting.findByIdAndUpdate('last_updated', { value: since_new }, { upsert: true });
+    await Setting.findByIdAndUpdate('last_updated', { value: since_new.toDate() }, { upsert: true });
     console.log(`=== SINCE NEW: ${since_new}`)
   } catch (error) {
     console.log(`=== ERROR ${error}`);

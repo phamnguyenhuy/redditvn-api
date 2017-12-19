@@ -52,3 +52,7 @@ module.exports.findAttachmentsByPostId = async post_id => {
 
   return images;
 }
+
+module.exports.findUserPicture = (user_id, size = 64) => {
+  return `https://graph.facebook.com/${user_id}/picture?type=square&redirect=true&width=${size}&height=${size}`
+}
