@@ -7,9 +7,15 @@ const updateComments = require('./updateComments');
 const updatePost = require('./updatePost');
 
 const { Post, Setting } = require('../models');
+const moment = require('moment');
 
 module.exports = async () => {
   try {
+    if (process.argv[2] === '-day') {
+      const reduce_day = parseInt(process.argv[3]) || 1;
+      await Setting.findByIdAndUpdate('last_updated', { value: moment().add(-reduce_day, 'days').toDate() }, { upsert: true });
+    }
+
     // check last post if delete
     await checkDeletedPost(20);
 
