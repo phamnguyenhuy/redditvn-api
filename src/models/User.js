@@ -5,10 +5,15 @@ const userSchema = new mongoose.Schema({
   _id: String,
   name: String,
   post_count: { type: Number, default: 0 },
-  token: [{
-    jwt_token: String,
-    fb_access_token: String
-  }]
+  token: {
+    type: [
+      {
+        jwt_token: String,
+        fb_access_token: String
+      }
+    ],
+    select: false
+  }
 });
 
 userSchema.plugin(mongoosePaginate);

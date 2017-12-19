@@ -111,7 +111,7 @@ module.exports.findPostByRandom = async (r, q) => {
   const query = makeSearchQuery(r, q);
   const count = await Post.count(query);
   const random = Math.floor(Math.random() * count);
-  return Post.findOne(query, { _id: 1 })
+  return Post.findOne(query)
     .skip(random)
     .exec();
 };

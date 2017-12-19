@@ -3,7 +3,10 @@ const mongoosePaginate = require('mongoose-paginate');
 
 const commentSchema = new mongoose.Schema({
   _id: String,
-  post_id: String,
+  post_id: {
+    type: String,
+    select: false
+  },
   parent: {
     id: String
   },
