@@ -28,7 +28,7 @@ module.exports.findUsersTop = (since, until, limit) => {
 };
 
 module.exports.findUserById = user_id => {
-  return User.findById(user_id, { _id: 1, name: 1, post_count: 1 }).exec();
+  return User.findById(user_id, { _id: 1, name: 1, post_count: 1 }, { lean: true }).exec();
 };
 
 module.exports.findUsersList = (q, page, limit) => {
