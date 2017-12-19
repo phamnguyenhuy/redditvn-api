@@ -9,7 +9,6 @@ const strategy = new passportJWT.Strategy(
     secretOrKey: process.env.JWT_SECRET
   },
   async (jwt_payload, next) => {
-    console.log('payload received', jwt_payload);
     if (!jwt_payload.user_id) {
       next(null, new ServerError('token invalid.'));
     }

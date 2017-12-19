@@ -19,19 +19,19 @@ createJwtAccessToken = user_id => {
 };
 
 module.exports.createAuthorizeFacebook = async (user_id, access_token) => {
-  let response
-  try {
-    response = await fb.api('me', {
-      access_token: access_token
-    });
-  } catch (error) {
-    throw error;
-  }
+  // let response
+  // try {
+  //   response = await fb.api('me', {
+  //     access_token: access_token
+  //   });
+  // } catch (error) {
+  //   throw error;
+  // }
 
-  // check access token have same user id
-  if (response.user_id !== user_id) {
-    throw new ServerError('user_id and user_id in access_token invalid');
-  }
+  // // check access token have same user id
+  // if (response.user_id !== user_id) {
+  //   throw new ServerError('user_id and user_id in access_token invalid');
+  // }
 
   const fb_user_id = 'fb-' + user_id;
 

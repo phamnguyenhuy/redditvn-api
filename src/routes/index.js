@@ -48,10 +48,10 @@ router.get('/posts/count/comments', c(comment.getCommentsCount, (req, res, next)
 router.get('/posts/top/likes', c(post.getPostsOrderByLikes, (req, res, next) => [req.query.since, req.query.until, req.query.limit]));
 router.get('/posts/top/comments', c(post.getPostsOrderByComments, (req, res, next) => [req.query.since, req.query.until, req.query.limit]));
 
-router.get('/posts/:post_id(\\d+)/attachments', c(attachment.getAttachmentsByPostId, (req, res, next) => [req.params.post_id]));
-router.get('/posts/:post_id(\\d+)/comments', c(comment.getCommentsByPostId, (req, res, next) => [req.params.post_id, req.query.since, req.query.until, req.query.page, req.query.limit]));
-router.get('/posts/:post_id(\\d+)/comments-merge', c(comment.getCommentsByPostIdOld, (req, res, next) => [req.params.post_id]));
-router.get('/posts/:post_id(\\d+)', c(post.getPostById, (req, res, next) => [req.params.post_id]));
+router.get('/posts/:post_id/attachments', c(attachment.getAttachmentsByPostId, (req, res, next) => [req.params.post_id]));
+router.get('/posts/:post_id/comments', c(comment.getCommentsByPostId, (req, res, next) => [req.params.post_id, req.query.since, req.query.until, req.query.page, req.query.limit]));
+router.get('/posts/:post_id/comments-merge', c(comment.getCommentsByPostIdOld, (req, res, next) => [req.params.post_id]));
+router.get('/posts/:post_id', c(post.getPostById, (req, res, next) => [req.params.post_id]));
 
 router.get('/posts', c(post.getPosts, (req, res, next) => [req.query.since, req.query.until, req.query.page, req.query.limit]));
 router.get('/random', c(post.getPostByRandom, (req, res, next) => [req.query.r, req.query.q]));
@@ -61,10 +61,9 @@ router.get('/r/top', c(subreddit.getSubredditTop, (req, res, next) => [req.query
 router.get('/r/:subreddit', c(post.getPostsBySubreddit, (req, res, next) => [req.params.subreddit, req.query.since, req.query.until, req.query.page, req.query.limit]));
 router.get('/r', c(subreddit.getSubreddits, (req, res, next) => [req.query.since, req.query.until]));
 
-// router.get('/users/me/prefs', a, c(me.getPrefs, [req.user]));
-// router.get('/users/me/save', a, c(me.getSave, [req.user]));
-// router.post('/users/me/save', a, c(me.postSave, [req.user]));
-// router.post('/users/me/unsave', a, c(me.postUnsave, [req.user]));
+router.get('/users/me/saves', a, c(me.getSaves, (req, res, next) => [req.user._id, req.query.category]));
+router.post('/users/me/saves', a, c(me.postSave, (req, res, next) => [req.user._id, req.body.category, req.body.item]));
+router.delete('/users/me/saves', a, c(me.deleteSave, (req, res, next) => [req.user._id, req.body.category, req.body.item]));
 
 router.get('/users/me/picture', a, c(user.getUserPicture, (req, res, next) => [req.user._id, req.query.size, res]));
 router.get('/users/me/posts', a, c(post.getPostsByUserId, (req, res, next) => [req.user._id, req.query.page, req.query.limit]));
