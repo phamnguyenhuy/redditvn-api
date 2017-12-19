@@ -7,7 +7,7 @@ const controllers = require('../controllers');
 const { checkDbConnection, checkPageLimit, checkSinceUntil } = require('../middlewares');
 
 const router = express.Router();
-const { auth, comment, attachment, post, stats, subreddit, user } = controllers;
+const { auth, comment, attachment, info, post, stats, subreddit, user } = controllers;
 
 /**
  * Handles controller execution and responds to user (API version).
@@ -61,6 +61,8 @@ router.get('/users/:user_id', c(user.getUserById, (req, res, next) => [req.param
 router.get('/users', c(user.getUsersList, (req, res, next) => [req.query.q, req.query.page, req.query.limit]));
 
 router.get('/stats/chart', c(stats.getStatsChart, (req, res, next) => [req.query.type, req.query.group]));
+
+router.get('/version', c(info.getVersion, (req, res, next) => []));
 
 // Catch 404 and forward to error handler
 router.use((req, res, next) => {

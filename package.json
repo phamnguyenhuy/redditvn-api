@@ -18,6 +18,7 @@
     "dotenv": "^4.0.0",
     "express": "^4.16.2",
     "fb": "^2.0.0",
+    "git-last-commit": "^0.3.0",
     "helmet": "^3.9.0",
     "jsonwebtoken": "^8.1.0",
     "moment": "^2.19.3",

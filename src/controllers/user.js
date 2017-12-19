@@ -11,7 +11,10 @@ module.exports.getUserById = async user_id => {
     throw new ServerError('Not found user.', 404);
   }
 
-  return user;
+  return {
+    ...user,
+    profile_pic: findUserPicture(user_id, size)
+  };
 };
 
 module.exports.getUsersCount = async () => {
