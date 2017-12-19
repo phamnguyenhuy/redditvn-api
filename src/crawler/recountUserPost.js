@@ -1,28 +1,15 @@
 const { Post, User } = require('../models');
 
 module.exports = async () => {
-  console.log('CRON: recountUserPost.');
+  console.log('==== recountUserPost.');
   try {
     const aggregatorOpts = [
+      { $match: { is_deleted: { $ne: true } } },
+      { $unwind: '$from' },
       {
-        $match: {
-          is_deleted: { $ne: true }
-        }
+        $group: { _id: '$from.id', count: { $sum: 1 } }
       },
-      {
-        $unwind: '$from'
-      },
-      {
-        $group: {
-          _id: '$from.id',
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $sort: {
-          count: -1
-        }
-      }
+      { $sort: { count: -1 } }
     ];
 
     const userList = await Post.aggregate(aggregatorOpts);
@@ -36,9 +23,7 @@ module.exports = async () => {
           },
           'from.name',
           {
-            sort: {
-              created_time: -1
-            }
+            sort: { created_time: -1 }
           }
         );
 

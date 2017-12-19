@@ -26,6 +26,8 @@ module.exports = async post => {
       })
     );
 
+    console.log(`==== UPDATE COMMENTS ${post._id} +${comments.length}`);
+
     // return comment count and comment update time
     const result = {
       count: await Comment.count({ post_id: post._id }),

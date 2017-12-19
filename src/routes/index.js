@@ -28,7 +28,7 @@ const controllerHandler = (promise, params) => async (req, res, next) => {
 };
 const c = controllerHandler;
 
-const authenticate =  (req, res, next) =>
+const authenticate = (req, res, next) =>
   passport.authenticate(
     'jwt',
     { session: false }
@@ -98,7 +98,7 @@ router.use((err, req, res, _next) => {
     return res.status(err.code || 500).json({
       error: {
         message: err.message,
-        type: 'Server Error',
+        type: 'ServerError',
         code: err.code
       }
     });
@@ -112,7 +112,7 @@ router.use((err, req, res, _next) => {
   return res.status(500).json({
     error: {
       message: err.message || 'something when wrong...',
-      type: err.type || 'Unexpected Exception',
+      type: err.type || 'UnexpectedException',
       code: err.code || 500
     }
   });

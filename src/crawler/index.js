@@ -6,6 +6,8 @@ const addPost = require('./addPost');
 const updateComments = require('./updateComments');
 const updatePost = require('./updatePost');
 
+const recountUserPost = require('./recountUserPost');
+
 const { Post, Setting } = require('../models');
 const moment = require('moment');
 
@@ -55,6 +57,13 @@ module.exports = async () => {
 
     // save new crawl time
     await Setting.findByIdAndUpdate('last_updated', { value: since_new.toDate() }, { upsert: true });
+
+    const s = moment().startOf('day').add(12, 'hours');
+    const u = s.add(10, 'mins');
+    if (s <= moment() && moment() <= u) {
+      await recountUserPost();
+    }
+
     console.log(`=== SINCE NEW: ${since_new}`)
   } catch (error) {
     console.log(`=== ERROR ${error}`);
