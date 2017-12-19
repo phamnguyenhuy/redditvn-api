@@ -54,5 +54,9 @@ module.exports.findAttachmentsByPostId = async post_id => {
 }
 
 module.exports.findUserPicture = (user_id, size = 64) => {
+  if (user_id.startsWith('fb-')) {
+    user_id = user_id.substr(3);
+  }
+
   return `https://graph.facebook.com/${user_id}/picture?type=square&redirect=true&width=${size}&height=${size}`
 }

@@ -33,7 +33,7 @@ module.exports.createAuthorizeFacebook = async (user_id, access_token) => {
     throw new ServerError('user_id and user_id in access_token invalid');
   }
 
-  const fb_user_id = 'fb:' + user_id;
+  const fb_user_id = 'fb-' + user_id;
 
   // create user if not exist
   let user = await User.findById(fb_user_id);
