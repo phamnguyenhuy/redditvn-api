@@ -13,7 +13,7 @@ module.exports.getUserById = async user_id => {
 
   return {
     ...user,
-    profile_pic: findUserPicture(user_id, size)
+    profile_pic: findUserPicture(user_id)
   };
 };
 
