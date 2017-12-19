@@ -19,7 +19,9 @@ module.exports = async () => {
     console.log(`=== SINCE: ${since}`)
 
     // get news feed of group
-    const newsFeedData = await getNewsFeed(process.env.FACEBOOK_GROUP_ID, since);
+    const limit = parseInt(process.env.NEWSFEED_LIMIT, 10) || 100;
+    const max = parseInt(process.env.NEWSFEED_MAX, 10) || 500;
+    const newsFeedData = await getNewsFeed(process.env.FACEBOOK_GROUP_ID, since, limit, max);
     console.log(`=== NEWSFEED: ${newsFeedData.length} posts`);
 
     // update news feed item to database

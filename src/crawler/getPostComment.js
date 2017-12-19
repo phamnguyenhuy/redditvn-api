@@ -4,12 +4,11 @@ const FB = require('fb');
 const fb = new FB.Facebook();
 fb.options({ Promise: Promise });
 
-module.exports = async (post_id, since, limit) => {
+module.exports = async (post_id, since, limit = 750) => {
   let data = [];
 
   let run = true;
   let after = undefined;
-  limit = limit || 500;
 
   if (since) {
     since = moment(since).unix();

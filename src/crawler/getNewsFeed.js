@@ -4,17 +4,10 @@ const FB = require('fb');
 const fb = new FB.Facebook();
 fb.options({ Promise: Promise });
 
-const setting_newsfeed_limit = parseInt(process.env.NEWSFEED_LIMIT, 10) || 100;
-const setting_newsfeed_max = parseInt(process.env.NEWSFEED_MAX, 10) || 300;
-
-module.exports = async (group_id, since, limit, max) => {
+module.exports = async (group_id, since, limit = 100, max = 500) => {
   let data = [];
 
   let run = true;
-
-  since = since;
-  limit = limit || setting_newsfeed_limit;
-  max = max || setting_newsfeed_max;
 
   let until = undefined;
   let icon_size = undefined;
