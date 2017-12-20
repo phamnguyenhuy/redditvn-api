@@ -158,7 +158,8 @@ module.exports.findPosts = (since, until, page, limit) => {
         created_time: 1,
         comments_count: 1,
         likes_count: 1,
-        is_deleted: 1
+        is_deleted: 1,
+        r: 1
       },
       page: page,
       limit: limit,
