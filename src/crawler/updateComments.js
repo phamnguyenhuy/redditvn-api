@@ -28,7 +28,7 @@ module.exports = async post => {
       })
     );
 
-    console.log(`==== UPDATE COMMENTS ${post._id} +${comments.length}`);
+    if (comments.length > 0) console.log(`==== UPDATE COMMENTS ${post._id} +${comments.length}`);
 
     // return comment count and comment update time
     const result = {
