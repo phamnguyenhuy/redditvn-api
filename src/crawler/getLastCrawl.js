@@ -6,7 +6,7 @@ module.exports = async () => {
   if (lastUpdate) {
     lastUpdate = moment(lastUpdate.value);
   } else {
-    lastUpdate = moment().add(-6, 'hours');
+    lastUpdate = moment().add(-12, 'hours');
   }
-  return lastUpdate.add(-30, 'minutes').unix();
+  return lastUpdate.add(-10, 'minutes').unix();
 };

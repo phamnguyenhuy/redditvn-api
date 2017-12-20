@@ -5,7 +5,8 @@ module.exports = async post => {
   try {
     // get comment of post
     const comments_time = new Date();
-    const comments = await getPostComment(post._id, post.comments_time);
+    const since_time = moment(post.comments_time).unix();
+    const comments = await getPostComment(post._id, since_time);
     await Promise.all(
       comments.map(async comment => {
         // skip comment empty or dot
