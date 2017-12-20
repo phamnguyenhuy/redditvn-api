@@ -2,28 +2,35 @@ const { Post } = require('../models');
 const { findSubreddit } = require('../helpers/utils');
 
 async function updatePost(item, post, comments) {
-  const updateObj = {
-    likes_count: item.likes.count,
-    comments_count: comments.count,
-    comments_time: comments.time,
-    updated_time: item.updated_time
-  };
+  try {
+    const updateObj = {
+      comments_count: comments.count,
+      comments_time: comments.time,
+      updated_time: item.updated_time
+    };
 
-  // check edited post
-  if (item.message !== post.message) {
-    updateObj.message = item.message; // save new
-    updateObj.$push = { edit_history: post.message };
-    updateObj.r = findSubreddit(item.message);
-    console.log(`==== EDIT POST ${item.id}`);
+    if (item.likes) {
+      updateObj.likes_count = item.likes.count;
+    }
+  
+    // check edited post
+    if (item.message !== post.message) {
+      updateObj.message = item.message; // save new
+      updateObj.$push = { edit_history: post.message };
+      updateObj.r = findSubreddit(item.message);
+      console.log(`==== EDIT POST ${item.id}`);
+    }
+  
+    // check new object id
+    if (item.object_id !== post.object_id) {
+      updateObj.object_id = item.object_id;
+    }
+  
+    // save last time update comment
+    await Post.update({ _id: post.id }, updateObj);
+  } catch (error) {
+    console.log(`==== ERROR UPDATE POST ${post._id} ${error}`);
   }
-
-  // check new object id
-  if (item.object_id !== post.object_id) {
-    updateObj.object_id = item.object_id;
-  }
-
-  // save last time update comment
-  await Post.update({ _id: post.id }, updateObj);
 }
 
 module.exports = updatePost;

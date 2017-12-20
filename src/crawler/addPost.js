@@ -2,18 +2,21 @@ const { Post, User } = require('../models');
 const { findSubreddit } = require('../helpers/utils');
 
 async function addPost(item) {
-  const post = new Post({
-    _id: item.id,
-    from: item.from,
-    message: item.message,
-    object_id: item.object_id,
-    created_time: item.created_time,
-    updated_time: item.updated_time,
-    likes_count: item.likes.count,
-    r: findSubreddit(item.message)
-  });
-
   try {
+    const post = new Post({
+      _id: item.id,
+      from: item.from,
+      message: item.message,
+      object_id: item.object_id,
+      created_time: item.created_time,
+      updated_time: item.updated_time,
+      r: findSubreddit(item.message)
+    });
+
+    if (item.likes) {
+      post.likes_count = item.likes.count;
+    }
+
     // save new post
     await post.save();
     console.log(`==== ADD POST ${item.id}`);
