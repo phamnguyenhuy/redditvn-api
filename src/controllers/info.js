@@ -1,4 +1,5 @@
 const git = require('git-last-commit');
+const { setting } = require('../services')
 
 function getVersion() {
   return new Promise((resolve, reject) => {
@@ -11,6 +12,11 @@ function getVersion() {
   });
 }
 
+function getLastUpdated() {
+  return setting.findLastUpdated();
+}
+
 module.exports = {
-  getVersion
+  getVersion,
+  getLastUpdated
 };

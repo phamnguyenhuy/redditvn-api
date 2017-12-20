@@ -70,7 +70,7 @@ router.get('/users/me/posts', a, c(post.getPostsByUserId, (req, res, next) => [r
 router.get('/users/me', a, c(user.getUserById, (req, res, next) => [req.user._id]));
 
 router.get('/users/top', c(user.getUsersTop, (req, res, next) => [req.query.since, req.query.until, req.query.limit]));
-router.get('/users/count', c(user.getUsersCount, (req, res, next) => []));
+router.get('/users/count', c(user.getUsersCount));
 
 router.get('/users/:user_id/picture', c(user.getUserPicture, (req, res, next) => [req.params.user_id, req.query.size, res]));
 router.get('/users/:user_id/posts', c(post.getPostsByUserId, (req, res, next) => [req.params.user_id, req.query.page, req.query.limit]));
@@ -80,7 +80,8 @@ router.get('/users', c(user.getUsersList, (req, res, next) => [req.query.q, req.
 
 router.get('/stats/chart', c(stats.getStatsChart, (req, res, next) => [req.query.type, req.query.group]));
 
-router.get('/version', c(info.getVersion, (req, res, next) => []));
+router.get('/version', c(info.getVersion));
+router.get('/last-updated', c(info.getLastUpdated));
 
 // Catch 404 and forward to error handler
 router.use((req, res, next) => {
