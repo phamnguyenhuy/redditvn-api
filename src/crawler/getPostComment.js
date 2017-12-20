@@ -10,10 +10,6 @@ module.exports = async (post_id, since, limit = 1500) => {
   let run = true;
   let after = undefined;
 
-  if (since) {
-    since = moment(since).unix();
-  }
-
   while (run) {
     let commentResponse;
     try {
