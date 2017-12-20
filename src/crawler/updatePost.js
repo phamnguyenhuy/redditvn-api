@@ -1,7 +1,7 @@
 const { Post } = require('../models');
 const { findSubreddit } = require('../helpers/utils');
 
-module.exports = async (item, post, comments) => {
+async function updatePost(item, post, comments) {
   const updateObj = {
     likes_count: item.likes.count,
     comments_count: comments.count,
@@ -24,4 +24,6 @@ module.exports = async (item, post, comments) => {
 
   // save last time update comment
   await Post.update({ _id: post.id }, updateObj);
-};
+}
+
+module.exports = updatePost;

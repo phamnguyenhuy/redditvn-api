@@ -18,7 +18,7 @@ createJwtAccessToken = user_id => {
   );
 };
 
-module.exports.createAuthorizeFacebook = async (user_id, access_token) => {
+async function createAuthorizeFacebook(user_id, access_token) {
   // let response
   // try {
   //   response = await fb.api('me', {
@@ -46,8 +46,13 @@ module.exports.createAuthorizeFacebook = async (user_id, access_token) => {
   }
 
   return createJwtAccessToken(fb_user_id);
-};
+}
 
-module.exports.createRefreshToken = async user_id => {
+async function createRefreshToken(user_id) {
   return createJwtAccessToken(user_id);
+}
+
+module.exports = {
+  createAuthorizeFacebook,
+  createRefreshToken
 };

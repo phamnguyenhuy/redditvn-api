@@ -1,7 +1,7 @@
 const { ServerError } = require('../helpers/server');
 const { Post } = require('../models');
 
-module.exports.findSubredditTop = (since, until, limit) => {
+function findSubredditTop(since, until, limit) {
   return Post.aggregate([
     {
       $match: {
@@ -19,9 +19,9 @@ module.exports.findSubredditTop = (since, until, limit) => {
     { $sort: { post_count: -1 } },
     { $limit: limit }
   ]).exec();
-};
+}
 
-module.exports.findSubreddits = (since, until) => {
+function findSubreddits(since, until) {
   return Post.aggregate([
     {
       $match: {
@@ -39,4 +39,9 @@ module.exports.findSubreddits = (since, until) => {
     { $sort: { post_count: -1 } },
     { $project: { _id: 1 } }
   ]).exec();
+}
+
+module.exports = {
+  findSubredditTop,
+  findSubreddits
 };

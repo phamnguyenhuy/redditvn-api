@@ -4,7 +4,7 @@ const FB = require('fb');
 const fb = new FB.Facebook();
 fb.options({ Promise: Promise });
 
-module.exports = async (post_id, since, limit = 1500) => {
+async function getPostComment(post_id, since, limit = 1500) {
   let data = [];
 
   let run = true;
@@ -44,4 +44,6 @@ module.exports = async (post_id, since, limit = 1500) => {
   }
 
   return data;
-};
+}
+
+module.exports = getPostComment;

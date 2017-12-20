@@ -4,7 +4,7 @@ const FB = require('fb');
 const fb = new FB.Facebook();
 fb.options({ Promise: Promise });
 
-module.exports = async numberOfPosts => {
+async function checkDeletePost(numberOfPosts) {
   const lastPosts = await Post.find({})
     .sort('-updated_time')
     .limit(numberOfPosts);
@@ -24,4 +24,6 @@ module.exports = async numberOfPosts => {
       }
     }
   }
-};
+}
+
+module.exports = checkDeletePost;

@@ -2,7 +2,7 @@ const { Comment } = require('../models');
 const getPostComment = require('./getPostComment');
 const moment = require('moment');
 
-module.exports = async post => {
+async function updateComments(post) {
   try {
     // get comment of post
     const comments_time = new Date();
@@ -41,4 +41,6 @@ module.exports = async post => {
     console.log(`==== ERROR UPDATE COMMENTS ${post._id} ${error}`);
     return {};
   }
-};
+}
+
+module.exports = updateComments;

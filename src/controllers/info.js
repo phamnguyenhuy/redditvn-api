@@ -1,6 +1,6 @@
 const git = require('git-last-commit');
 
-module.exports.getVersion = () => {
+function getVersion() {
   return new Promise((resolve, reject) => {
     git.getLastCommit(function(err, commit) {
       if (err) {
@@ -10,3 +10,7 @@ module.exports.getVersion = () => {
     });
   });
 }
+
+module.exports = {
+  getVersion
+};

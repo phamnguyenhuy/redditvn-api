@@ -4,7 +4,7 @@ const FB = require('fb');
 const fb = new FB.Facebook();
 fb.options({ Promise: Promise });
 
-module.exports = async (group_id, since, limit = 100, max = 500) => {
+async function getNewsFeed(group_id, since, limit = 100, max = 500) {
   let data = [];
 
   let run = true;
@@ -57,4 +57,6 @@ module.exports = async (group_id, since, limit = 100, max = 500) => {
   }
 
   return data;
-};
+}
+
+module.exports = getNewsFeed;

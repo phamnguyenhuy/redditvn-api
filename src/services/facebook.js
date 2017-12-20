@@ -4,7 +4,7 @@ const FB = require('fb');
 const fb = new FB.Facebook();
 fb.options({ Promise: Promise });
 
-module.exports.findAttachmentsByPostId = async post_id => {
+async function findAttachmentsByPostId(post_id) {
   const images = [];
   const post = await fb.api(post_id, {
     fields: ['id', 'message', 'object_id', 'likes', 'attachments'],
@@ -53,10 +53,15 @@ module.exports.findAttachmentsByPostId = async post_id => {
   return images;
 }
 
-module.exports.findUserPicture = (user_id, size = 64) => {
+function findUserPicture(user_id, size = 64) {
   if (user_id.startsWith('fb-')) {
     user_id = user_id.substr(3);
   }
 
-  return `https://graph.facebook.com/${user_id}/picture?type=square&redirect=true&width=${size}&height=${size}`
+  return `https://graph.facebook.com/${user_id}/picture?type=square&redirect=true&width=${size}&height=${size}`;
 }
+
+module.exports = {
+  findAttachmentsByPostId,
+  findUserPicture
+};

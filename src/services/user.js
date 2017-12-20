@@ -2,11 +2,11 @@ const { ServerError } = require('../helpers/server');
 const { Post, User } = require('../models');
 const { regexpEscape } = require('../helpers/utils');
 
-module.exports.findUsersCount = () => {
+function findUsersCount() {
   return User.count({ post_count: { $gt: 0 } }).exec();
-};
+}
 
-module.exports.findUsersTop = (since, until, limit) => {
+function findUsersTop(since, until, limit) {
   return Post.aggregate([
     {
       $match: {
@@ -25,13 +25,13 @@ module.exports.findUsersTop = (since, until, limit) => {
     { $sort: { post_count: -1 } },
     { $limit: limit }
   ]).exec();
-};
+}
 
-module.exports.findUserById = user_id => {
+function findUserById(user_id) {
   return User.findById(user_id, { _id: 1, name: 1, post_count: 1 }, { lean: true }).exec();
-};
+}
 
-module.exports.findUsersList = (q, page, limit) => {
+function findUsersList(q, page, limit) {
   const query = { post_count: { $gt: 0 } };
 
   if (q) {
@@ -45,20 +45,20 @@ module.exports.findUsersList = (q, page, limit) => {
     limit: limit,
     sort: { post_count: -1 }
   });
-};
+}
 
-module.exports.findUserSaves = async (user_id, category) => {
+async function findUserSaves(user_id, category) {
   let projectionCategory = 'saved';
   if (category) projectionCategory += '.' + category;
-  const user = await User.findById(user_id, { [projectionCategory]: 1});
+  const user = await User.findById(user_id, { [projectionCategory]: 1 });
   if (!user) throw new ServerError('not found user.');
   if (!user.saved) throw new ServerError('not found any saved.');
   if (category && !user.saved[category]) throw new ServerError(`not found category ${category}.`);
   return user;
 }
 
-module.exports.insertUserSave = async (user_id, category, item) => {
-  const user = await User.findById(user_id, { saved: 1});
+async function insertUserSave(user_id, category, item) {
+  const user = await User.findById(user_id, { saved: 1 });
   if (!user) throw new ServerError('not found user.');
   if (!user.saved) user.saved = {};
   if (!user.saved[category]) user.saved[category] = [];
@@ -69,8 +69,8 @@ module.exports.insertUserSave = async (user_id, category, item) => {
   return user.save();
 }
 
-module.exports.removeUserSave = async (user_id, category, item) => {
-  const user = await User.findById(user_id, { saved: 1});
+async function removeUserSave(user_id, category, item) {
+  const user = await User.findById(user_id, { saved: 1 });
   if (!user) throw new ServerError('not found user.');
   if (!user.saved) throw new ServerError('not found any saved.');
   if (!user.saved[category]) throw new ServerError(`not found category ${category}.`);
@@ -79,7 +79,17 @@ module.exports.removeUserSave = async (user_id, category, item) => {
   const index = user.saved[category].indexOf(item);
   if (index > -1) {
     user.saved[category].splice(index, 1);
-}
+  }
   user.markModified('saved');
   return user.save();
 }
+
+module.exports = {
+  findUsersCount,
+  findUsersTop,
+  findUserById,
+  findUsersList,
+  findUserSaves,
+  insertUserSave,
+  removeUserSave
+};

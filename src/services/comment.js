@@ -1,11 +1,11 @@
 const { ServerError } = require('../helpers/server');
 const { Comment } = require('../models');
 
-module.exports.findCommentsCount = (since, until) => {
+function findCommentsCount(since, until) {
   return Comment.count({ created_time: { $gte: since, $lt: until } }).exec();
-};
+}
 
-module.exports.findCommentsByPostId = (post_id, since, until, page, limit) => {
+function findCommentsByPostId(post_id, since, until, page, limit) {
   return Comment.paginate(
     {
       post_id: post_id,
@@ -27,9 +27,9 @@ module.exports.findCommentsByPostId = (post_id, since, until, page, limit) => {
       lean: true
     }
   );
-};
+}
 
-module.exports.findCommentsByPostIdOld = async post_id => {
+async function findCommentsByPostIdOld(post_id) {
   // get root comment
   const root_comments = await Comment.find({ post_id: post_id, parent: { $eq: null } }, { _id: 1, from: 1, created_time: 1, message: 1 }, { lean: true }).sort('created_time');
 
@@ -59,4 +59,10 @@ module.exports.findCommentsByPostIdOld = async post_id => {
   });
 
   return root_comments;
+}
+
+module.exports = {
+  findCommentsCount,
+  findCommentsByPostId,
+  findCommentsByPostIdOld
 };

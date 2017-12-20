@@ -1,7 +1,7 @@
 const { Post, User } = require('../models');
 const { findSubreddit } = require('../helpers/utils');
 
-module.exports = async item => {
+async function addPost(item) {
   const post = new Post({
     _id: item.id,
     from: item.from,
@@ -31,4 +31,6 @@ module.exports = async item => {
   } catch (error) {
     console.log(`==== ERROR ADD POST ${item.id} ${error}`);
   }
-};
+}
+
+module.exports = addPost;

@@ -1,6 +1,6 @@
 const { Post, User } = require('../models');
 
-module.exports = async () => {
+async function recountUserPost() {
   console.log('==== recountUserPost.');
   try {
     const aggregatorOpts = [
@@ -40,4 +40,6 @@ module.exports = async () => {
   } catch (error) {
     console.log(`==== ERROR RECOUNT USER ${error}`);
   }
-};
+}
+
+module.exports = recountUserPost;

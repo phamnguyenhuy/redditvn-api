@@ -15,33 +15,33 @@ const {
   findPosts
 } = post;
 
-module.exports.getPostsCount = async (since, until) => {
+async function getPostsCount(since, until) {
   return {
     count: await findPostsCount(since, until),
     since: moment(since).unix(),
     until: moment(until).unix()
   };
-};
+}
 
-module.exports.getPostsOrderByLikes = async (since, until, limit) => {
+async function getPostsOrderByLikes(since, until, limit) {
   return {
     docs: await findPostsOrderByLikes(since, until, limit),
     since: moment(since).unix(),
     until: moment(until).unix(),
     limit: limit
   };
-};
+}
 
-module.exports.getPostsOrderByComments = async (since, until, limit) => {
+async function getPostsOrderByComments(since, until, limit) {
   return {
     docs: await findPostsOrderByComments(since, until, limit),
     since: moment(since).unix(),
     until: moment(until).unix(),
     limit: limit
   };
-};
+}
 
-module.exports.getPostById = async post_id => {
+async function getPostById(post_id) {
   const post = await findPostById(post_id);
   if (!post) {
     throw new ServerError('Not found post.', 404);
@@ -55,36 +55,48 @@ module.exports.getPostById = async post_id => {
     prev_post: prev,
     next_post: next
   };
-};
+}
 
-module.exports.getPostByRandom = (r, q) => {
+function getPostByRandom(r, q) {
   return findPostByRandom(r, q);
-};
+}
 
-module.exports.getPostsBySearch = async (r, q, since, until, page, limit) => {
+async function getPostsBySearch(r, q, since, until, page, limit) {
   return {
     ...(await findPostsBySearch(r, q, since, until, page, limit)),
     since: moment(since).unix(),
     until: moment(until).unix()
   };
-};
+}
 
-module.exports.getPostsBySubreddit = async (r, since, until, page, limit) => {
+async function getPostsBySubreddit(r, since, until, page, limit) {
   return {
     ...(await findPostsBySubreddit(r, since, until, page, limit)),
     since: moment(since).unix(),
     until: moment(until).unix()
   };
-};
+}
 
-module.exports.getPostsByUserId = (user_id, page, limit) => {
+function getPostsByUserId(user_id, page, limit) {
   return findPostsByUserId(user_id, page, limit);
-};
+}
 
-module.exports.getPosts = async (since, until, page, limit) => {
+async function getPosts(since, until, page, limit) {
   return {
     ...(await findPosts(since, until, page, limit)),
     since: moment(since).unix(),
     until: moment(until).unix()
   };
 }
+
+module.exports = {
+  getPostsCount,
+  getPostsOrderByLikes,
+  getPostsOrderByComments,
+  getPostById,
+  getPostByRandom,
+  getPostsBySearch,
+  getPostsBySubreddit,
+  getPostsByUserId,
+  getPosts
+};

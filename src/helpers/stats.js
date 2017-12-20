@@ -50,7 +50,7 @@ const sortMonthAsc = {
 };
 const dowArray = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-module.exports.getChart = async (type, group) => {
+async function getChart(type, group) {
   type = type || 'posts';
   group = group || 'month';
 
@@ -105,4 +105,8 @@ module.exports.getChart = async (type, group) => {
     label,
     data: dbResponse.map(value => value.count)
   };
+}
+
+module.exports = {
+  getChart
 };
