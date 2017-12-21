@@ -7,7 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/index.js -backend",
     "crawl": "node src/crawl.js -backend",
-    "nodemon": "nodemon src/index.js -backend"
+    "pm2": "pm2 start config/pm2.json --env production",
+    "pm2-reload": "pm2 reload config/pm2.json --env production --update-env",
+    "pm2-dev": "pm2 start config/pm2.json",
+    "pm2-dev-reload": "pm2 reload config/pm2.json --update-env"
   },
   "keywords": [],
   "author": "sontrinh",
