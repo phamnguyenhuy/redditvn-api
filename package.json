@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/index.js -backend",
-    "crawl": "node src/crawl.js -backend",
+    "crawl": "node crawler/index.js -backend",
     "pm2": "pm2 start config/pm2-cluster.json --env production",
     "pm2-reload": "pm2 reload config/pm2-cluster.json --env production --update-env",
     "pm2-dev": "pm2 start config/pm2.json",

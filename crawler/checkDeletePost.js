@@ -1,4 +1,4 @@
-const { Post } = require('../models');
+const { Post } = require('../src/models');
 const FB = require('fb');
 
 const fb = new FB.Facebook();

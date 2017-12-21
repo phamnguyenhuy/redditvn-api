@@ -53,9 +53,7 @@ if (process.env.RUN_HTTP === 'true') {
 }
 
 server.listen(port, () => {
-  log.info('-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-');
-  log.info(`  API listening on port ${server.address().port}`);
-  log.info('-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-');
+  log.info(`API listening on port ${server.address().port}`);
 });
 
 process.on('SIGINT', function() {

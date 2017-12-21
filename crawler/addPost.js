@@ -1,5 +1,5 @@
-const { Post, User } = require('../models');
-const { findSubreddit } = require('../helpers/utils');
+const { Post, User } = require('../src/models');
+const { findSubreddit, findUserReddit } = require('../src/helpers/util');
 
 async function addPost(item) {
   try {
@@ -10,7 +10,8 @@ async function addPost(item) {
       object_id: item.object_id,
       created_time: item.created_time,
       updated_time: item.updated_time,
-      r: findSubreddit(item.message)
+      r: findSubreddit(item.message),
+      u: findUserReddit(item.message)
     });
 
     if (item.likes) {

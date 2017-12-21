@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { config } = require('dotenv');
-const { Post } = require('../models');
-const { findSubreddit } = require('../helpers/utils')
+const { Post } = require('../src/models');
+const { findSubreddit } = require('../src/helpers/')
 
 config();
 

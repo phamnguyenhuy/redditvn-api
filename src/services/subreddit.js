@@ -10,9 +10,10 @@ function findSubredditTop(since, until, limit) {
         created_time: { $gte: since, $lt: until }
       }
     },
+    { $project: { _id: 1, rLower: { $toLower: '$r' } } },
     {
       $group: {
-        _id: '$r',
+        _id: '$rLower',
         post_count: { $sum: 1 }
       }
     },
@@ -30,9 +31,10 @@ function findSubreddits(since, until) {
         r: { $ne: null }
       }
     },
+    { $project: { _id: 1, rLower: { $toLower: '$r' } } },
     {
       $group: {
-        _id: '$r',
+        _id: '$rLower',
         post_count: { $sum: 1 }
       }
     },

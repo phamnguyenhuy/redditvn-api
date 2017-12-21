@@ -1,4 +1,4 @@
-const { Post, User } = require('../models');
+const { Post, User } = require('../src/models');
 
 async function recountUserPost() {
   console.log('==== recountUserPost.');

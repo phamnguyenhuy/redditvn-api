@@ -1,6 +1,6 @@
 const { ServerError } = require('../helpers/server');
 const { Post } = require('../models');
-const { makeSearchQuery } = require('../helpers/utils');
+const { makeSearchQuery } = require('../helpers/util');
 
 function findPostsCount(since, until) {
   return Post.count({
@@ -74,7 +74,7 @@ function findPostsBySubreddit(r, since, until, page, limit) {
   return Post.paginate(
     {
       created_time: { $gte: since, $lt: until },
-      r: { $eq: r }
+      r: {'$regex' : `^${r}$`, '$options' : 'i'}
     },
     {
       select: {

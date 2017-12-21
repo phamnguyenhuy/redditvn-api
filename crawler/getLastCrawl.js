@@ -1,5 +1,5 @@
 const moment = require('moment');
-const { Setting } = require('../models');
+const { Setting } = require('../src/models');
 
 async function getLastCrawl() {
   let lastUpdate = await Setting.findById('last_updated');

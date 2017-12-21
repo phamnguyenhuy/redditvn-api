@@ -40,8 +40,11 @@ const postSchema = new mongoose.Schema({
   },
   r: {
     type: String,
-    trim: true,
-    lowercase: true
+    trim: true
+  },
+  u: {
+    type: String,
+    trim: true
   }
 });
 

@@ -1,4 +1,5 @@
 const subredditRegex = /[r]\/([a-z0-9\-_]+)/i;
+const userRedditRegex = /[u]\/([a-z0-9\-_]+)/i;
 
 regexpEscape = (s) => {
   return String(s).replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
@@ -36,12 +37,21 @@ findSubreddit = (s) => {
   if (!s) return null;
 
   result = s.match(subredditRegex);
-  if (result && result.length >= 2) return result[1].toLowerCase();
+  if (result && result.length >= 2) return result[1];
+  return null;
+}
+
+findUserReddit = (s) => {
+  if (!s) return null;
+
+  result = s.match(userRedditRegex);
+  if (result && result.length >= 2) return result[1];
   return null;
 }
 
 module.exports = {
   regexpEscape,
   makeSearchQuery,
-  findSubreddit
+  findSubreddit,
+  findUserReddit
 }

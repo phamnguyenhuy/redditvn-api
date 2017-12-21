@@ -1,6 +1,6 @@
 const { ServerError } = require('../helpers/server');
 const { Post, User } = require('../models');
-const { regexpEscape } = require('../helpers/utils');
+const { regexpEscape } = require('../helpers/util');
 
 function findUsersCount() {
   return User.count({ post_count: { $gt: 0 } }).exec();
