@@ -1,3 +1,4 @@
+const moment = require('moment');
 const checkDeletedPost = require('./checkDeletePost');
 const getLastCrawl = require('./getLastCrawl');
 const getNewsFeed = require('./getNewsFeed');
@@ -8,8 +9,7 @@ const updatePost = require('./updatePost');
 
 const recountUserPost = require('./recountUserPost');
 
-const { Post, Setting } = require('../models');
-const moment = require('moment');
+const { Post, Setting } = require('../src/models');
 
 async function run() {
   try {
@@ -66,11 +66,12 @@ async function run() {
     // save new crawl time
     await Setting.findByIdAndUpdate('last_updated', { value: since_new.toDate() }, { upsert: true });
 
+    const now = moment().unix();
     const s = moment()
       .startOf('day')
-      .add(12, 'hours');
-    const u = s.add(10, 'mins');
-    if (s <= moment() && moment() <= u) {
+      .add(12, 'hours').unix();
+    const u = s.add(10, 'mins').unix();
+    if (s <= now && now <= u) {
       await recountUserPost();
     }
 
