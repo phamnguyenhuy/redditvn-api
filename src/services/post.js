@@ -49,7 +49,8 @@ function findPostById(post_id) {
       comments_count: 1,
       likes_count: 1,
       is_deleted: 1,
-      r: 1
+      r: 1,
+      u: 1
     },
     { lean: true }
   ).exec();
@@ -59,7 +60,7 @@ function findPostsByUserId(user_id, page, limit) {
   return Post.paginate(
     { 'from.id': user_id },
     {
-      select: { _id: 1, from: 1, message: 1, created_time: 1, comments_count: 1, likes_count: 1, is_deleted: 1, r: 1 },
+      select: { _id: 1, from: 1, message: 1, created_time: 1, comments_count: 1, likes_count: 1, is_deleted: 1, r: 1, u: 1 },
       page: page,
       limit: limit,
       sort: { created_time: -1 }
@@ -136,7 +137,8 @@ function findPostsBySearch(r, q, since, until, page, limit) {
       comments_count: 1,
       likes_count: 1,
       is_deleted: 1,
-      r: 1
+      r: 1,
+      u: 1
     },
     page: page,
     limit: limit,
@@ -159,7 +161,8 @@ function findPosts(since, until, page, limit) {
         comments_count: 1,
         likes_count: 1,
         is_deleted: 1,
-        r: 1
+        r: 1,
+        u: 1
       },
       page: page,
       limit: limit,
