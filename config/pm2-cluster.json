@@ -3,6 +3,8 @@
     {
       "name": "rvn-backend",
       "script": "src/index.js",
+      "instances": "max",
+      "exec_mode": "cluster",
       "watch": ["src"],
       "args": "-backend",
       "ignore_watch": ["node_modules", ".git"],

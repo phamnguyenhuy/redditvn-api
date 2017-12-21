@@ -11,8 +11,9 @@ const routes = require('./routes');
 const morgan = require('morgan');
 const log = require('./helpers/log');
 const passport = require('passport');
-
 const databases = require('./databases');
+
+console.log('NODE_ENV=' + process.env.NODE_ENV);
 
 // Database
 databases.mongodb();
@@ -25,7 +26,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
 // Logging (debug only).
-app.use(morgan('combined', { stream: { write: msg => log.info(msg) } }));
+app.use(
+  morgan(':remote-addr - :remote-user ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {
+    stream: { write: msg => log.info(msg) }
+  })
+);
 
 // URLs.
 app.use('/', routes);
@@ -51,6 +56,12 @@ server.listen(port, () => {
   log.info('-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-');
   log.info(`  API listening on port ${server.address().port}`);
   log.info('-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-');
+});
+
+process.on('SIGINT', function() {
+  db.stop(function(err) {
+    process.exit(err ? 1 : 0);
+  });
 });
 
 module.exports = server;

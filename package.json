@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/index.js -backend",
     "crawl": "node src/crawl.js -backend",
-    "pm2": "pm2 start config/pm2.json --env production",
-    "pm2-reload": "pm2 reload config/pm2.json --env production --update-env",
+    "pm2": "pm2 start config/pm2-cluster.json --env production",
+    "pm2-reload": "pm2 reload config/pm2-cluster.json --env production --update-env",
     "pm2-dev": "pm2 start config/pm2.json",
     "pm2-dev-reload": "pm2 reload config/pm2.json --update-env"
   },
@@ -36,7 +36,7 @@
     "node": "8.9.3"
   },
   "devDependencies": {
-    "nodemon": "^1.14.0"
+    "pm2": "^2.9.1"
   },
   "repository": {
     "type": "git",
