@@ -12,13 +12,29 @@ function findPostsCount(since, until) {
   }).exec();
 }
 
+function findPostsLikesCount(since, until) {
+  return Post.aggregate([
+    {
+      $match: {
+        is_deleted: { $ne: true },
+        created_time: { $gte: since, $lt: until }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        count: { $sum: '$likes_count' }
+      }
+    },
+  ]).exec();
+}
+
 function findPostsOrderByLikes(since, until, limit) {
   return Post.find(
     {
       created_time: { $gte: since, $lt: until },
       is_deleted: { $ne: true }
-    },
-    { _id: 1, likes_count: 1, from: 1 }
+    }
   )
     .sort({ likes_count: -1 })
     .limit(limit)
@@ -30,8 +46,7 @@ function findPostsOrderByComments(since, until, limit) {
     {
       created_time: { $gte: since, $lt: until },
       is_deleted: { $ne: true }
-    },
-    { _id: 1, comments_count: 1, from: 1 }
+    }
   )
     .sort({ comments_count: -1 })
     .limit(limit)
@@ -58,7 +73,7 @@ function findPostById(post_id) {
 
 function findPostsByUserId(user_id, page, limit) {
   return Post.paginate(
-    { 'from.id': user_id },
+    { 'user': user_id },
     {
       select: { _id: 1, from: 1, message: 1, created_time: 1, comments_count: 1, likes_count: 1, is_deleted: 1, r: 1, u: 1 },
       page: page,
@@ -182,5 +197,6 @@ module.exports = {
   findPreviousPost,
   findPostByRandom,
   findPostsBySearch,
-  findPosts
+  findPosts,
+  findPostsLikesCount
 };

@@ -3,15 +3,11 @@ const mongoosePaginate = require('mongoose-paginate');
 
 const postSchema = new mongoose.Schema({
   _id: String,
-  from: {
-    id: String,
-    name: String
+  user: {
+    type: String,
+    ref: 'members'
   },
   message: String,
-  object_id: {
-    type: String,
-    select: false
-  },
   created_time: Date,
   updated_time: {
     type: Date,
@@ -45,7 +41,17 @@ const postSchema = new mongoose.Schema({
   u: {
     type: String,
     trim: true
-  }
+  },
+
+  // remove
+  from: {
+    id: String,
+    name: String
+  },
+  object_id: {
+    type: String,
+    select: false
+  },
 });
 
 postSchema.plugin(mongoosePaginate);

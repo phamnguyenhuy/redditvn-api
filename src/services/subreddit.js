@@ -14,10 +14,10 @@ function findSubredditTop(since, until, limit) {
     {
       $group: {
         _id: '$rLower',
-        post_count: { $sum: 1 }
+        posts_count: { $sum: 1 }
       }
     },
-    { $sort: { post_count: -1 } },
+    { $sort: { posts_count: -1 } },
     { $limit: limit }
   ]).exec();
 }
@@ -35,15 +35,34 @@ function findSubreddits(since, until) {
     {
       $group: {
         _id: '$rLower',
-        post_count: { $sum: 1 }
+        posts_count: { $sum: 1 }
       }
     },
-    { $sort: { post_count: -1 } },
+    { $sort: { posts_count: -1 } },
     { $project: { _id: 1 } }
+  ]).exec();
+}
+
+function findSubredditsCount(since, until) {
+  return Post.aggregate([
+    {
+      $match: {
+        created_time: { $gte: since, $lt: until },
+        is_deleted: { $ne: true },
+        r: { $ne: null }
+      }
+    },
+    { $project: { _id: 1, rLower: { $toLower: '$r' } } },
+    {
+      $group: {
+        _id: '$rLower'
+      }
+    }
   ]).exec();
 }
 
 module.exports = {
   findSubredditTop,
-  findSubreddits
+  findSubreddits,
+  findSubredditsCount
 };

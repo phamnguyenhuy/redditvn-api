@@ -3,19 +3,29 @@ const mongoosePaginate = require('mongoose-paginate');
 
 const commentSchema = new mongoose.Schema({
   _id: String,
-  post_id: {
+  post: {
     type: String,
-    select: false
+    ref: 'posts'
   },
   parent: {
-    id: String
+    type: String,
+    ref: 'comments'
   },
   message: String,
+  user: {
+    type: String,
+    ref: 'members'
+  },
+  created_time: Date,
+
+  // remove
+  post_id: {
+    type: String
+  },
   from: {
     id: String,
     name: String
   },
-  created_time: Date
 });
 
 commentSchema.plugin(mongoosePaginate);

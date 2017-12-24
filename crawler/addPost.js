@@ -5,7 +5,7 @@ async function addPost(item) {
   try {
     const post = new Post({
       _id: item.id,
-      from: item.from,
+      user: item.from.id,
       message: item.message,
       object_id: item.object_id,
       created_time: item.created_time,
@@ -28,9 +28,9 @@ async function addPost(item) {
         _id: item.from.id,
         name: item.from.name
       },
-      $inc: { post_count: 1 }
+      $inc: { posts_count: 1 }
     };
-    await User.findByIdAndUpdate(item.from.id, user, { upsert: true });
+    await User.findByIdAndUpdate(item.user, user, { upsert: true });
     return post;
   } catch (error) {
     console.log(`==== ERROR ADD POST ${item.id} ${error}`);

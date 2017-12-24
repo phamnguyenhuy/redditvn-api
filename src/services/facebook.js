@@ -7,7 +7,7 @@ fb.options({ Promise: Promise });
 async function findAttachmentsByPostId(post_id) {
   const images = [];
   const post = await fb.api(post_id, {
-    fields: ['id', 'message', 'object_id', 'likes', 'attachments'],
+    fields: ['id', 'attachments'],
     access_token: process.env.FACEBOOK_ACCESS_TOKEN
   });
 
@@ -49,19 +49,9 @@ async function findAttachmentsByPostId(post_id) {
       }
     }
   }
-
   return images;
-}
-
-function findUserPicture(user_id, size = 64) {
-  if (user_id.startsWith('fb-')) {
-    user_id = user_id.substr(3);
-  }
-
-  return `https://graph.facebook.com/${user_id}/picture?type=square&redirect=true&width=${size}&height=${size}`;
 }
 
 module.exports = {
   findAttachmentsByPostId,
-  findUserPicture
 };

@@ -51,19 +51,19 @@ const sortMonthAsc = {
 const dowArray = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 async function getChart(type, group) {
-  type = type || 'posts';
-  group = group || 'month';
+  type = type || 'POSTS';
+  group = group || 'MONTH';
 
   let groupDb;
   let sort = sortAsc;
   switch (group) {
-    case 'hour':
+    case 'HOUR':
       groupDb = groupHour;
       break;
-    case 'dow':
+    case 'DAY_OF_WEEK':
       groupDb = groupDow;
       break;
-    case 'dom':
+    case 'DAY_OF_MONTH':
       groupDb = groupDom;
       break;
     default:
@@ -75,7 +75,7 @@ async function getChart(type, group) {
 
   let dbResponse;
   switch (type) {
-    case 'comments':
+    case 'COMMENTS':
       dbResponse = await Comment.aggregate(aggregatorOpts);
       break;
 
@@ -86,12 +86,12 @@ async function getChart(type, group) {
 
   let label;
   switch (group) {
-    case 'dow':
+    case 'DAY_OF_WEEK':
       label = dbResponse.map(value => {
         return dowArray[value._id - 1];
       });
       break;
-    case 'month':
+    case 'MONTH':
       label = dbResponse.map(value => {
         return `${value._id.month}/${value._id.year}`;
       });

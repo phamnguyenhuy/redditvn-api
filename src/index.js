@@ -7,7 +7,6 @@ const bodyParser = require('body-parser');
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
-const routes = require('./routes');
 const morgan = require('morgan');
 const log = require('./helpers/log');
 const passport = require('passport');
@@ -28,12 +27,64 @@ app.use(passport.initialize());
 // Logging (debug only).
 app.use(
   morgan(':remote-addr - :remote-user ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {
-    stream: { write: msg => log.info(msg) }
+    stream: {
+      write: msg => log.info(msg)
+    }
   })
 );
 
-// URLs.
-app.use('/', routes);
+const { graphqlExpress, graphiqlExpress } = require('graphql-server-express');
+
+const executableSchema = require('./graphql/schema');
+
+app.use(
+  '/graphql',
+  bodyParser.json(),
+  graphqlExpress(req => ({
+    schema: executableSchema
+  }))
+);
+
+const GRAPHQL_PATH = '/graphql';
+app.use(
+  '/graphiql',
+  graphiqlExpress({
+    endpointURL: GRAPHQL_PATH
+  })
+);
+
+// Catch 404 and forward to error handler
+app.use((req, res, next) => {
+  next(new ServerError('the page you requested does not exist', 404));
+});
+
+// Error-handler.
+app.use((err, req, res, next) => {
+  // Expected errors always throw ServerError.
+  // Unexpected errors will either throw unexpected stuff or crash the application.
+  if (Object.prototype.isPrototypeOf.call(ServerError.prototype, err)) {
+    return res.status(err.code || 500).json({
+      error: {
+        message: err.message,
+        type: 'ServerError',
+        code: err.code
+      }
+    });
+  }
+
+  log.error('~~~ Unexpected error exception start ~~~');
+  log.error(req);
+  log.error(err);
+  log.error('~~~ Unexpected error exception end ~~~');
+
+  return res.status(500).json({
+    error: {
+      message: err.message || 'something when wrong...',
+      type: err.type || 'UnexpectedException',
+      code: err.code || 500
+    }
+  });
+});
 
 // Server
 const port = process.env.PORT || 3000;

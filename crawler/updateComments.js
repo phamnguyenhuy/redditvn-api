@@ -21,10 +21,20 @@ async function updateComments(post) {
           parent: comment.parent,
           post_id: post._id,
           message: comment.message,
-          from: comment.from,
+          user: comment.from.id,
           created_time: comment.created_time
         });
         await Comment.findByIdAndUpdate(comment.id, newComment, { upsert: true });
+
+        // find user and inc comment count
+        const user = {
+          $set: {
+            _id: post.from.id,
+            name: post.from.name
+          },
+          $inc: { comments_count: 1 }
+        };
+        await User.findByIdAndUpdate(item.user, user, { upsert: true });
       })
     );
 
