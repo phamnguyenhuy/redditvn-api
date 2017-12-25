@@ -7,7 +7,7 @@ async function updateComments(post) {
     // get comment of post
     const comments_time = new Date();
     const since_time = moment(post.comments_time).unix();
-    const comments = await getPostComment(post._id, since_time);
+    const comments = await getPostComment(post.defaultId, since_time);
     await Promise.all(
       comments.map(async comment => {
         // skip comment empty or dot

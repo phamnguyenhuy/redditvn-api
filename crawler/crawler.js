@@ -48,6 +48,7 @@ async function run() {
         continue;
       }
 
+      item.defaultId = item.id;
       const indexOfLodash = item.id.indexOf('_');
       if (indexOfLodash !== -1) {
         item.id = item.id.substr(indexOfLodash + 1);
