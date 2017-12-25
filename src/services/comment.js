@@ -8,7 +8,7 @@ function findCommentsCount(since, until) {
 function findCommentsByPostId(post_id, since, until, page, limit) {
   return Comment.paginate(
     {
-      post_id: post_id,
+      post: post_id,
       created_time: { $gte: since, $lt: until }
     },
     {
@@ -31,11 +31,11 @@ function findCommentsByPostId(post_id, since, until, page, limit) {
 
 async function findCommentsByPostIdOld(post_id) {
   // get root comment
-  const root_comments = await Comment.find({ post_id: post_id, parent: { $eq: null } }, { _id: 1, user: 1, created_time: 1, message: 1 }, { lean: true }).sort('created_time');
+  const root_comments = await Comment.find({ post: post_id, parent: { $eq: null } }, { _id: 1, user: 1, created_time: 1, message: 1 }, { lean: true }).sort('created_time');
 
   // get reply comment
   const reply_comments = await Comment.find(
-    { post_id: post_id, parent: { $ne: null } },
+    { post: post_id, parent: { $ne: null } },
     {
       _id: 1,
       parent: 1,

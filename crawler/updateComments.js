@@ -19,7 +19,7 @@ async function updateComments(post) {
         const newComment = new Comment({
           _id: comment.id,
           parent: comment.parent,
-          post_id: post._id,
+          post: post._id,
           message: comment.message,
           user: comment.from.id,
           created_time: comment.created_time
@@ -42,7 +42,7 @@ async function updateComments(post) {
 
     // return comment count and comment update time
     const result = {
-      count: await Comment.count({ post_id: post._id }),
+      count: await Comment.count({ post: post._id }),
       time: comments_time
     };
 

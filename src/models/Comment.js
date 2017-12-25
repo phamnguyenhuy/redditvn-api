@@ -16,12 +16,7 @@ const commentSchema = new mongoose.Schema({
     type: String,
     ref: 'users'
   },
-  created_time: Date,
-
-  // remove
-  post_id: {
-    type: String
-  }
+  created_time: Date
 });
 
 commentSchema.plugin(mongoosePaginate);

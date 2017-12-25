@@ -48,6 +48,11 @@ async function run() {
         continue;
       }
 
+      const indexOfLodash = item.id.indexOf('_');
+      if (indexOfLodash !== -1) {
+        item.id = item.id.substr(indexOfLodash + 1);
+      }
+
       // get post in database
       let post = await Post.findById(item.id);
 

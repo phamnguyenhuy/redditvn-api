@@ -29,7 +29,7 @@ async function addPost(item) {
       },
       $inc: { posts_count: 1 }
     };
-    await User.findByIdAndUpdate(item.user, user, { upsert: true });
+    await User.findByIdAndUpdate(item.from.id, user, { upsert: true });
     return post;
   } catch (error) {
     console.log(`==== ERROR ADD POST ${item.id} ${error}`);
