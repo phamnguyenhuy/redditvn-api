@@ -77,9 +77,9 @@ async function run() {
     const now = moment().unix();
     const s = moment()
       .startOf('day')
-      .add(12, 'hours').unix();
-    const u = s.add(10, 'mins').unix();
-    if (s <= now && now <= u) {
+      .add(12, 'hours');
+    const u = s.add(10, 'mins');
+    if (s.unix() <= now && now <= u.unix()) {
       await recountUserPost();
     }
 
