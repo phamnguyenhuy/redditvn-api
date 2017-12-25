@@ -3,6 +3,16 @@ const { findSubreddit, findUserReddit } = require('../src/helpers/util');
 
 async function addPost(item) {
   try {
+    // find user and inc post count
+    const user = {
+      $set: {
+        _id: item.from.id,
+        name: item.from.name
+      },
+      $inc: { posts_count: 1 }
+    };
+    await User.findByIdAndUpdate(item.from.id, user, { upsert: true });
+
     const post = new Post({
       _id: item.id,
       user: item.from.id,
@@ -21,15 +31,6 @@ async function addPost(item) {
     await post.save();
     console.log(`==== ADD POST ${item.id}`);
 
-    // find user and inc post count
-    const user = {
-      $set: {
-        _id: item.from.id,
-        name: item.from.name
-      },
-      $inc: { posts_count: 1 }
-    };
-    await User.findByIdAndUpdate(item.from.id, user, { upsert: true });
     return post;
   } catch (error) {
     console.log(`==== ERROR ADD POST ${item.id} ${error}`);

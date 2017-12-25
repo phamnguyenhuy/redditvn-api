@@ -1,4 +1,4 @@
-const { Comment } = require('../src/models');
+const { Comment, User } = require('../src/models');
 const getPostComment = require('./getPostComment');
 const moment = require('moment');
 
