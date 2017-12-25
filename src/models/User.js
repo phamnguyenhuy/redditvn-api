@@ -7,10 +7,7 @@ const userSchema = new mongoose.Schema({
   posts_count: { type: Number, default: 0 },
   comments_count: { type: Number, default: 0 },
   saved: mongoose.Schema.Types.Mixed,
-
-  //delete
-  post_count: { type: Number, default: 0 },
 });
 
 userSchema.plugin(mongoosePaginate);
-module.exports = mongoose.model('members', userSchema);
+module.exports = mongoose.model('users', userSchema);

@@ -22,11 +22,6 @@ async function updatePost(item, post, comments) {
       console.log(`==== EDIT POST ${item.id}`);
     }
 
-    // check new object id
-    if (item.object_id !== post.object_id) {
-      updateObj.object_id = item.object_id;
-    }
-
     // save last time update comment
     await Post.update({ _id: post.id }, updateObj);
   } catch (error) {

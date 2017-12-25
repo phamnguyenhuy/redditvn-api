@@ -48,7 +48,7 @@ async function run() {
         continue;
       }
 
-      // get post from database
+      // get post in database
       let post = await Post.findById(item.id);
 
       // add new post

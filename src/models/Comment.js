@@ -14,18 +14,14 @@ const commentSchema = new mongoose.Schema({
   message: String,
   user: {
     type: String,
-    ref: 'members'
+    ref: 'users'
   },
   created_time: Date,
 
   // remove
   post_id: {
     type: String
-  },
-  from: {
-    id: String,
-    name: String
-  },
+  }
 });
 
 commentSchema.plugin(mongoosePaginate);

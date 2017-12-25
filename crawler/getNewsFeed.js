@@ -15,7 +15,7 @@ async function getNewsFeed(group_id, since, limit = 100, max = 500) {
 
   while (run) {
     const fbResponse = await fb.api(`${group_id}/feed`, {
-      fields: ['id', 'from', 'message', 'object_id', 'created_time', 'updated_time', 'likes'],
+      fields: ['id', 'from', 'message', 'created_time', 'updated_time', 'likes'],
       access_token: process.env.FACEBOOK_ACCESS_TOKEN,
       limit,
       since,

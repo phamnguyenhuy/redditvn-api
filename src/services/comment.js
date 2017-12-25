@@ -15,7 +15,7 @@ function findCommentsByPostId(post_id, since, until, page, limit) {
       select: {
         _id: 1,
         parent: 1,
-        from: 1,
+        user: 1,
         created_time: 1,
         message: 1
       },
@@ -31,7 +31,7 @@ function findCommentsByPostId(post_id, since, until, page, limit) {
 
 async function findCommentsByPostIdOld(post_id) {
   // get root comment
-  const root_comments = await Comment.find({ post_id: post_id, parent: { $eq: null } }, { _id: 1, from: 1, created_time: 1, message: 1 }, { lean: true }).sort('created_time');
+  const root_comments = await Comment.find({ post_id: post_id, parent: { $eq: null } }, { _id: 1, user: 1, created_time: 1, message: 1 }, { lean: true }).sort('created_time');
 
   // get reply comment
   const reply_comments = await Comment.find(
@@ -39,7 +39,7 @@ async function findCommentsByPostIdOld(post_id) {
     {
       _id: 1,
       parent: 1,
-      from: 1,
+      user: 1,
       created_time: 1,
       message: 1
     },

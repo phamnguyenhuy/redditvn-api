@@ -5,7 +5,7 @@ const postSchema = new mongoose.Schema({
   _id: String,
   user: {
     type: String,
-    ref: 'members'
+    ref: 'users'
   },
   message: String,
   created_time: Date,
@@ -41,17 +41,7 @@ const postSchema = new mongoose.Schema({
   u: {
     type: String,
     trim: true
-  },
-
-  // remove
-  from: {
-    id: String,
-    name: String
-  },
-  object_id: {
-    type: String,
-    select: false
-  },
+  }
 });
 
 postSchema.plugin(mongoosePaginate);

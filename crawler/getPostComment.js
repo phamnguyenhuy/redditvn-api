@@ -23,7 +23,7 @@ async function getPostComment(post_id, since, limit = 1500) {
         limit
       });
     } catch (error) {
-      console.log(`==== ERROR GET COMMENT FROM API ${error}`);
+      console.log(`==== ERROR GET COMMENT API ${error}`);
     }
 
     // check no response data

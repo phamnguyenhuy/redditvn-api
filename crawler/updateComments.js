@@ -29,8 +29,8 @@ async function updateComments(post) {
         // find user and inc comment count
         const user = {
           $set: {
-            _id: post.from.id,
-            name: post.from.name
+            _id: comment.from.id,
+            name: comment.from.name
           },
           $inc: { comments_count: 1 }
         };

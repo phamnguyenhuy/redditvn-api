@@ -7,7 +7,6 @@ async function addPost(item) {
       _id: item.id,
       user: item.from.id,
       message: item.message,
-      object_id: item.object_id,
       created_time: item.created_time,
       updated_time: item.updated_time,
       r: findSubreddit(item.message),

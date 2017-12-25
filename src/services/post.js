@@ -58,7 +58,7 @@ function findPostById(post_id) {
     post_id,
     {
       _id: 1,
-      from: 1,
+      user: 1,
       message: 1,
       created_time: 1,
       comments_count: 1,
@@ -75,7 +75,7 @@ function findPostsByUserId(user_id, page, limit) {
   return Post.paginate(
     { 'user': user_id },
     {
-      select: { _id: 1, from: 1, message: 1, created_time: 1, comments_count: 1, likes_count: 1, is_deleted: 1, r: 1, u: 1 },
+      select: { _id: 1, user: 1, message: 1, created_time: 1, comments_count: 1, likes_count: 1, is_deleted: 1, r: 1, u: 1 },
       page: page,
       limit: limit,
       sort: { created_time: -1 }
@@ -95,7 +95,7 @@ function findPostsBySubreddit(r, since, until, page, limit) {
     {
       select: {
         _id: 1,
-        from: 1,
+        user: 1,
         message: 1,
         created_time: 1,
         comments_count: 1,
@@ -146,7 +146,7 @@ function findPostsBySearch(r, q, since, until, page, limit) {
   return Post.paginate(query, {
     select: {
       _id: 1,
-      from: 1,
+      user: 1,
       message: 1,
       created_time: 1,
       comments_count: 1,
@@ -170,7 +170,7 @@ function findPosts(since, until, page, limit) {
     {
       select: {
         _id: 1,
-        from: 1,
+        user: 1,
         message: 1,
         created_time: 1,
         comments_count: 1,
