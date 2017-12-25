@@ -4,14 +4,12 @@ const { findSubreddit, findUserReddit } = require('../src/helpers/util');
 async function updatePost(item, post, comments) {
   try {
     const updateObj = {
-      comments_count: comments.count,
-      comments_time: comments.time,
       updated_time: item.updated_time
     };
 
-    if (item.likes) {
-      updateObj.likes_count = item.likes.count;
-    }
+    if (comments.count) updateObj.comments_count = comments.count;
+    if (comments.time) updateObj.comments_time = comments.time;
+    if (item.likes) updateObj.likes_count = item.likes.count;
 
     // check edited post
     if (item.message !== post.message) {
