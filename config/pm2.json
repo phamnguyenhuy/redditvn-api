@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "name": "rvn-backend",
+      "name": "rvn-back-v2",
       "script": "src/index.js",
       "watch": ["src"],
       "args": "-backend",
@@ -16,13 +16,13 @@
       "env": {
         "NODE_ENV": "development",
         "DEBUG": "*",
-        "DEBUG_LOG_PREFIX": "rvn-backend:",
+        "DEBUG_LOG_PREFIX": "rvn-back-v2:",
         "DEBUG_HIDE_DATE": "1"
       },
       "env_production": {
         "NODE_ENV": "production",
-        "DEBUG": "rvn-backend:*",
-        "DEBUG_LOG_PREFIX": "rvn-backend:",
+        "DEBUG": "rvn-back-v2:*",
+        "DEBUG_LOG_PREFIX": "rvn-back-v2:",
         "DEBUG_HIDE_DATE": "1"
       }
     }

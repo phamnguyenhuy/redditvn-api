@@ -75,9 +75,7 @@ async function run() {
     await Setting.findByIdAndUpdate('last_updated', { value: since_new.toDate() }, { upsert: true });
 
     const now = moment().unix();
-    const s = moment()
-      .startOf('day')
-      .add(12, 'hours');
+    const s = moment().startOf('day').add(12, 'hours');
     const u = s.add(10, 'mins');
     if (s.unix() <= now && now <= u.unix()) {
       await recountUserPost();
