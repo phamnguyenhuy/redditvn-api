@@ -49,6 +49,28 @@ const Schema = [`
     data: [Int]
   }
 
+  input ConnectionInput {
+    first: Int = 10
+    after: String
+    last: Int
+    before: String
+  }
+
+  type PostConnection {
+    edges: [PostEdge]
+    pageInfo: PageInfo!
+  }
+
+  type PostEdge {
+    cursor: String!
+    node: Post!
+  }
+
+  type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+  }
+
   # Đính kèm trong bài viết
   type Attachment {
     # Đường dẫn tới tệp đính kèm
@@ -171,14 +193,7 @@ const Schema = [`
 
     # Lấy danh sách bài viết
     posts(
-      # Thời gian bắt đầu
-      since: Int = 0
-      # Thời gian kết thúc
-      until: Int = 2147483647
-      # Trang hiện tại
-      page: Int = 1
-      # Giới hạn trên một trang
-      limit: Int = 10
+      postConnection: ConnectionInput
       # Bài viết của user nào
       user: String
       # Bài viết có từ khóa
@@ -187,7 +202,7 @@ const Schema = [`
       r: String
       # Bài viết của user-reddit nào
       u: String
-    ): [Post]
+    ): PostConnection
 
     # Lấy bài viết ngẫu nhiên
     random(

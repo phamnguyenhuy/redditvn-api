@@ -11,6 +11,7 @@ const morgan = require('morgan');
 const log = require('./helpers/log');
 const passport = require('passport');
 const databases = require('./databases');
+const { ServerError } = require('./helpers/server');
 
 console.log('NODE_ENV=' + process.env.NODE_ENV);
 
