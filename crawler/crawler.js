@@ -62,6 +62,8 @@ async function run() {
         post = await addPost(item);
       }
 
+      post.defaultId = item.defaultId;
+
       // update comment and data
       if (post) {
         const comments = await updateComments(post);
