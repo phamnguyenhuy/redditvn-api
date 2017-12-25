@@ -15,6 +15,16 @@ async function updateComments(post) {
           return;
         }
 
+        // find user and inc comment count
+        const user = {
+          $set: {
+            _id: comment.from.id,
+            name: comment.from.name
+          },
+          $inc: { comments_count: 1 }
+        };
+        await User.findByIdAndUpdate(item.user, user, { upsert: true });
+
         // add comment to database
         const newComment = new Comment({
           _id: comment.id,
@@ -25,16 +35,6 @@ async function updateComments(post) {
           created_time: comment.created_time
         });
         await Comment.findByIdAndUpdate(comment.id, newComment, { upsert: true });
-
-        // find user and inc comment count
-        const user = {
-          $set: {
-            _id: comment.from.id,
-            name: comment.from.name
-          },
-          $inc: { comments_count: 1 }
-        };
-        await User.findByIdAndUpdate(item.user, user, { upsert: true });
       })
     );
 
