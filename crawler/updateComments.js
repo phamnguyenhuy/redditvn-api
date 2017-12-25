@@ -23,7 +23,7 @@ async function updateComments(post) {
           },
           $inc: { comments_count: 1 }
         };
-        await User.findByIdAndUpdate(post.user, user, { upsert: true });
+        await User.findByIdAndUpdate(comment.from.id, user, { upsert: true });
 
         // add comment to database
         const newComment = new Comment({
