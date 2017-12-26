@@ -15,7 +15,7 @@ const Attachment = `
     url: String
     # Ảnh nhỏ đại diện
     src: String
-    # Loại tập tin (image|gif|video|share)
+    # Loại tập tin (image|animated_image|video|share|album)
     type: String
   }
 `;

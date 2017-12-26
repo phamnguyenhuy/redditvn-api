@@ -10,5 +10,5 @@ const top = require('./top');
 const user = require('./user');
 
 module.exports = {
-  Resolvers: merge.all([{ Date: GraphQLDate, Cursor: Cursor }, comment, post, subreddit, top, user, query])
+  Resolvers: merge.all([{ Date: GraphQLDate, Cursor: Cursor }, attachment, comment, post, subreddit, top, user, query])
 };

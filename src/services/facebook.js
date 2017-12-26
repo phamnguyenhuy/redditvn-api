@@ -24,7 +24,7 @@ async function findAttachmentsByPostId(post_id) {
         images.push({
           url: attachment.url,
           src: attachment.media.image.src,
-          type: 'gif'
+          type: 'animated_image'
         });
       } else if (attachment.type.includes('video') && attachment.media) {
         images.push({
@@ -43,7 +43,7 @@ async function findAttachmentsByPostId(post_id) {
           images.push({
             url: subattachment.url,
             src: subattachment.media.image.src,
-            type: 'image'
+            type: 'album'
           });
         }
       }
