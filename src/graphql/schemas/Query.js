@@ -11,13 +11,9 @@ const Query = `
     users(
       # Tìm kiếm theo tên thành viên
       q: String
-
       first: Int = 10
-
       after: Cursor
-
       last: Int
-
       before: Cursor
     ): UserConnection
 
@@ -29,29 +25,20 @@ const Query = `
 
     # Lấy danh sách bài viết
     posts(
+      first: Int = 10
+      after: Cursor
+      last: Int
+      before: Cursor
       # Thời gian bắt đầu
       since: Int = 0
-
       # Thời gian kết thúc
       until: Int = 2147483647
-
-      first: Int = 10
-
-      after: Cursor
-
-      last: Int
-
-      before: Cursor
-
       # Bài viết của user nào
       user: String
-
       # Bài viết có từ khóa
       q: String
-
       # Bài viết trong sub-reddit
       r: String
-
       # Bài viết của user-reddit nào
       u: String
     ): PostConnection
@@ -60,7 +47,6 @@ const Query = `
     random(
       # Bài viết trong subreddit nào
       r: String
-
       # Bài viết có chứa từ khóa nào
       q: String
     ): Post
@@ -75,18 +61,12 @@ const Query = `
     comments(
       # Mã bài viết
       post_id: String
-
       first: Int = 10
-
       after: Cursor
-
       last: Int
-
       before: Cursor
-
       # Thời gian bắt đầu
       since: Int = 0
-
       # Thời gian kết thúc
       until: Int = 2147483647
     ): CommentConnection
@@ -95,10 +75,8 @@ const Query = `
     count(
       # Loại thống kê
       type: CountType!
-
       # Thời gian bắt đầu
       since: Int = 0
-
       # Thời gian kết thúc
       until: Int = 2147483647
     ): Int
@@ -107,7 +85,6 @@ const Query = `
     subreddits(
       # Thời gian bắt đầu
       since: Int = 0
-
       # Thời gian kết thúc
       until: Int = 2147483647
     ): [String]
@@ -119,7 +96,6 @@ const Query = `
     chart(
       # Nhóm theo bài viết hoặc bình luận
       type: ChartType = POSTS
-
       # Nhóm theo giờ, ngày trong tuần, ngày trong tháng, tháng
       group: ChartGroup = MONTH
     ): ChartResult

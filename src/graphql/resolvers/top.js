@@ -23,7 +23,7 @@ const TopResolver = {
       };
       return connectionFromModel(Post, filter, { first, last, before, after }, 'likes_count', -1);
     },
-    commentes(top, { since, until, first, last, before, after }, context, info) {
+    comments(top, { since, until, first, last, before, after }, context, info) {
       since = moment.unix(since).toDate();
       until = moment.unix(until).toDate();
       const filter = {
@@ -32,7 +32,7 @@ const TopResolver = {
       };
       return connectionFromModel(Post, filter, { first, last, before, after }, 'comments_count', -1);
     },
-    async user_posts(top, { since, until, first }, context, info) {
+    async posts_count(top, { since, until, first }, context, info) {
       since = moment.unix(since).toDate();
       until = moment.unix(until).toDate();
       const list = await Post.aggregate([
@@ -53,7 +53,6 @@ const TopResolver = {
       ]).exec();
       const edges = await Promise.all(
         list.map(async value => {
-          const _id = value._id;
           const user = await User.findById(value._id).exec();
           user.posts_count = value.posts_count;
           return user;

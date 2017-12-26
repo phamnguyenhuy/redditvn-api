@@ -42,7 +42,7 @@ const QueryResolver = {
                 _id: null,
                 count: { $sum: '$likes_count' }
               }
-            },
+            }
           ]).exec();
           return likes[0].count;
         case 'COMMENTS':

@@ -1,4 +1,4 @@
-const moment = require('moment')
+const moment = require('moment');
 const getProjection = require('../getProjection');
 const { Post, Comment, User } = require('../../models');
 const connectionFromModel = require('../connectionFromModel');

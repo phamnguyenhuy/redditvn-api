@@ -35,7 +35,6 @@ const UserResolver = {
   },
   User: {
     profile_pic(user, { size }, context, info) {
-      size = size || 64;
       return `https://graph.facebook.com/${user._id}/picture?type=square&redirect=true&width=${size}&height=${size}`;
     },
     posts(user, { first, last, before, after }, context, info) {

@@ -32,7 +32,7 @@ const PostResolver = {
         else q = regexpEscape(q);
         filter.message = { $regex: new RegExp(q), $options: 'i' };
       }
-      user ? filter.user = user : undefined;
+      user ? (filter.user = user) : undefined;
 
       return connectionFromModel(Post, filter, { first, last, before, after }, 'created_time', -1);
     },

@@ -3,46 +3,34 @@ const Top = `
   type Top {
     # Bài nhiều lượt thích nhất
     likes(
+      first: Int = 10
+      after: Cursor
+      last: Int
+      before: Cursor
       # Thời gian bắt đầu
       since: Int = 0
-
       # Thời gian kết thúc
       until: Int = 2147483647
-
-      first: Int = 10
-
-      after: Cursor
-
-      last: Int
-
-      before: Cursor
     ): PostConnection
 
     # Bài nhiều bình luận nhất
-    commentes(
+    comments(
+      first: Int = 10
+      after: Cursor
+      last: Int
+      before: Cursor
       # Thời gian bắt đầu
       since: Int = 0
-
       # Thời gian kết thúc
       until: Int = 2147483647
-
-      first: Int = 10
-
-      after: Cursor
-
-      last: Int
-
-      before: Cursor
     ): PostConnection
 
     # Thành viên viết nhiều bài nhất
-    user_posts(
+    posts_count(
       # Thời gian bắt đầu
       since: Int = 0
-
       # Thời gian kết thúc
       until: Int = 2147483647
-
       first: Int = 10
     ): UserConnection
 
@@ -50,10 +38,8 @@ const Top = `
     subreddit(
       # Thời gian bắt đầu
       since: Int = 0
-
       # Thời gian kết thúc
       until: Int = 2147483647
-
       first: Int = 10
     ): SubRedditConnection
   }

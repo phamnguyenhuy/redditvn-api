@@ -1,7 +1,7 @@
 const { ServerError } = require('../helpers/server');
 const { Post } = require('../models');
 
-function findSubredditTop(since, until, limit) {
+function findSubredditTop(since, until, first) {
   return Post.aggregate([
     {
       $match: {
@@ -18,7 +18,7 @@ function findSubredditTop(since, until, limit) {
       }
     },
     { $sort: { posts_count: -1 } },
-    { $limit: limit }
+    { $limit: first }
   ]).exec();
 }
 
