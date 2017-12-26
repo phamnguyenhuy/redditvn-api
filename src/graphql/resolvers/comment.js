@@ -1,48 +1,74 @@
+const moment = require('moment')
 const getProjection = require('../getProjection');
 const { Post, Comment, User } = require('../../models');
-const { comment } = require('../../services');
-const { findCommentsByPostId } = comment;
+const connectionFromModel = require('../connectionFromModel');
 
 const CommentResolver = {
   Query: {
-    comment(obj, { id }, context, info) {
+    comment(root, { id }, context, info) {
       const projection = getProjection(info.fieldNodes[0]);
       return Comment.findById(id, projection).exec();
     },
-    comments(obj, { post_id, since, until, page, limit }, context, info) {
-      return findCommentsByPostId(post_id, since, until, page, limit);
+    comments(root, { post_id, since, until, first, last, before, after }, context, info) {
+      const filter = {
+        post: post_id,
+        parent: { $eq: null }
+      };
+      if (since) {
+        filter.created_time = filter.created_time || {};
+        filter.created_time.$gte = moment.unix(since).toDate();
+      }
+      if (until) {
+        filter.created_time = filter.created_time || {};
+        filter.created_time.$lt = moment.unix(until).toDate();
+      }
+      return connectionFromModel(Comment, filter, { first, last, before, after }, 'created_time', 1);
+    }
+  },
+  CommentConnection: {
+    edges(connection) {
+      if (connection.query) return connection.query.toArray();
+      if (connection.edges) return connection.edges;
+      return null;
+    }
+  },
+  CommentEdge: {
+    cursor(comment) {
+      return { value: comment._id.toString() };
     },
+    node(comment) {
+      return comment;
+    }
   },
   Comment: {
-    _id(comment, args, context, info) {
-      return comment._id;
-    },
-    async post(comment, args, context, info) {
+    post(comment, args, context, info) {
       const projection = getProjection(info.fieldNodes[0]);
-      const post_id = comment.post;
-      const post = await Post.findById(post_id, projection).exec();
-      return post;
+      return Post.findById(comment.post, projection).exec();
     },
-    async user(comment, args, context, info) {
+    user(comment, args, context, info) {
       const projection = getProjection(info.fieldNodes[0]);
-      const user_id = comment.user;
-      const user = await User.findById(user_id, projection).exec();
-      return user;
+      return User.findById(comment.user, projection).exec();
     },
-    async parent(comment, args, context, info) {
+    parent(comment, args, context, info) {
       if (!comment.parent) return null;
       const projection = getProjection(info.fieldNodes[0]);
-      const parent_id = comment.parent;
-      const parent_comment = await Comment.findById(parent_id, projection).exec();
-      return parent_comment;
+      return Comment.findById(comment.parent, projection).exec();
     },
-    message(comment, args, context, info) {
-      return comment.message;
-    },
-    created_time(comment, args, context, info) {
-      return comment.created_time;
+    replies(comment, { since, until, first, last, before, after }, context, info) {
+      const filter = {
+        parent: comment._id
+      };
+      if (since) {
+        filter.created_time = filter.created_time || {};
+        filter.created_time.$gte = moment.unix(since).toDate();
+      }
+      if (until) {
+        filter.created_time = filter.created_time || {};
+        filter.created_time.$lt = moment.unix(until).toDate();
+      }
+      return connectionFromModel(Comment, filter, { first, last, before, after }, 'created_time', 1);
     }
   }
-}
+};
 
 module.exports = CommentResolver;

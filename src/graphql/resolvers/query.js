@@ -5,40 +5,50 @@ const getProjection = require('../getProjection');
 
 const { Post, Comment, User } = require('../../models');
 
-const { post } = require('../../services');
-const { findPostsCount, findPostsLikesCount } = post;
-
-const { comment } = require('../../services');
-const { findCommentsCount } = comment;
-
-const { user } = require('../../services');
-const { findUsersCount } = user;
-
 const { subreddit } = require('../../services');
-const { findSubredditsCount, findSubreddits } = subreddit;
+const { findSubredditsCount } = subreddit;
 
-const { setting } = require('../../services')
-const { findLastUpdated } = setting
+const { setting } = require('../../services');
+const { findLastUpdated } = setting;
 
 const { stats } = require('../../services');
 const { findStatsChart } = stats;
 
 const QueryResolver = {
   Query: {
-    async count(obj, { type, since, until }, context, info) {
+    async count(root, { type, since, until }, context, info) {
       since = moment.unix(since).toDate();
       until = moment.unix(until).toDate();
 
       switch (type) {
         case 'POSTS':
-          return findPostsCount(since, until);
+          return Post.count({
+            created_time: {
+              $gte: since,
+              $lt: until
+            },
+            is_deleted: { $ne: true }
+          }).exec();
         case 'LIKES':
-          const likes = await findPostsLikesCount(since, until);
+          const likes = await Post.aggregate([
+            {
+              $match: {
+                is_deleted: { $ne: true },
+                created_time: { $gte: since, $lt: until }
+              }
+            },
+            {
+              $group: {
+                _id: null,
+                count: { $sum: '$likes_count' }
+              }
+            },
+          ]).exec();
           return likes[0].count;
         case 'COMMENTS':
-          return findCommentsCount(since, until);
+          return Comment.count({ created_time: { $gte: since, $lt: until } }).exec();
         case 'USERS':
-          return findUsersCount();
+          return User.count({ posts_count: { $gt: 0 } }).exec();
         case 'SUBREDDITS':
           const src = await findSubredditsCount(since, until);
           return src.length;
@@ -46,24 +56,13 @@ const QueryResolver = {
           return null;
       }
     },
-    async subreddits(obj, { since, until }, context, info) {
-      since = moment.unix(since).toDate();
-      until = moment.unix(until).toDate();
-      return (await findSubreddits(since, until)).map(r => r._id);
-    },
-    top(obj, { limit, since, until }, context, info) {
-      since = moment.unix(since).toDate();
-      until = moment.unix(until).toDate();
-      const projection = getProjection(info.fieldNodes[0]);
-      return { limit, since, until };
-    },
-    chart(obj, { type, group }, context, info) {
+    chart(root, { type, group }, context, info) {
       return findStatsChart(type, group);
     },
-    async lastUpdate(obj, args, context, info) {
+    async lastUpdate(root, args, context, info) {
       return (await findLastUpdated()).value;
     },
-    async version(obj, args, context, info) {
+    async version(root, args, context, info) {
       const commit = await new Promise((resolve, reject) => {
         git.getLastCommit(function(err, commit) {
           if (err) {
@@ -75,6 +74,6 @@ const QueryResolver = {
       return `[${commit.shortHash}] ${commit.subject}`;
     }
   }
-}
+};
 
 module.exports = QueryResolver;

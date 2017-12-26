@@ -1,122 +1,106 @@
 const moment = require('moment');
 const getProjection = require('../getProjection');
+const connectionFromModel = require('../connectionFromModel');
 const { Post, Comment, User } = require('../../models');
-const { regexpEscape } = require('../../helpers/util')
-
-const { post } = require('../../services');
-const { findPostByRandom } = post;
-
-const { comment } = require('../../services');
-const { findCommentsByPostId } = comment;
+const { regexpEscape } = require('../../helpers/util');
 
 const { facebook } = require('../../services');
 const { findAttachmentsByPostId } = facebook;
 
 const PostResolver = {
   Query: {
-    post(obj, { id }, context, info) {
+    post(root, { id }, context, info) {
       const projection = getProjection(info.fieldNodes[0]);
       return Post.findById(id, projection).exec();
     },
-    async posts(obj, { since, until, page, limit, r, q, u, user }, context, info) {
-      since = moment.unix(since).toDate();
-      until = moment.unix(until).toDate();
-
-      page = page || 1;
-      limit = limit || 10;
-
-      const query = {
+    posts(root, { first, last, before, after, since, until, r, q, u, user }, context, info) {
+      const filter = {
         is_deleted: { $ne: true }
       };
       if (since) {
-        if (!query.created_time) query.created_time = {};
-        query.created_time.$gte = since;
+        filter.created_time = filter.created_time || {};
+        filter.created_time.$gte = moment.unix(since).toDate();
       }
       if (until) {
-        if (!query.created_time) query.created_time = {};
-        query.created_time.$lt = until;
+        filter.created_time = filter.created_time || {};
+        filter.created_time.$lt = moment.unix(until).toDate();
       }
-      if (r) {
-        query.r = { $regex: `^${r}$`, $options: 'i' };
-      }
-      if (u) {
-        query.u = { $regex: `^${u}$`, $options: 'i' };
-      }
+      r ? (filter.r = { $regex: `^${r}$`, $options: 'i' }) : undefined;
+      u ? (filter.u = { $regex: `^${u}$`, $options: 'i' }) : undefined;
       if (q) {
-        q = q || '';
-        q = q.toLowerCase();
-        if (q.startsWith('regex:')) {
-          q = q.substr(6);
-        } else {
-          q = regexpEscape(q);
-        }
-
-        if (q !== '') {
-          query.message = {
-            $regex: new RegExp(q),
-            $options: 'i'
-          };
-        }
+        if (q.startsWith('regex:')) q = q.substr(6);
+        else q = regexpEscape(q);
+        filter.message = { $regex: new RegExp(q), $options: 'i' };
       }
-      if (user) {
-        query.user = user;
-      }
+      user ? filter.user = user : undefined;
 
-      const projection = getProjection(info.fieldNodes[0]);
-      const posts = await Post.paginate(query, {
-        sort: { created_time: -1 },
-        select: projection,
-        page: page,
-        limit: limit
-      });
-      return posts.docs;
+      return connectionFromModel(Post, filter, { first, last, before, after }, 'created_time', -1);
     },
-    random(obj, { r, q }, context, info) {
-      return findPostByRandom(r, q);
+    async random(root, { r, q }, context, info) {
+      const filter = {};
+      r ? (filter.r = { $regex: `^${r}$`, $options: 'i' }) : undefined;
+      if (q) {
+        if (q.startsWith('regex:')) q = q.substr(6);
+        else q = regexpEscape(q);
+        filter.message = { $regex: new RegExp(q), $options: 'i' };
+      }
+
+      const count = await Post.count(filter);
+      const random = Math.floor(Math.random() * count);
+      return Post.findOne(filter)
+        .skip(random)
+        .exec();
+    }
+  },
+  PostConnection: {
+    edges(connection) {
+      if (connection.query) return connection.query.toArray();
+      if (connection.edges) return connection.edges;
+      return null;
+    }
+  },
+  PostEdge: {
+    cursor(post) {
+      return { value: post._id.toString() };
+    },
+    node(post) {
+      return post;
     }
   },
   Post: {
-    _id(post, args, context, info) {
-      return post._id;
-    },
-    r(post, args, context, info) {
-      return post.r;
-    },
-    u(post, args, context, info) {
-      return post.u;
-    },
-    message(post, args, context, info) {
-      return post.message;
-    },
-    async user(post, args, context, info) {
+    user(post, args, context, info) {
       const projection = getProjection(info.fieldNodes[0]);
-      const user_id = post.user;
-      const user = await User.findById(user_id, projection).exec();
-      return user;
+      return User.findById(post.user, projection).exec();
     },
-    created_time(post, args, context, info) {
-      return post.created_time;
-    },
-    comments_count(post, args, context, info) {
-      return post.comments_count;
-    },
-    likes_count(post, args, context, info) {
-      return post.likes_count;
-    },
-    is_deleted(post, args, context, info) {
-      return post.is_deleted;
-    },
-    attachments(post, args, context, info) {
+    async attachments(post, args, context, info) {
       try {
-        return findAttachmentsByPostId(post._id);
+        return {
+          edges: await findAttachmentsByPostId(post._id),
+          pageInfo: {
+            hasNextPage: false,
+            hasPreviousPage: false
+          }
+        };
       } catch (error) {
         return null;
       }
     },
-    comments(post, { since, until, page, limit }, context, info) {
-      return findCommentsByPostId(post._id, since, until, page, limit);
-    },
+    comments(post, { since, until, first, last, before, after }, context, info) {
+      const filter = {
+        post: post._id,
+        parent: { $eq: null }
+      };
+      if (since) {
+        filter.created_time = filter.created_time || {};
+        filter.created_time.$gte = moment.unix(since).toDate();
+      }
+      if (until) {
+        filter.created_time = filter.created_time || {};
+        filter.created_time.$lt = moment.unix(until).toDate();
+      }
+      return connectionFromModel(Comment, filter, { first, last, before, after }, 'created_time', 1);
+    }
   }
-}
+};
 
 module.exports = PostResolver;

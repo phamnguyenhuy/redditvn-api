@@ -1,10 +1,6 @@
-const { User } = require('../../models');
-
-const { post } = require('../../services');
-const { findPostsOrderByLikes, findPostsOrderByComments } = post;
-
-const { user } = require('../../services');
-const { findUsersTop } = user;
+const connectionFromModel = require('../connectionFromModel');
+const { User, Post } = require('../../models');
+const moment = require('moment');
 
 const { subreddit } = require('../../services');
 const { findSubredditTop } = subreddit;
@@ -12,29 +8,77 @@ const { findSubredditTop } = subreddit;
 const getProjection = require('../getProjection');
 
 const TopResolver = {
-  UserTopResult: {
-    user(obj, args, context, info) {
-      const projection = getProjection(info.fieldNodes[0]);
-      return User.findById(obj._id, projection);
-    },
-    posts_count(obj, args, context, info) {
-      return obj.posts_count;
+  Query: {
+    top(root, args, context, info) {
+      return {};
     }
   },
   Top: {
-    likes({ since, until, limit }, args, context, info) {
-      return findPostsOrderByLikes(since, until, limit);
+    likes(top, { since, until, first, last, before, after }, context, info) {
+      since = moment.unix(since).toDate();
+      until = moment.unix(until).toDate();
+      const filter = {
+        created_time: { $gte: since, $lt: until },
+        is_deleted: { $ne: true }
+      };
+      return connectionFromModel(Post, filter, { first, last, before, after }, 'likes_count', -1);
     },
-    commentes({ since, until, limit }, args, context, info) {
-      return findPostsOrderByComments(since, until, limit);
+    commentes(top, { since, until, first, last, before, after }, context, info) {
+      since = moment.unix(since).toDate();
+      until = moment.unix(until).toDate();
+      const filter = {
+        created_time: { $gte: since, $lt: until },
+        is_deleted: { $ne: true }
+      };
+      return connectionFromModel(Post, filter, { first, last, before, after }, 'comments_count', -1);
     },
-    user_posts({ since, until, limit }, args, context, info) {
-      return findUsersTop(since, until, limit);
+    async user_posts(top, { since, until, first }, context, info) {
+      since = moment.unix(since).toDate();
+      until = moment.unix(until).toDate();
+      const list = await Post.aggregate([
+        {
+          $match: {
+            is_deleted: { $ne: true },
+            created_time: { $gte: since, $lt: until }
+          }
+        },
+        {
+          $group: {
+            _id: '$user',
+            posts_count: { $sum: 1 }
+          }
+        },
+        { $sort: { posts_count: -1 } },
+        { $limit: first }
+      ]).exec();
+      const edges = await Promise.all(
+        list.map(async value => {
+          const _id = value._id;
+          const user = await User.findById(value._id).exec();
+          user.posts_count = value.posts_count;
+          return user;
+        })
+      );
+      return {
+        edges: edges,
+        pageInfo: {
+          hasNextPage: false,
+          hasPreviousPage: false
+        }
+      };
     },
-    subreddit({ since, until, limit }, args, context, info) {
-      return findSubredditTop(since, until, limit);
+    async subreddit(top, { since, until, first }, context, info) {
+      since = moment.unix(since).toDate();
+      until = moment.unix(until).toDate();
+      return {
+        edges: await findSubredditTop(since, until, first),
+        pageInfo: {
+          hasNextPage: false,
+          hasPreviousPage: false
+        }
+      };
     }
   }
-}
+};
 
 module.exports = TopResolver;

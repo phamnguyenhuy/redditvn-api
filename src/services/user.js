@@ -2,48 +2,6 @@ const { ServerError } = require('../helpers/server');
 const { Post, User } = require('../models');
 const { regexpEscape } = require('../helpers/util');
 
-function findUsersCount() {
-  return User.count({ posts_count: { $gt: 0 } }).exec();
-}
-
-function findUsersTop(since, until, limit) {
-  return Post.aggregate([
-    {
-      $match: {
-        is_deleted: { $ne: true },
-        created_time: { $gte: since, $lt: until }
-      }
-    },
-    {
-      $group: {
-        _id: '$user',
-        posts_count: { $sum: 1 }
-      }
-    },
-    { $sort: { posts_count: -1 } },
-    { $limit: limit }
-  ]).exec();
-}
-
-function findUserById(user_id) {
-  return User.findById(user_id, { _id: 1, name: 1, posts_count: 1 }, { lean: true }).exec();
-}
-
-function findUsersList(q, page, limit) {
-  const query = { posts_count: { $gt: 0 } };
-
-  if (q) {
-    q = regexpEscape(q);
-    query.name = { $regex: new RegExp(q), $options: 'i' };
-  }
-
-  return User.paginate(query, {
-    page: page,
-    limit: limit,
-    sort: { posts_count: -1 }
-  });
-}
-
 async function findUserSaves(user_id, category) {
   let projectionCategory = 'saved';
   if (category) projectionCategory += '.' + category;
@@ -82,10 +40,6 @@ async function removeUserSave(user_id, category, item) {
 }
 
 module.exports = {
-  findUsersCount,
-  findUsersTop,
-  findUserById,
-  findUsersList,
   findUserSaves,
   insertUserSave,
   removeUserSave

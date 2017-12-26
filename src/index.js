@@ -13,6 +13,9 @@ const passport = require('passport');
 const databases = require('./databases');
 const { ServerError } = require('./helpers/server');
 
+const { graphqlExpress, graphiqlExpress } = require('graphql-server-express');
+const executableSchema = require('./graphql/schema');
+
 console.log('NODE_ENV=' + process.env.NODE_ENV);
 
 // Database
@@ -28,31 +31,16 @@ app.use(passport.initialize());
 // Logging (debug only).
 app.use(
   morgan(':remote-addr - :remote-user ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {
-    stream: {
-      write: msg => log.info(msg)
-    }
+    stream: { write: msg => log.info(msg) }
   })
-);
-
-const { graphqlExpress, graphiqlExpress } = require('graphql-server-express');
-
-const executableSchema = require('./graphql/schema');
-
-app.use(
-  '/graphql',
-  bodyParser.json(),
-  graphqlExpress(req => ({
-    schema: executableSchema
-  }))
 );
 
 const GRAPHQL_PATH = '/graphql';
-app.use(
-  '/graphiql',
-  graphiqlExpress({
-    endpointURL: GRAPHQL_PATH
-  })
-);
+const GRAPHIQL_PATH = '/graphiql';
+
+app.use(GRAPHQL_PATH, graphqlExpress(req => ({ schema: executableSchema })));
+
+app.use(GRAPHIQL_PATH, graphiqlExpress({ endpointURL: GRAPHQL_PATH }));
 
 // Catch 404 and forward to error handler
 app.use((req, res, next) => {
