@@ -16,7 +16,8 @@ const { findStatsChart } = stats;
 
 const QueryResolver = {
   Query: {
-    async count(root, { type, since, until }, context, info) {
+    async count(root, { type, since, until }, context, { cacheControl }) {
+      cacheControl.setCacheHint({ maxAge: 60 });
       since = moment.unix(since).toDate();
       until = moment.unix(until).toDate();
 

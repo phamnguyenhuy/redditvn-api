@@ -10,7 +10,7 @@ const User = `
   }
 
   # Thành viên
-  type User {
+  type User @cacheControl(maxAge: 240) {
     # Mã thành viên
     _id: String # id of user
     # Tên thành viên

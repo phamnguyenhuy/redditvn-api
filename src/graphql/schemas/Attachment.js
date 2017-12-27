@@ -10,7 +10,7 @@ const Attachment = `
   }
 
   # Đính kèm trong bài viết
-  type Attachment {
+  type Attachment @cacheControl(maxAge: 240) {
     # Đường dẫn tới tệp đính kèm
     url: String
     # Ảnh nhỏ đại diện

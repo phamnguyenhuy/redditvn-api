@@ -12,21 +12,62 @@ const log = require('./helpers/log');
 const passport = require('passport');
 const databases = require('./databases');
 const { ServerError } = require('./helpers/server');
+const compression = require('compression');
 
 const { graphqlExpress, graphiqlExpress } = require('graphql-server-express');
 const executableSchema = require('./graphql/schema');
+const { Engine } = require('apollo-engine');
 
 console.log('NODE_ENV=' + process.env.NODE_ENV);
+
+const GRAPHQL_PATH = process.env.GRAPHQL_PATH || '/graphql';
+const GRAPHIQL_PATH = process.env.GRAPHIQL_PATH || '/graphiql';
+const PORT = process.env.PORT || 3000;
 
 // Database
 databases.mongodb();
 
+// Web API
 const app = express();
+
+// Apollo Engine
+if (process.env.ENGINE_API_KEY) {
+  const engine = new Engine({
+    engineConfig: {
+      apiKey: process.env.ENGINE_API_KEY,
+      stores: [
+        {
+          name: 'embeddedCache',
+          inMemory: {
+            cacheSize: 10485760
+          }
+        }
+      ],
+      queryCache: {
+        publicFullQueryStore: 'embeddedCache'
+      },
+      reporting: {
+        debugReports: true
+      },
+      logging: {
+        level: 'DEBUG' // Engine Proxy logging level. DEBUG, INFO, WARN or ERROR
+      }
+    },
+    graphqlPort: PORT,
+    endpoint: GRAPHQL_PATH,
+    dumpTraffic: true
+  });
+
+  engine.start();
+  app.use(engine.expressMiddleware());
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(passport.initialize());
+//app.use(bodyParser.urlencoded({ extended: true }));
+//app.use(passport.initialize());
+app.use(compression());
 
 // Logging (debug only).
 app.use(
@@ -35,12 +76,37 @@ app.use(
   })
 );
 
-const GRAPHQL_PATH = '/graphql';
-const GRAPHIQL_PATH = '/graphiql';
+app.use(
+  GRAPHQL_PATH,
+  graphqlExpress(req => ({
+    schema: executableSchema,
+    tracing: true,
+    cacheControl: true
+  }))
+);
 
-app.use(GRAPHQL_PATH, graphqlExpress(req => ({ schema: executableSchema })));
-
-app.use(GRAPHIQL_PATH, graphiqlExpress({ endpointURL: GRAPHQL_PATH }));
+app.use(
+  GRAPHIQL_PATH,
+  graphiqlExpress({
+    endpointURL: GRAPHQL_PATH,
+    query: `query {
+  posts(first: 2) {
+    edges {
+      node {
+        _id
+        r
+        u
+        message
+        created_time
+        comments_count
+        likes_count
+        is_deleted
+      }
+    }
+  }
+}`
+  })
+);
 
 // Catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -76,7 +142,7 @@ app.use((err, req, res, next) => {
 });
 
 // Server
-const port = process.env.PORT || 3000;
+
 let server;
 if (process.env.RUN_HTTP === 'true') {
   server = http.createServer(app);
@@ -92,7 +158,7 @@ if (process.env.RUN_HTTP === 'true') {
   server = https.createServer(options, app);
 }
 
-server.listen(port, () => {
+server.listen(PORT, () => {
   log.info(`API listening on port ${server.address().port}`);
 });
 

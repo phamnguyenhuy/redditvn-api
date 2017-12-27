@@ -10,7 +10,7 @@ const Post = `
   }
 
   # Bài viết
-  type Post {
+  type Post @cacheControl(maxAge: 60) {
     # Mã bài viết
     _id: String
     # Thành viên viết bài
@@ -20,7 +20,7 @@ const Post = `
     # User-reddit
     u: String
     # Nội dung bài viết
-    message: String
+    message(limit: Int): String
     # Thời gian viết bài
     created_time: Date
     # Số lượng bình luận

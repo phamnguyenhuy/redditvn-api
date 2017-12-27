@@ -1,6 +1,6 @@
 const Top = `
   # Danh sách top
-  type Top {
+  type Top @cacheControl(maxAge: 240) {
     # Bài nhiều lượt thích nhất
     likes(
       first: Int = 10

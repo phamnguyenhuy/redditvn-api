@@ -68,6 +68,10 @@ const PostResolver = {
     }
   },
   Post: {
+    message(post, { limit }, context, info) {
+      if (limit) return post.message.substr(0, limit);
+      return post.message;
+    },
     user(post, args, context, info) {
       const projection = getProjection(info.fieldNodes[0]);
       return User.findById(post.user, projection).exec();
