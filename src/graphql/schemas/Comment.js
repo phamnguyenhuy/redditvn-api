@@ -31,7 +31,7 @@ const Comment = `
 
     # Bình luận phản hồi
     replies(
-      first: Int = 10
+      first: Int
       after: Cursor
       last: Int
       before: Cursor

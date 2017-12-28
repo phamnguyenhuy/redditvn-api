@@ -8,21 +8,6 @@ const CommentResolver = {
     comment(root, { id }, context, info) {
       const projection = getProjection(info.fieldNodes[0]);
       return Comment.findById(id, projection).exec();
-    },
-    comments(root, { post_id, since, until, first, last, before, after }, context, info) {
-      const filter = {
-        post: post_id,
-        parent: { $eq: null }
-      };
-      if (since) {
-        filter.created_time = filter.created_time || {};
-        filter.created_time.$gte = moment.unix(since).toDate();
-      }
-      if (until) {
-        filter.created_time = filter.created_time || {};
-        filter.created_time.$lt = moment.unix(until).toDate();
-      }
-      return connectionFromModel(Comment, filter, { first, last, before, after }, 'created_time', 1);
     }
   },
   CommentConnection: {

@@ -23,14 +23,14 @@ const User = `
     comments_count: Int
     # Danh sách bài viết
     posts(
-      first: Int = 10
+      first: Int
       after: Cursor
       last: Int
       before: Cursor
     ): PostConnection
     # Bình luận của thành viên
     comments(
-      first: Int = 10
+      first: Int
       after: Cursor
       last: Int
       before: Cursor

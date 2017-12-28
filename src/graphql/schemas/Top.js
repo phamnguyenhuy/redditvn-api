@@ -3,7 +3,7 @@ const Top = `
   type Top @cacheControl(maxAge: 240) {
     # Bài nhiều lượt thích nhất
     likes(
-      first: Int = 10
+      first: Int
       after: Cursor
       last: Int
       before: Cursor
@@ -15,7 +15,7 @@ const Top = `
 
     # Bài nhiều bình luận nhất
     comments(
-      first: Int = 10
+      first: Int
       after: Cursor
       last: Int
       before: Cursor
@@ -28,10 +28,10 @@ const Top = `
     # Thành viên viết nhiều bài nhất
     posts_count(
       # Thời gian bắt đầu
-      since: Int = 0
+      since: Int
       # Thời gian kết thúc
       until: Int = 2147483647
-      first: Int = 10
+      first: Int
     ): UserConnection
 
     # Sub-reddit nhiều bài nhất
@@ -40,7 +40,7 @@ const Top = `
       since: Int = 0
       # Thời gian kết thúc
       until: Int = 2147483647
-      first: Int = 10
+      first: Int
     ): SubRedditConnection
   }
 `;

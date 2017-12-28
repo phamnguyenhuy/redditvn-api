@@ -11,7 +11,7 @@ const Query = `
     users(
       # Tìm kiếm theo tên thành viên
       q: String
-      first: Int = 10
+      first: Int
       after: Cursor
       last: Int
       before: Cursor
@@ -25,7 +25,7 @@ const Query = `
 
     # Lấy danh sách bài viết
     posts(
-      first: Int = 10
+      first: Int
       after: Cursor
       last: Int
       before: Cursor
@@ -56,20 +56,6 @@ const Query = `
       # Mã bình luận
       id: String
     ): Comment
-
-    # Lấy bình luận trong bài viết
-    comments(
-      # Mã bài viết
-      post_id: String
-      first: Int = 10
-      after: Cursor
-      last: Int
-      before: Cursor
-      # Thời gian bắt đầu
-      since: Int = 0
-      # Thời gian kết thúc
-      until: Int = 2147483647
-    ): CommentConnection
 
     # Thống kê
     count(

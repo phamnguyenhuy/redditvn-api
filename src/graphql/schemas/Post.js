@@ -33,7 +33,7 @@ const Post = `
     attachments: AttachmentConnection
     # Bình luận trong bài viết
     comments(
-      first: Int = 10
+      first: Int
       after: Cursor
       last: Int
       before: Cursor
