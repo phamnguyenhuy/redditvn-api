@@ -15,21 +15,19 @@ const TopResolver = {
   },
   Top: {
     likes(top, { since, until, first, last, before, after }, context, info) {
-      since = moment.unix(since).toDate();
-      until = moment.unix(until).toDate();
       const filter = {
-        created_time: { $gte: since, $lt: until },
         is_deleted: { $ne: true }
       };
+      if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
+      if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
       return connectionFromModel(Post, filter, { first, last, before, after }, 'likes_count', -1);
     },
     comments(top, { since, until, first, last, before, after }, context, info) {
-      since = moment.unix(since).toDate();
-      until = moment.unix(until).toDate();
       const filter = {
-        created_time: { $gte: since, $lt: until },
         is_deleted: { $ne: true }
       };
+      if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
+      if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
       return connectionFromModel(Post, filter, { first, last, before, after }, 'comments_count', -1);
     },
     async posts_count(top, { since, until, first }, context, info) {

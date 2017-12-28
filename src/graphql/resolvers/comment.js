@@ -2,6 +2,7 @@ const moment = require('moment');
 const getProjection = require('../getProjection');
 const { Post, Comment, User } = require('../../models');
 const connectionFromModel = require('../connectionFromModel');
+const _ = require('lodash');
 
 const CommentResolver = {
   Query: {
@@ -44,12 +45,10 @@ const CommentResolver = {
         parent: comment._id
       };
       if (since) {
-        filter.created_time = filter.created_time || {};
-        filter.created_time.$gte = moment.unix(since).toDate();
+        _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
       }
       if (until) {
-        filter.created_time = filter.created_time || {};
-        filter.created_time.$lt = moment.unix(until).toDate();
+        _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
       }
       return connectionFromModel(Comment, filter, { first, last, before, after }, 'created_time', 1);
     }

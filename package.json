@@ -33,6 +33,7 @@
     "graphql-tools": "^2.14.1",
     "helmet": "^3.9.0",
     "jsonwebtoken": "^8.1.0",
+    "lodash": "^4.17.4",
     "moment": "^2.20.1",
     "mongoose": "^4.13.5",
     "mongoose-paginate": "^5.0.3",

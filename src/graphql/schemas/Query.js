@@ -30,9 +30,9 @@ const Query = `
       last: Int
       before: Cursor
       # Thời gian bắt đầu
-      since: Int = 0
+      since: Int
       # Thời gian kết thúc
-      until: Int = 2147483647
+      until: Int
       # Bài viết của user nào
       user: String
       # Bài viết có từ khóa

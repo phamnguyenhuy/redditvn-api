@@ -17,16 +17,10 @@ const PostResolver = {
       const filter = {
         is_deleted: { $ne: true }
       };
-      if (since) {
-        filter.created_time = filter.created_time || {};
-        filter.created_time.$gte = moment.unix(since).toDate();
-      }
-      if (until) {
-        filter.created_time = filter.created_time || {};
-        filter.created_time.$lt = moment.unix(until).toDate();
-      }
-      r ? (filter.r = { $regex: `^${r}$`, $options: 'i' }) : undefined;
-      u ? (filter.u = { $regex: `^${u}$`, $options: 'i' }) : undefined;
+      if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
+      if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
+      if (r) filter.r = { $regex: `^${r}$`, $options: 'i' };
+      if (u) filter.u = { $regex: `^${u}$`, $options: 'i' };
       if (q) {
         if (q.startsWith('regex:')) q = q.substr(6);
         else q = regexpEscape(q);
@@ -94,14 +88,8 @@ const PostResolver = {
         post: post._id,
         parent: { $eq: null }
       };
-      if (since) {
-        filter.created_time = filter.created_time || {};
-        filter.created_time.$gte = moment.unix(since).toDate();
-      }
-      if (until) {
-        filter.created_time = filter.created_time || {};
-        filter.created_time.$lt = moment.unix(until).toDate();
-      }
+      if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
+      if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
       return connectionFromModel(Comment, filter, { first, last, before, after }, 'created_time', 1);
     }
   }
