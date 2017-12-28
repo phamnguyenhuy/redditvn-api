@@ -73,6 +73,7 @@ async function limitQuery(query, filter, field, order, before, after) {
 
   if (before || after) {
     filter = {
+      ...filter,
       $or: [
         {
           [field]: limits
