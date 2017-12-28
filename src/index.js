@@ -81,7 +81,7 @@ app.use(
   graphqlExpress(req => ({
     schema: executableSchema,
     tracing: true,
-    cacheControl: false
+    cacheControl: true
   }))
 );
 
