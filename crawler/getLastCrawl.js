@@ -2,13 +2,13 @@ const moment = require('moment');
 const { Setting } = require('../src/models');
 
 async function getLastCrawl() {
-  let lastUpdate = await Setting.findById('last_updated');
-  if (lastUpdate) {
-    lastUpdate = moment(lastUpdate.value);
+  let lastUpdated = await Setting.findById('last_updated');
+  if (lastUpdated) {
+    lastUpdated = moment(lastUpdated.value);
   } else {
-    lastUpdate = moment().add(-12, 'hours');
+    lastUpdated = moment().add(-12, 'hours');
   }
-  return lastUpdate.add(-10, 'minutes').unix();
+  return lastUpdated.add(-10, 'minutes').unix();
 }
 
 module.exports = getLastCrawl;

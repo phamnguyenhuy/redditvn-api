@@ -6,6 +6,7 @@ const { regexpEscape } = require('../../helpers/util');
 
 const { facebook } = require('../../services');
 const { findAttachmentsByPostId } = facebook;
+const _ = require('lodash');
 
 const PostResolver = {
   Query: {

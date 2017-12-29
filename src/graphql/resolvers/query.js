@@ -60,7 +60,7 @@ const QueryResolver = {
     chart(root, { type, group }, context, info) {
       return findStatsChart(type, group);
     },
-    async lastUpdate(root, args, context, info) {
+    async lastUpdated(root, args, context, info) {
       return (await findLastUpdated()).value;
     },
     async version(root, args, context, info) {

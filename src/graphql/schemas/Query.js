@@ -93,7 +93,7 @@ const Query = `
     u(name: String!): U
 
     # Lấy thời gian lần cuối cập nhập bài viết
-    lastUpdate: Date
+    lastUpdated: Date
 
     # Lấy commit hiện tại (debug)
     version: String
