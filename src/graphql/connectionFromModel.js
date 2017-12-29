@@ -13,31 +13,46 @@ const lazyLoadingCondition = async ({ matchCondition, lastId, orderFieldName, or
   if (!('$or' in matchCondition) || matchCondition || matchCondition['$or'] === undefined) {
     matchCondition['$or'] = [{}];
   }
-  if (sortType === 1) {
-    matchCondition['$and'] = [
-      { $or: matchCondition['$or'] },
-      {
-        $or: [
-          {
-            $and: [{ [orderFieldName]: { $gte: orderLastValue } }, { _id: { $gt: lastId } }]
-          },
-          { [orderFieldName]: { $gt: orderLastValue } }
-        ]
-      }
-    ];
+  if (orderLastValue !== undefined) {
+    if (sortType === 1) {
+      matchCondition['$and'] = [
+        { $or: matchCondition['$or'] },
+        {
+          $or: [
+            {
+              $and: [{ [orderFieldName]: { $gte: orderLastValue } }, { _id: { $gt: lastId } }]
+            },
+            { [orderFieldName]: { $gt: orderLastValue } }
+          ]
+        }
+      ];
+    } else {
+      matchCondition['$and'] = [
+        { $or: matchCondition['$or'] },
+        {
+          $or: [
+            {
+              $and: [{ [orderFieldName]: { $lte: orderLastValue } }, { _id: { $lt: lastId } }]
+            },
+            { [orderFieldName]: { $lt: orderLastValue } }
+          ]
+        }
+      ];
+    }
   } else {
-    matchCondition['$and'] = [
-      { $or: matchCondition['$or'] },
-      {
-        $or: [
-          {
-            $and: [{ [orderFieldName]: { $lte: orderLastValue } }, { _id: { $lt: lastId } }]
-          },
-          { [orderFieldName]: { $lt: orderLastValue } }
-        ]
-      }
-    ];
+    if (sortType === 1) {
+      matchCondition['$and'] = [
+        { $or: matchCondition['$or'] },
+        { _id: { $gt: lastId } }
+      ];
+    } else {
+      matchCondition['$and'] = [
+        { $or: matchCondition['$or'] },
+        { _id: { $lt: lastId } }
+      ];
+    }
   }
+
   delete matchCondition['$or'];
 };
 
