@@ -56,7 +56,7 @@ const lazyLoadingCondition = async ({ matchCondition, lastId, orderFieldName, or
   delete matchCondition['$or'];
 };
 
-const lazyLoadingResponseFromArray = async ({ result, orderFieldName, hasNextPage, hasPreviousPage }) => {
+const lazyLoadingResponseFromArray = async ({ result, orderFieldName, hasNextPage, hasPreviousPage, totalCount }) => {
   let edges = [];
   let edge;
   let value;
@@ -78,7 +78,8 @@ const lazyLoadingResponseFromArray = async ({ result, orderFieldName, hasNextPag
       hasNextPage,
       hasPreviousPage,
       startCursor: edges[0] ? edges[0].cursor : null,
-      endCursor: edges[edges.length - 1] ? edges[edges.length - 1].cursor : null
+      endCursor: edges[edges.length - 1] ? edges[edges.length - 1].cursor : null,
+      totalCount
     },
     edges
   };
@@ -105,6 +106,9 @@ const fetchConnectionFromArray = async ({ dataPromiseFunc, filter, after, before
   let hasPreviousPage = false;
   let result = [];
   let matchCondition = {};
+  let totalCount = 0;
+
+  totalCount = await dataPromiseFunc(filter).count();
 
   if (after) {
     matchCondition = await getMatchCondition({
@@ -198,7 +202,8 @@ const fetchConnectionFromArray = async ({ dataPromiseFunc, filter, after, before
     result,
     orderFieldName,
     hasNextPage,
-    hasPreviousPage
+    hasPreviousPage,
+    totalCount
   });
 };
 
