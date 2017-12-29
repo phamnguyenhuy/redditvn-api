@@ -4,6 +4,7 @@ const PageInfo = `
     hasPreviousPage: Boolean!
     startCursor: String
     endCursor: String
+    totalCount: Int
   }
 `;
 
