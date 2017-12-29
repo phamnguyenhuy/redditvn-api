@@ -15,22 +15,16 @@ const UserResolver = {
         q = regexpEscape(q);
         filter.name = { $regex: new RegExp(q), $options: 'i' };
       }
-      return connectionFromModel(User, filter, { first, last, before, after }, 'posts_count', -1);
-    }
-  },
-  UserConnection: {
-    edges(connection) {
-      if (connection.query) return connection.query.toArray();
-      if (connection.edges) return connection.edges;
-      return null;
-    }
-  },
-  UserEdge: {
-    cursor(user) {
-      return { value: user._id.toString() };
-    },
-    node(user) {
-      return user;
+      return connectionFromModel({
+        dataPromiseFunc: User.find.bind(User),
+        filter,
+        after,
+        before,
+        first,
+        last,
+        orderFieldName: 'posts_count',
+        sortType: -1
+      });
     }
   },
   User: {
@@ -41,9 +35,18 @@ const UserResolver = {
       const filter = { user: user._id };
       return connectionFromModel(Post, filter, { first, last, before, after }, 'created_time', -1);
     },
-    comments(user, { first, last, before, after }, context, info) {
+    async comments(user, { first, last, before, after }, context, info) {
       const filter = { user: user._id };
-      return connectionFromModel(Comment, filter, { first, last, before, after }, 'created_time', -1);
+      return connectionFromModel({
+        dataPromiseFunc: Comment.find.bind(Comment),
+        filter,
+        after,
+        before,
+        first,
+        last,
+        orderFieldName: 'created_time',
+        sortType: -1
+      });
     }
   }
 };

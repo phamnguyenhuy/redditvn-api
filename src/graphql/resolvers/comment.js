@@ -11,21 +11,6 @@ const CommentResolver = {
       return Comment.findById(id, projection).exec();
     }
   },
-  CommentConnection: {
-    edges(connection) {
-      if (connection.query) return connection.query.toArray();
-      if (connection.edges) return connection.edges;
-      return null;
-    }
-  },
-  CommentEdge: {
-    cursor(comment) {
-      return { value: comment._id.toString() };
-    },
-    node(comment) {
-      return comment;
-    }
-  },
   Comment: {
     post(comment, args, context, info) {
       const projection = getProjection(info.fieldNodes[0]);
@@ -50,7 +35,16 @@ const CommentResolver = {
       if (until) {
         _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
       }
-      return connectionFromModel(Comment, filter, { first, last, before, after }, 'created_time', 1);
+      return connectionFromModel({
+        dataPromiseFunc: Comment.find.bind(Comment),
+        filter,
+        after,
+        before,
+        first,
+        last,
+        orderFieldName: 'created_time',
+        sortType: 1
+      });
     }
   }
 };

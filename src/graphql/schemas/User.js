@@ -5,7 +5,7 @@ const User = `
   }
 
   type UserEdge {
-    cursor: Cursor!
+    cursor: String!
     node: User!
   }
 
@@ -24,16 +24,16 @@ const User = `
     # Danh sách bài viết
     posts(
       first: Int
-      after: Cursor
+      after: String
       last: Int
-      before: Cursor
+      before: String
     ): PostConnection
     # Bình luận của thành viên
     comments(
       first: Int
-      after: Cursor
+      after: String
       last: Int
-      before: Cursor
+      before: String
     ): CommentConnection
   }
 `;

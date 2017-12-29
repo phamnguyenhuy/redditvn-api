@@ -5,7 +5,7 @@ const Post = `
   }
 
   type PostEdge {
-    cursor: Cursor!
+    cursor: String!
     node: Post!
   }
 
@@ -34,9 +34,9 @@ const Post = `
     # Bình luận trong bài viết
     comments(
       first: Int
-      after: Cursor
+      after: String
       last: Int
-      before: Cursor
+      before: String
       # Thời gian bắt đầu
       since: Int
       # Thời gian kết thúc

@@ -6,7 +6,7 @@ const SubReddit = `
   }
 
   type SubRedditEdge {
-    cursor: Cursor!
+    cursor: String!
     node: SubReddit!
   }
 

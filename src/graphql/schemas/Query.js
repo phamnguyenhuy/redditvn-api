@@ -12,9 +12,9 @@ const Query = `
       # Tìm kiếm theo tên thành viên
       q: String
       first: Int
-      after: Cursor
+      after: String
       last: Int
-      before: Cursor
+      before: String
     ): UserConnection
 
     # Lấy một bài viết
@@ -26,9 +26,9 @@ const Query = `
     # Lấy danh sách bài viết
     posts(
       first: Int
-      after: Cursor
+      after: String
       last: Int
-      before: Cursor
+      before: String
       # Thời gian bắt đầu
       since: Int
       # Thời gian kết thúc

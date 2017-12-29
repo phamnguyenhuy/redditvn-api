@@ -5,7 +5,7 @@ const Comment = `
   }
 
   type CommentEdge {
-    cursor: Cursor!
+    cursor: String!
     node: Comment!
   }
 
@@ -32,9 +32,9 @@ const Comment = `
     # Bình luận phản hồi
     replies(
       first: Int
-      after: Cursor
+      after: String
       last: Int
-      before: Cursor
+      before: String
       # Thời gian bắt đầu
       since: Int
       # Thời gian kết thúc

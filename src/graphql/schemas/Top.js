@@ -4,9 +4,9 @@ const Top = `
     # Bài nhiều lượt thích nhất
     likes(
       first: Int
-      after: Cursor
+      after: String
       last: Int
-      before: Cursor
+      before: String
       # Thời gian bắt đầu
       since: Int = 0
       # Thời gian kết thúc
@@ -16,9 +16,9 @@ const Top = `
     # Bài nhiều bình luận nhất
     comments(
       first: Int
-      after: Cursor
+      after: String
       last: Int
-      before: Cursor
+      before: String
       # Thời gian bắt đầu
       since: Int = 0
       # Thời gian kết thúc

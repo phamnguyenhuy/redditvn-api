@@ -28,7 +28,16 @@ const PostResolver = {
       }
       user ? (filter.user = user) : undefined;
 
-      return connectionFromModel(Post, filter, { first, last, before, after }, 'created_time', -1);
+      return connectionFromModel({
+        dataPromiseFunc: Post.find.bind(Post),
+        filter,
+        after,
+        before,
+        first,
+        last,
+        orderFieldName: 'created_time',
+        sortType: -1
+      });
     },
     async random(root, { r, q }, context, info) {
       const filter = {};
@@ -44,21 +53,6 @@ const PostResolver = {
       return Post.findOne(filter)
         .skip(random)
         .exec();
-    }
-  },
-  PostConnection: {
-    edges(connection) {
-      if (connection.query) return connection.query.toArray();
-      if (connection.edges) return connection.edges;
-      return null;
-    }
-  },
-  PostEdge: {
-    cursor(post) {
-      return { value: post._id.toString() };
-    },
-    node(post) {
-      return post;
     }
   },
   Post: {
@@ -90,7 +84,16 @@ const PostResolver = {
       };
       if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
       if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
-      return connectionFromModel(Comment, filter, { first, last, before, after }, 'created_time', 1);
+      return connectionFromModel({
+        dataPromiseFunc: Comment.find.bind(Comment),
+        filter,
+        after,
+        before,
+        first,
+        last,
+        orderFieldName: 'created_time',
+        sortType: 1
+      });
     }
   }
 };

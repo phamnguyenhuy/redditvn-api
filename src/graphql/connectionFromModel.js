@@ -1,125 +1,190 @@
-const mongoose = require('mongoose');
+const _ = require('lodash');
+const { Base64 } = require('js-base64');
 
-async function connectionFromModel(model, filter = {}, { first, last, before, after }, orderField, order) {
-  let query = model.collection;
-  if (orderField === 'id') {
-    query = limitQueryWithId(query, filter, before, after, order);
+const decodeBase64 = ({ encodedStr }) => {
+  return Base64.decode(encodedStr);
+};
+
+const encodeBase64 = ({ value }) => {
+  return Base64.encodeURI(value);
+};
+
+const lazyLoadingCondition = async ({ matchCondition, lastId, orderFieldName, orderLastValue, sortType }) => {
+  if (!('$or' in matchCondition) || matchCondition || matchCondition['$or'] === undefined) {
+    matchCondition['$or'] = [{}];
+  }
+  if (sortType === 1) {
+    matchCondition['$and'] = [
+      { $or: matchCondition['$or'] },
+      {
+        $or: [
+          {
+            $and: [{ [orderFieldName]: { $gte: orderLastValue } }, { _id: { $gt: lastId } }]
+          },
+          { [orderFieldName]: { $gt: orderLastValue } }
+        ]
+      }
+    ];
   } else {
-    query = await limitQuery(query, filter, orderField, order, before, after);
+    matchCondition['$and'] = [
+      { $or: matchCondition['$or'] },
+      {
+        $or: [
+          {
+            $and: [{ [orderFieldName]: { $lte: orderLastValue } }, { _id: { $lt: lastId } }]
+          },
+          { [orderFieldName]: { $lt: orderLastValue } }
+        ]
+      }
+    ];
   }
-  const pageInfo = await applyPagination(query, first, last);
-  return {
-    query,
-    pageInfo
-  };
-}
+  delete matchCondition['$or'];
+};
 
-function limitQueryWithId(query, filter, before, after, order) {
-  if (before) {
-    const op = order === 1 ? '$lt' : '$gt';
-    if (!filter._id) filter._id = {};
-    filter._id[op] = before.value;
+const lazyLoadingResponseFromArray = async ({ result, orderFieldName, hasNextPage, hasPreviousPage }) => {
+  let edges = [];
+  let edge;
+  let value;
+  await Promise.all(
+    result.map(async record => {
+      value = JSON.stringify({
+        lastId: _.get(record, '_id'),
+        orderLastValue: _.get(record, orderFieldName)
+      });
+      edge = {
+        cursor: encodeBase64({ value }),
+        node: record
+      };
+      edges.push(edge);
+    })
+  );
+  return {
+    pageInfo: {
+      hasNextPage,
+      hasPreviousPage,
+      startCursor: edges[0] ? edges[0].cursor : null,
+      endCursor: edges[edges.length - 1] ? edges[edges.length - 1].cursor : null
+    },
+    edges
+  };
+};
+
+const getMatchCondition = async ({ filter, cursor, orderFieldName, sortType }) => {
+  let matchCondition = {};
+
+  if (cursor) {
+    let unserializedAfter = JSON.parse(decodeBase64({ encodedStr: cursor }));
+    let lastId = unserializedAfter.lastId;
+    let orderLastValue = unserializedAfter.orderLastValue;
+    await lazyLoadingCondition({ matchCondition, lastId, orderFieldName, orderLastValue, sortType });
   }
+  if (filter) {
+    _.merge(matchCondition, filter);
+  }
+
+  return matchCondition;
+};
+
+const fetchConnectionFromArray = async ({ dataPromiseFunc, filter, after, before, first = 5, last, orderFieldName = '_id', sortType = 1 }) => {
+  let hasNextPage = false;
+  let hasPreviousPage = false;
+  let result = [];
+  let matchCondition = {};
 
   if (after) {
-    const op = order === 1 ? '$gt' : '$lt';
-    if (!filter._id) filter._id = {};
-    filter._id[op] = after.value;
-  }
-
-  return query.find(filter).sort([['_id', order]]);
-}
-
-async function limitQuery(query, filter, field, order, before, after) {
-  const limits = {};
-  const ors = [];
-  if (before) {
-    const op = order === 1 ? '$lt' : '$gt';
-    const beforeObject = await query.findOne(
-      {
-        _id: before.value
-      },
-      {
-        fields: {
-          [field]: 1
-        }
-      }
-    );
-    limits[op] = beforeObject[field];
-    ors.push({
-      [field]: beforeObject[field],
-      _id: { [op]: before.value }
+    matchCondition = await getMatchCondition({
+      filter,
+      cursor: after,
+      orderFieldName,
+      sortType
     });
-  }
-
-  if (after) {
-    const op = order === 1 ? '$gt' : '$lt';
-    const afterObject = await query.findOne(
-      {
-        _id: after.value
-      },
-      {
-        fields: {
-          [field]: 1
-        }
-      }
-    );
-    limits[op] = afterObject[field];
-    ors.push({
-      [field]: afterObject[field],
-      _id: { [op]: after.value }
+    result = await dataPromiseFunc(matchCondition)
+      .sort({
+        [orderFieldName]: sortType,
+        _id: sortType
+      })
+      .limit(first + 1)
+      .then(data => data);
+    sortType *= -1;
+    matchCondition = await getMatchCondition({
+      filter,
+      cursor: after,
+      orderFieldName,
+      sortType
     });
+    hasPreviousPage = Boolean(
+      await dataPromiseFunc(matchCondition)
+        .sort({
+          [orderFieldName]: sortType,
+          _id: sortType
+        })
+        .count()
+    );
+    if (result.length && result.length > first) {
+      hasNextPage = true;
+      result.pop();
+    }
+  } else if (before || last) {
+    sortType *= -1;
+    matchCondition = await getMatchCondition({
+      filter,
+      cursor: before,
+      orderFieldName,
+      sortType
+    });
+    result = await dataPromiseFunc(matchCondition)
+      .sort({
+        [orderFieldName]: sortType,
+        _id: sortType
+      })
+      .limit(last + 1)
+      .then(data => data.reverse());
+    if (before) {
+      sortType *= -1;
+      matchCondition = await getMatchCondition({
+        filter,
+        cursor: before,
+        orderFieldName,
+        sortType
+      });
+      hasNextPage = Boolean(
+        await dataPromiseFunc(matchCondition)
+          .sort({
+            [orderFieldName]: sortType,
+            _id: sortType
+          })
+          .count()
+      );
+    }
+    if (result.length && result.length > last) {
+      hasPreviousPage = true;
+      result.shift();
+    }
+  } else {
+    matchCondition = await getMatchCondition({
+      filter,
+      orderFieldName,
+      sortType: sortType
+    });
+    result = await dataPromiseFunc(matchCondition)
+      .sort({
+        [orderFieldName]: sortType,
+        _id: sortType
+      })
+      .limit(first + 1)
+      .then(data => data);
+    if (result.length && result.length > first) {
+      hasNextPage = true;
+      result.pop();
+    }
   }
 
-  if (before || after) {
-    filter = {
-      ...filter,
-      $or: [
-        {
-          [field]: limits
-        },
-        ...ors
-      ]
-    };
-  }
+  return lazyLoadingResponseFromArray({
+    result,
+    orderFieldName,
+    hasNextPage,
+    hasPreviousPage
+  });
+};
 
-  return query.find(filter).sort([[field, order], ['_id', order]]);
-}
-
-async function applyPagination(query, first, last) {
-  let count;
-
-  if (first || last) {
-    count = await query.clone().count();
-    let limit;
-    let skip;
-
-    if (first && count > first) {
-      limit = first;
-    }
-
-    if (last) {
-      if (limit && limit > last) {
-        skip = limit - last;
-        limit = limit - skip;
-      } else if (!limit && count > last) {
-        skip = count - last;
-      }
-    }
-
-    if (skip) {
-      query.skip(skip);
-    }
-
-    if (limit) {
-      query.limit(limit);
-    }
-  }
-
-  return {
-    hasNextPage: Boolean(first && count > first),
-    hasPreviousPage: Boolean(last && count > last)
-  };
-}
-
-module.exports = connectionFromModel;
+module.exports = fetchConnectionFromArray;

@@ -5,7 +5,7 @@ const Attachment = `
   }
 
   type AttachmentEdge {
-    cursor: Cursor!
+    cursor: String!
     node: Attachment!
   }
 
