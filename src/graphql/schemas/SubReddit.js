@@ -16,6 +16,13 @@ const SubReddit = `
     # Số lượng bài viết
     posts_count: Int
   }
+
+  type R {
+    display_name: String
+    accounts_active: Int
+    icon_img: String
+    subscribers: Int
+  }
 `;
 
 module.exports = () => [SubReddit];

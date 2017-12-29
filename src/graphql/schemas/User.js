@@ -36,6 +36,13 @@ const User = `
       before: String
     ): CommentConnection
   }
+
+  type U {
+    comment_karma: Int
+    icon_img: String
+    link_karma: Int
+    name: String
+  }
 `;
 
 module.exports = () => [User];

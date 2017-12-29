@@ -86,6 +86,12 @@ const Query = `
       group: ChartGroup = MONTH
     ): ChartResult
 
+    # Lấy thông tin subreddit
+    r(displayName: String!): R
+
+    # Lấy thông tin user
+    u(name: String!): U
+
     # Lấy thời gian lần cuối cập nhập bài viết
     lastUpdate: Date
 
