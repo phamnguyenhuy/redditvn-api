@@ -33,7 +33,16 @@ const UserResolver = {
     },
     posts(user, { first, last, before, after }, context, info) {
       const filter = { user: user._id };
-      return connectionFromModel(Post, filter, { first, last, before, after }, 'created_time', -1);
+      return connectionFromModel({
+        dataPromiseFunc: Post.find.bind(Post),
+        filter,
+        after,
+        before,
+        first,
+        last,
+        orderFieldName: 'created_time',
+        sortType: -1
+      });
     },
     async comments(user, { first, last, before, after }, context, info) {
       const filter = { user: user._id };
