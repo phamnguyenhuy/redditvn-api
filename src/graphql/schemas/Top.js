@@ -23,16 +23,16 @@ const Top = `
 
     # Thành viên viết nhiều bài nhất
     posts_count(
+      first: Int!
       since: Int
       until: Int
-      first: Int
     ): UserConnection
 
     # Sub-reddit nhiều bài nhất
     subreddit(
+      first: Int!
       since: Int
       until: Int
-      first: Int
     ): SubRedditConnection
   }
 `;

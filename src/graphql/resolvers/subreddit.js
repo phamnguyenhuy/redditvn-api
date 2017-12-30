@@ -29,8 +29,6 @@ if (process.env.REDDIT_USER_AGENT && process.env.REDDIT_CLIENT_ID && process.env
 const SubRedditResolver = {
   Query: {
     async subreddits(root, { since, until }, context, info) {
-      since = moment.unix(since).toDate();
-      until = moment.unix(until).toDate();
       return (await findSubreddits(since, until)).map(r => r._id);
     },
     async r(root, { displayName }, context, info) {

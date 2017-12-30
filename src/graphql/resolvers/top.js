@@ -50,15 +50,13 @@ const TopResolver = {
       });
     },
     async posts_count(top, { since, until, first }, context, info) {
-      since = moment.unix(since).toDate();
-      until = moment.unix(until).toDate();
+      const filter = {
+        is_deleted: { $ne: true }
+      };
+      if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
+      if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
       const list = await Post.aggregate([
-        {
-          $match: {
-            is_deleted: { $ne: true },
-            created_time: { $gte: since, $lt: until }
-          }
-        },
+        { $match: filter },
         {
           $group: {
             _id: '$user',
@@ -84,8 +82,6 @@ const TopResolver = {
       };
     },
     async subreddit(top, { since, until, first }, context, info) {
-      since = moment.unix(since).toDate();
-      until = moment.unix(until).toDate();
       return {
         edges: await findSubredditTop(since, until, first),
         pageInfo: {
