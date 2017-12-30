@@ -35,9 +35,7 @@ const Comment = `
       after: String
       last: Int
       before: String
-      # Thời gian bắt đầu
       since: Int
-      # Thời gian kết thúc
       until: Int
     ): CommentConnection
   }

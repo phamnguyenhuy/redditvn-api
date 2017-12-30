@@ -29,9 +29,7 @@ const Query = `
       after: String
       last: Int
       before: String
-      # Thời gian bắt đầu
       since: Int
-      # Thời gian kết thúc
       until: Int
       # Bài viết của user nào
       user: String
@@ -61,18 +59,14 @@ const Query = `
     count(
       # Loại thống kê
       type: CountType!
-      # Thời gian bắt đầu
-      since: Int = 0
-      # Thời gian kết thúc
-      until: Int = 2147483647
+      since: Int
+      until: Int
     ): Int
 
     # Lấy danh sách các sub-reddit
     subreddits(
-      # Thời gian bắt đầu
-      since: Int = 0
-      # Thời gian kết thúc
-      until: Int = 2147483647
+      since: Int
+      until: Int
     ): [String]
 
     # Lấy danh sách top
@@ -81,9 +75,9 @@ const Query = `
     # Lấy dữ liệu để vẽ biểu đồ
     chart(
       # Nhóm theo bài viết hoặc bình luận
-      type: ChartType = POSTS
+      type: ChartType! = POSTS
       # Nhóm theo giờ, ngày trong tuần, ngày trong tháng, tháng
-      group: ChartGroup = MONTH
+      group: ChartGroup! = MONTH
     ): ChartResult
 
     # Lấy thông tin subreddit

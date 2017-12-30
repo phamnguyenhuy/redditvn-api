@@ -1,4 +1,5 @@
 const moment = require('moment');
+const _ = require('lodash');
 const git = require('git-last-commit');
 
 const getProjection = require('../getProjection');
@@ -18,36 +19,34 @@ const QueryResolver = {
   Query: {
     async count(root, { type, since, until }, context, { cacheControl }) {
       if (cacheControl) cacheControl.setCacheHint({ maxAge: 60 });
-      since = moment.unix(since).toDate();
-      until = moment.unix(until).toDate();
 
       switch (type) {
-        case 'POSTS':
-          return Post.count({
-            created_time: {
-              $gte: since,
-              $lt: until
-            },
+        case 'POSTS': {
+          const filter = {
             is_deleted: { $ne: true }
-          }).exec();
-        case 'LIKES':
-          const likes = await Post.aggregate([
-            {
-              $match: {
-                is_deleted: { $ne: true },
-                created_time: { $gte: since, $lt: until }
-              }
-            },
-            {
-              $group: {
-                _id: null,
-                count: { $sum: '$likes_count' }
-              }
-            }
-          ]).exec();
+          };
+          if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
+          if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
+
+          return Post.count(filter).exec();
+        }
+
+        case 'LIKES': {
+          const filter = {
+            is_deleted: { $ne: true }
+          };
+          if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
+          if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
+          const likes = await Post.aggregate([{ $match: filter }, { $group: { _id: null, count: { $sum: '$likes_count' } } }]).exec();
           return likes[0].count;
-        case 'COMMENTS':
-          return Comment.count({ created_time: { $gte: since, $lt: until } }).exec();
+        }
+        case 'COMMENTS': {
+          const filter = {};
+          if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
+          if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
+          return Comment.count(filter).exec();
+        }
+
         case 'USERS':
           return User.count({ posts_count: { $gt: 0 } }).exec();
         case 'SUBREDDITS':

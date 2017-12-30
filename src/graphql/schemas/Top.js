@@ -7,10 +7,8 @@ const Top = `
       after: String
       last: Int
       before: String
-      # Thời gian bắt đầu
-      since: Int = 0
-      # Thời gian kết thúc
-      until: Int = 2147483647
+      since: Int
+      until: Int
     ): PostConnection
 
     # Bài nhiều bình luận nhất
@@ -19,27 +17,21 @@ const Top = `
       after: String
       last: Int
       before: String
-      # Thời gian bắt đầu
-      since: Int = 0
-      # Thời gian kết thúc
-      until: Int = 2147483647
+      since: Int
+      until: Int
     ): PostConnection
 
     # Thành viên viết nhiều bài nhất
     posts_count(
-      # Thời gian bắt đầu
       since: Int
-      # Thời gian kết thúc
-      until: Int = 2147483647
+      until: Int
       first: Int
     ): UserConnection
 
     # Sub-reddit nhiều bài nhất
     subreddit(
-      # Thời gian bắt đầu
-      since: Int = 0
-      # Thời gian kết thúc
-      until: Int = 2147483647
+      since: Int
+      until: Int
       first: Int
     ): SubRedditConnection
   }

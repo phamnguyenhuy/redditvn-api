@@ -1,15 +1,17 @@
 const { ServerError } = require('../helpers/server');
 const { Post } = require('../models');
+const moment = require('moment');
+const _ = require('lodash');
 
 function findSubredditTop(since, until, first) {
+  const filter = {
+    is_deleted: { $ne: true },
+    r: { $ne: null },
+  };
+  if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
+  if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
   return Post.aggregate([
-    {
-      $match: {
-        is_deleted: { $ne: true },
-        r: { $ne: null },
-        created_time: { $gte: since, $lt: until }
-      }
-    },
+    { $match: filter },
     { $project: { _id: 1, rLower: { $toLower: '$r' } } },
     {
       $group: {
@@ -23,14 +25,14 @@ function findSubredditTop(since, until, first) {
 }
 
 function findSubreddits(since, until) {
+  const filter = {
+    is_deleted: { $ne: true },
+    r: { $ne: null },
+  };
+  if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
+  if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
   return Post.aggregate([
-    {
-      $match: {
-        created_time: { $gte: since, $lt: until },
-        is_deleted: { $ne: true },
-        r: { $ne: null }
-      }
-    },
+    { $match: filter },
     { $project: { _id: 1, rLower: { $toLower: '$r' } } },
     {
       $group: {
@@ -44,14 +46,14 @@ function findSubreddits(since, until) {
 }
 
 function findSubredditsCount(since, until) {
+  const filter = {
+    is_deleted: { $ne: true },
+    r: { $ne: null },
+  };
+  if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
+  if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
   return Post.aggregate([
-    {
-      $match: {
-        created_time: { $gte: since, $lt: until },
-        is_deleted: { $ne: true },
-        r: { $ne: null }
-      }
-    },
+    { $match: filter },
     { $project: { _id: 1, rLower: { $toLower: '$r' } } },
     {
       $group: {
