@@ -48,7 +48,14 @@ const QueryResolver = {
         }
 
         case 'USERS':
+          return User.count().exec();
+
+        case 'USERS_POSTS':
           return User.count({ posts_count: { $gt: 0 } }).exec();
+
+        case 'USERS_COMMENTS':
+          return User.count({ comments_count: { $gt: 0 } }).exec();
+
         case 'SUBREDDITS':
           const src = await findSubredditsCount(since, until);
           return src.length;
