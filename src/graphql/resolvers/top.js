@@ -49,7 +49,7 @@ const TopResolver = {
         sortType: -1
       });
     },
-    async posts_count(top, { since, until, first }, context, info) {
+    async posts_count(top, { since, until, first = 5 }, context, info) {
       const filter = {
         is_deleted: { $ne: true }
       };
@@ -84,7 +84,7 @@ const TopResolver = {
         }
       };
     },
-    async subreddit(top, { since, until, first }, context, info) {
+    async subreddit(top, { since, until, first = 5 }, context, info) {
       return {
         edges: await findSubredditTop(since, until, first),
         pageInfo: {

@@ -23,14 +23,14 @@ const Top = `
 
     # Thành viên viết nhiều bài nhất
     posts_count(
-      first: Int!
+      first: Int
       since: Int
       until: Int
     ): UserConnection
 
     # Sub-reddit nhiều bài nhất
     subreddit(
-      first: Int!
+      first: Int
       since: Int
       until: Int
     ): SubRedditConnection
