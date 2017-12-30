@@ -70,7 +70,10 @@ const TopResolver = {
         list.map(async value => {
           const user = await User.findById(value._id).exec();
           user.posts_count = value.posts_count;
-          return user;
+          return {
+            cursor: new Buffer(value._id).toString('base64'),
+            node: user
+          };
         })
       );
       return {
