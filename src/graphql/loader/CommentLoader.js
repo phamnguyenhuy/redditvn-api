@@ -1,10 +1,11 @@
 const DataLoader = require('dataloader');
 const mongooseLoader = require('./MongooseLoader');
+const connectionFromModel = require('./ConnectionFromModel');
 const { Comment } = require('../../models');
 
-module.exports.getLoader = () => new DataLoader(ids => mongooseLoader(Comment, ids));
+const getLoader = () => new DataLoader(ids => mongooseLoader(Comment, ids));
 
-module.exports.load = async (context, id) => {
+const load = async (context, id) => {
   if (!id) {
     return null;
   }
@@ -18,6 +19,25 @@ module.exports.load = async (context, id) => {
   return data;
 };
 
-module.exports.clearCache = (context, id) => {
+const clearCache = (context, id) => {
   return context.dataloaders.commentLoader.clear(id.toString());
+};
+
+const loadComments = async (context, filter, args, orderFieldName = '_id', sortType = 1) => {
+  return connectionFromModel({
+    dataPromiseFunc: Comment.find.bind(Comment),
+    filter: filter,
+    ...args,
+    orderFieldName: orderFieldName,
+    sortType: sortType,
+    context: context,
+    loader: load
+  });
+};
+
+module.exports = {
+  getLoader,
+  load,
+  clearCache,
+  loadComments
 };

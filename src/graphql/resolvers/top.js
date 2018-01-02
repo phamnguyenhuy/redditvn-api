@@ -1,9 +1,10 @@
-const connectionFromModel = require('../connectionFromModel');
+const connectionFromModel = require('../loader/ConnectionFromModel');
 const { User, Post } = require('../../models');
 const moment = require('moment');
 
 const { subreddit } = require('../../services');
 const { findSubredditTop } = subreddit;
+const { postLoader } = require('../loader');
 
 const _ = require('lodash');
 
@@ -20,16 +21,17 @@ const TopResolver = {
       };
       if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
       if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
-      return connectionFromModel({
-        dataPromiseFunc: Post.find.bind(Post),
-        filter,
-        after,
-        before,
-        first,
-        last,
-        orderFieldName: 'likes_count',
-        sortType: -1
-      });
+      return postLoader.loadPosts(context, filter, { first, last, before, after }, 'likes_count', -1);
+      // return connectionFromModel({
+      //   dataPromiseFunc: Post.find.bind(Post),
+      //   filter,
+      //   after,
+      //   before,
+      //   first,
+      //   last,
+      //   orderFieldName: 'likes_count',
+      //   sortType: -1
+      // });
     },
     comments(top, { since, until, first, last, before, after }, context, info) {
       const filter = {
@@ -37,16 +39,17 @@ const TopResolver = {
       };
       if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
       if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
-      return connectionFromModel({
-        dataPromiseFunc: Post.find.bind(Post),
-        filter,
-        after,
-        before,
-        first,
-        last,
-        orderFieldName: 'comments_count',
-        sortType: -1
-      });
+      return postLoader.loadPosts(context, filter, { first, last, before, after }, 'comments_count', -1);
+      // return connectionFromModel({
+      //   dataPromiseFunc: Post.find.bind(Post),
+      //   filter,
+      //   after,
+      //   before,
+      //   first,
+      //   last,
+      //   orderFieldName: 'comments_count',
+      //   sortType: -1
+      // });
     },
     async posts_count(top, { since, until, first = 5 }, context, info) {
       const filter = {

@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
-const decodeBase64 = (str) => new Buffer(str, 'ascii').toString('base64');
-const encodeBase64 = (b64) => new Buffer(b64, 'base64').toString('ascii');
+const encodeBase64 = (str) => new Buffer(str, 'ascii').toString('base64');
+const decodeBase64 = (b64) => new Buffer(b64, 'base64').toString('ascii');
 
 const lazyLoadingCondition = async ({ matchCondition, lastId, orderFieldName, orderLastValue, sortType }) => {
   if (!('$or' in matchCondition) || matchCondition || matchCondition['$or'] === undefined) {
@@ -50,19 +50,19 @@ const lazyLoadingCondition = async ({ matchCondition, lastId, orderFieldName, or
   delete matchCondition['$or'];
 };
 
-const lazyLoadingResponseFromArray = async ({ result, orderFieldName, hasNextPage, hasPreviousPage, totalCount }) => {
+const lazyLoadingResponseFromArray = async ({ result, orderFieldName, hasNextPage, hasPreviousPage, totalCount, context, loader }) => {
   let edges = [];
   let edge;
   let value;
   await Promise.all(
     result.map(async record => {
       value = JSON.stringify({
-        lastId: _.get(record, '_id'),
-        orderLastValue: _.get(record, orderFieldName)
+        id: _.get(record, '_id'),
+        order: _.get(record, orderFieldName)
       });
       edge = {
         cursor: encodeBase64(value),
-        node: record
+        node: loader(context, record._id)
       };
       edges.push(edge);
     })
@@ -84,8 +84,8 @@ const getMatchCondition = async ({ filter, cursor, orderFieldName, sortType }) =
 
   if (cursor) {
     let unserializedAfter = JSON.parse(decodeBase64(cursor));
-    let lastId = unserializedAfter.lastId;
-    let orderLastValue = unserializedAfter.orderLastValue;
+    let lastId = unserializedAfter.id;
+    let orderLastValue = unserializedAfter.order;
     await lazyLoadingCondition({ matchCondition, lastId, orderFieldName, orderLastValue, sortType });
   }
   if (filter) {
@@ -95,12 +95,20 @@ const getMatchCondition = async ({ filter, cursor, orderFieldName, sortType }) =
   return matchCondition;
 };
 
-const fetchConnectionFromArray = async ({ dataPromiseFunc, filter, after, before, first = 5, last, orderFieldName = '_id', sortType = 1 }) => {
+const fetchConnectionFromArray = async ({ dataPromiseFunc, filter, after, before, first, last, orderFieldName = '_id', sortType = 1, context, loader }) => {
   let hasNextPage = false;
   let hasPreviousPage = false;
   let result = [];
   let matchCondition = {};
   let totalCount = 0;
+
+  if (first && last) {
+    throw Error('Can not set both first and last');
+  }
+
+  if (!first && !last) {
+    first = 10;
+  }
 
   totalCount = await dataPromiseFunc(filter).count();
 
@@ -112,6 +120,7 @@ const fetchConnectionFromArray = async ({ dataPromiseFunc, filter, after, before
       sortType
     });
     result = await dataPromiseFunc(matchCondition)
+      .select({_id: 1, [orderFieldName]: 1})
       .sort({
         [orderFieldName]: sortType,
         _id: sortType
@@ -146,6 +155,7 @@ const fetchConnectionFromArray = async ({ dataPromiseFunc, filter, after, before
       sortType
     });
     result = await dataPromiseFunc(matchCondition)
+      .select({_id: 1, [orderFieldName]: 1})
       .sort({
         [orderFieldName]: sortType,
         _id: sortType
@@ -180,11 +190,12 @@ const fetchConnectionFromArray = async ({ dataPromiseFunc, filter, after, before
       sortType: sortType
     });
     result = await dataPromiseFunc(matchCondition)
+      .select({_id: 1, [orderFieldName]: 1})
       .sort({
         [orderFieldName]: sortType,
         _id: sortType
       })
-      .limit(first + 1)
+      .limit(first + 1).exec()
       .then(data => data);
     if (result.length && result.length > first) {
       hasNextPage = true;
@@ -197,7 +208,9 @@ const fetchConnectionFromArray = async ({ dataPromiseFunc, filter, after, before
     orderFieldName,
     hasNextPage,
     hasPreviousPage,
-    totalCount
+    totalCount,
+    context,
+    loader
   });
 };
 

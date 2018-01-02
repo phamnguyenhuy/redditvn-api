@@ -1,12 +1,12 @@
 const moment = require('moment');
-const connectionFromModel = require('../connectionFromModel');
+const connectionFromModel = require('../loader/ConnectionFromModel');
 const { Post, Comment, User } = require('../../models');
 const { regexpEscape } = require('../../helpers/util');
 const { toGlobalId } = require('graphql-relay');
 const { facebook } = require('../../services');
 const { findAttachmentsByPostId } = facebook;
 const _ = require('lodash');
-const { userLoader } = require('../loader');
+const { userLoader, postLoader, commentLoader } = require('../loader');
 
 function buildPostFilters({ OR = [], since, until, r, q, u, user }) {
   const filter = since || until || r || q || u || user ? { is_deleted: { $ne: true } } : null;
@@ -33,17 +33,17 @@ const PostResolver = {
   Query: {
     posts(root, { filter, first, last, before, after }, context, info) {
       const postFilters = filter ? { $or: buildPostFilters(filter) } : { is_deleted: { $ne: true } };
-
-      return connectionFromModel({
-        dataPromiseFunc: Post.find.bind(Post),
-        filter: postFilters,
-        after,
-        before,
-        first,
-        last,
-        orderFieldName: 'created_time',
-        sortType: -1
-      });
+      return postLoader.loadPosts(context, postFilters, { first, last, before, after }, 'created_time', -1);
+      // return connectionFromModel({
+      //   dataPromiseFunc: Post.find.bind(Post),
+      //   filter: postFilters,
+      //   after,
+      //   before,
+      //   first,
+      //   last,
+      //   orderFieldName: 'created_time',
+      //   sortType: -1
+      // });
     },
     async random(root, { filter }, context, info) {
       const postFilters = filter ? { $or: buildPostFilters(filter) } : { is_deleted: { $ne: true } };
@@ -88,16 +88,17 @@ const PostResolver = {
       };
       if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
       if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
-      return connectionFromModel({
-        dataPromiseFunc: Comment.find.bind(Comment),
-        filter,
-        after,
-        before,
-        first,
-        last,
-        orderFieldName: 'created_time',
-        sortType: 1
-      });
+      return commentLoader.loadComments(context, filter, { first, last, before, after }, 'created_time', 1);
+      // return connectionFromModel({
+      //   dataPromiseFunc: Comment.find.bind(Comment),
+      //   filter,
+      //   after,
+      //   before,
+      //   first,
+      //   last,
+      //   orderFieldName: 'created_time',
+      //   sortType: 1
+      // });
     }
   }
 };

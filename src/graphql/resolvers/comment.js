@@ -1,9 +1,9 @@
 const moment = require('moment');
 const { Comment } = require('../../models');
-const connectionFromModel = require('../connectionFromModel');
+const connectionFromModel = require('../loader/ConnectionFromModel');
 const _ = require('lodash');
 const { toGlobalId } = require('graphql-relay');
-const { postLoader, commentLoader, userLoader } = require('../loader')
+const { postLoader, commentLoader, userLoader } = require('../loader');
 
 const CommentResolver = {
   Comment: {
@@ -33,16 +33,17 @@ const CommentResolver = {
       if (until) {
         _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
       }
-      return connectionFromModel({
-        dataPromiseFunc: Comment.find.bind(Comment),
-        filter,
-        after,
-        before,
-        first,
-        last,
-        orderFieldName: 'created_time',
-        sortType: 1
-      });
+      return commentLoader.loadComments(context, filter, { first, last, before, after }, 'created_time', 1);
+      // return connectionFromModel({
+      //   dataPromiseFunc: Comment.find.bind(Comment),
+      //   filter,
+      //   after,
+      //   before,
+      //   first,
+      //   last,
+      //   orderFieldName: 'created_time',
+      //   sortType: 1
+      // });
     }
   }
 };

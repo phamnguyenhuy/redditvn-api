@@ -93,7 +93,7 @@ app.use(
         dataloaders
       },
       schema: executableSchema,
-      tracing: true,
+      tracing: false,
       cacheControl: false
     };
   })

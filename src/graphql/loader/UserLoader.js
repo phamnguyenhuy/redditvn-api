@@ -1,10 +1,12 @@
 const DataLoader = require('dataloader');
 const mongooseLoader = require('./MongooseLoader');
+const connectionFromModel = require('./ConnectionFromModel');
+const connectionFromMongoCursor = require('./ConnectionFromMongoCursor');
 const { User } = require('../../models');
 
-module.exports.getLoader = () => new DataLoader(ids => mongooseLoader(User, ids));
+const getLoader = () => new DataLoader(ids => mongooseLoader(User, ids));
 
-module.exports.load = async (context, id) => {
+const load = async (context, id) => {
   if (!id) {
     return null;
   }
@@ -18,18 +20,27 @@ module.exports.load = async (context, id) => {
   return data;
 };
 
-module.exports.clearCache = (context, id) => {
+const clearCache = (context, id) => {
   return context.dataloaders.userLoader.clear(id.toString());
 };
 
-// module.exports.loadUsers = async (context, args) => {
-//   const where = args.search ? { name: { $regex: new RegExp(`^${args.search}`, 'ig') } } : {};
-//   const users = UserModel.find(where, { _id: 1 }).sort({ createdAt: -1 });
+const loadUsers = async (context, filter, args, orderFieldName = '_id', sortType = 1) => {
+  // const users = User.find(filter, { _id: 1 }).sort({ [orderFieldName]: sortType });
+  // return connectionFromMongoCursor({ cursor: users, context, args, loader: load });
+  return connectionFromModel({
+    dataPromiseFunc: User.find.bind(User),
+    filter: filter,
+    ...args,
+    orderFieldName: orderFieldName,
+    sortType: sortType,
+    context: context,
+    loader: load
+  });
+};
 
-//   return connectionFromMongoCursor({
-//     cursor: users,
-//     context,
-//     args,
-//     loader: load,
-//   });
-// };
+module.exports = {
+  getLoader,
+  load,
+  clearCache,
+  loadUsers
+};

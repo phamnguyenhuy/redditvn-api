@@ -1,7 +1,8 @@
 const { Post, User, Comment } = require('../../models');
-const connectionFromModel = require('../connectionFromModel');
+const connectionFromModel = require('../loader/ConnectionFromModel');
 const { regexpEscape } = require('../../helpers/util');
 const { toGlobalId } = require('graphql-relay');
+const { userLoader, postLoader, commentLoader } = require('../loader');
 
 function buildUserFilters({ OR = [], q }) {
   const filter = q ? { posts_count: { $gt: 0 } } : null;
@@ -17,19 +18,19 @@ function buildUserFilters({ OR = [], q }) {
 
 const UserResolver = {
   Query: {
-    async users(root, { filter, first, last, before, after }, context, info) {
+    users(root, { filter, first, last, before, after }, context, info) {
       const userFilters = filter ? { $or: buildUserFilters(filter) } : { posts_count: { $gt: 0 } };
-
-      return connectionFromModel({
-        dataPromiseFunc: User.find.bind(User),
-        filter: userFilters,
-        after,
-        before,
-        first,
-        last,
-        orderFieldName: 'posts_count',
-        sortType: -1
-      });
+      return userLoader.loadUsers(context, userFilters, { first, last, before, after }, 'posts_count', -1);
+      // return connectionFromModel({
+      //   dataPromiseFunc: User.find.bind(User),
+      //   filter: userFilters,
+      //   after,
+      //   before,
+      //   first,
+      //   last,
+      //   orderFieldName: 'posts_count',
+      //   sortType: -1
+      // });
     }
   },
   User: {
@@ -44,29 +45,31 @@ const UserResolver = {
     },
     posts(user, { first, last, before, after }, context, info) {
       const filter = { user: user._id };
-      return connectionFromModel({
-        dataPromiseFunc: Post.find.bind(Post),
-        filter,
-        after,
-        before,
-        first,
-        last,
-        orderFieldName: 'created_time',
-        sortType: -1
-      });
+      return postLoader.loadPosts(context, filter, { first, last, before, after }, 'created_time', -1);
+      // return connectionFromModel({
+      //   dataPromiseFunc: Post.find.bind(Post),
+      //   filter,
+      //   after,
+      //   before,
+      //   first,
+      //   last,
+      //   orderFieldName: 'created_time',
+      //   sortType: -1
+      // });
     },
     async comments(user, { first, last, before, after }, context, info) {
       const filter = { user: user._id };
-      return connectionFromModel({
-        dataPromiseFunc: Comment.find.bind(Comment),
-        filter,
-        after,
-        before,
-        first,
-        last,
-        orderFieldName: 'created_time',
-        sortType: -1
-      });
+      return commentLoader.loadComments(context, filter, { first, last, before, after }, 'created_time', -1);
+      // return connectionFromModel({
+      //   dataPromiseFunc: Comment.find.bind(Comment),
+      //   filter,
+      //   after,
+      //   before,
+      //   first,
+      //   last,
+      //   orderFieldName: 'created_time',
+      //   sortType: -1
+      // });
     }
   }
 };
