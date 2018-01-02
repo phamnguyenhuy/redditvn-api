@@ -8,12 +8,12 @@ const User = `
   type UserConnection {
     edges: [UserEdge]
     pageInfo: PageInfo!
+    totalCount: Int
   }
 
   type UserEdge {
     cursor: String!
     node: User!
-    totalCount: Int
   }
 
   # Thành viên

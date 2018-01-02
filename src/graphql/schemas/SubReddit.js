@@ -3,12 +3,12 @@ const SubReddit = `
   type SubRedditConnection {
     edges: [SubRedditEdge]
     pageInfo: PageInfo!
+    totalCount: Int
   }
 
   type SubRedditEdge {
     cursor: String!
     node: SubReddit!
-    totalCount: Int
   }
 
   type SubReddit @cacheControl(maxAge: 240) {

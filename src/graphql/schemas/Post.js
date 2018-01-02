@@ -16,12 +16,12 @@ const Post = `
   type PostConnection {
     edges: [PostEdge]
     pageInfo: PageInfo!
+    totalCount: Int
   }
 
   type PostEdge {
     cursor: String!
     node: Post!
-    totalCount: Int
   }
 
   # Bài viết

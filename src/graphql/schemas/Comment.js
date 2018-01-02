@@ -2,12 +2,12 @@ const Comment = `
   type CommentConnection {
     edges: [CommentEdge]
     pageInfo: PageInfo!
+    totalCount: Int
   }
 
   type CommentEdge {
     cursor: String!
     node: Comment!
-    totalCount: Int
   }
 
   # Bình luận

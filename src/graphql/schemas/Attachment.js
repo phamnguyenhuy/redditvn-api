@@ -2,12 +2,12 @@ const Attachment = `
   type AttachmentConnection {
     edges: [AttachmentEdge]
     pageInfo: PageInfo!
+    totalCount: Int
   }
 
   type AttachmentEdge {
     cursor: String!
     node: Attachment!
-    totalCount: Int
   }
 
   # Đính kèm trong bài viết
