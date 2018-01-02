@@ -7,7 +7,9 @@ const { userLoader, postLoader, commentLoader } = require('../loader');
 function buildUserFilters({ OR = [], q }) {
   const filter = q ? { posts_count: { $gt: 0 } } : null;
 
-  if (q) filter.name = { $regex: new RegExp(regexpEscape(q)), $options: 'i' };
+  if (filter) {
+    if (q) filter.name = { $regex: new RegExp(regexpEscape(q)), $options: 'i' };
+  }
 
   let filters = filter ? [filter] : [];
   for (let i = 0; i < OR.length; i++) {
@@ -19,7 +21,8 @@ function buildUserFilters({ OR = [], q }) {
 const UserResolver = {
   Query: {
     users(root, { filter, first, last, before, after }, context, info) {
-      const userFilters = filter ? { $or: buildUserFilters(filter) } : { posts_count: { $gt: 0 } };
+      const buildFilters = filter ? buildUserFilters(filter) : []
+      const userFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { posts_count: { $gt: 0 } };
       return userLoader.loadUsers(context, userFilters, { first, last, before, after }, 'posts_count', -1);
       // return connectionFromModel({
       //   dataPromiseFunc: User.find.bind(User),
