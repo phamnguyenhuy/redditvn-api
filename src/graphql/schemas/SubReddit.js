@@ -8,6 +8,7 @@ const SubReddit = `
   type SubRedditEdge {
     cursor: String!
     node: SubReddit!
+    totalCount: Int
   }
 
   type SubReddit {

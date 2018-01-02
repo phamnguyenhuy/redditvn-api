@@ -7,11 +7,12 @@ const Comment = `
   type CommentEdge {
     cursor: String!
     node: Comment!
+    totalCount: Int
   }
 
   # Bình luận
-  type Comment {
-    # Mã bình luận
+  type Comment implements Node {
+    id: ID!
     _id: String
 
     # Bình luận trong bài viết

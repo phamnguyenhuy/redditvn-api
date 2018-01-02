@@ -1,28 +1,25 @@
 const moment = require('moment');
-const getProjection = require('../getProjection');
 const { Post, Comment, User } = require('../../models');
 const connectionFromModel = require('../connectionFromModel');
 const _ = require('lodash');
+const { toGlobalId } = require('graphql-relay');
 
 const CommentResolver = {
-  Query: {
-    comment(root, { id }, context, info) {
-      const projection = getProjection(info.fieldNodes[0]);
-      return Comment.findById(id, projection).exec();
-    }
-  },
   Comment: {
+    __isTypeOf(comment, args, context, info) {
+      return comment instanceof Comment;
+    },
+    id(comment, args, context, info) {
+      return toGlobalId('Comment', comment._id);
+    },
     post(comment, args, context, info) {
-      const projection = getProjection(info.fieldNodes[0]);
       return Post.findById(comment.post, projection).exec();
     },
     user(comment, args, context, info) {
-      const projection = getProjection(info.fieldNodes[0]);
       return User.findById(comment.user, projection).exec();
     },
     parent(comment, args, context, info) {
       if (!comment.parent) return null;
-      const projection = getProjection(info.fieldNodes[0]);
       return Comment.findById(comment.parent, projection).exec();
     },
     replies(comment, { since, until, first, last, before, after }, context, info) {

@@ -1,59 +1,32 @@
 const Query = `
   # Truy vấn
   type Query {
-    # Lấy một thành viên
-    user(
-      # Mã thành viên
-      id: String!
-    ): User
+    node(id: ID!): Node
+
+    nodes(ids: [ID!]!): [Node]!
 
     # Lấy danh sách thành viên
     users(
-      # Tìm kiếm theo tên thành viên
-      q: String
+      filter: UserFilter
       first: Int
       after: String
       last: Int
       before: String
     ): UserConnection
 
-    # Lấy một bài viết
-    post(
-      # Mã bài viết
-      id: String!
-    ): Post
-
     # Lấy danh sách bài viết
     posts(
+      filter: PostFilter
       first: Int
       after: String
       last: Int
       before: String
-      since: Int
-      until: Int
-      # Bài viết của user nào
-      user: String
-      # Bài viết có từ khóa
-      q: String
-      # Bài viết trong sub-reddit
-      r: String
-      # Bài viết của user-reddit nào
-      u: String
     ): PostConnection
 
     # Lấy bài viết ngẫu nhiên
     random(
-      # Bài viết trong subreddit nào
-      r: String
-      # Bài viết có chứa từ khóa nào
-      q: String
+      filter: PostFilter
     ): Post
-
-    # Lấy một bình luận
-    comment(
-      # Mã bình luận
-      id: String
-    ): Comment
 
     # Thống kê
     count(

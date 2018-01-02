@@ -78,10 +78,10 @@ const lazyLoadingResponseFromArray = async ({ result, orderFieldName, hasNextPag
       hasNextPage,
       hasPreviousPage,
       startCursor: edges[0] ? edges[0].cursor : null,
-      endCursor: edges[edges.length - 1] ? edges[edges.length - 1].cursor : null,
-      totalCount
+      endCursor: edges[edges.length - 1] ? edges[edges.length - 1].cursor : null
     },
-    edges
+    edges,
+    totalCount
   };
 };
 

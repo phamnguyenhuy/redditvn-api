@@ -1,4 +1,18 @@
 const Post = `
+  input PostFilter {
+    OR: [PostFilter!]
+    since: Int
+    until: Int
+    # Bài viết của user nào
+    user: String
+    # Bài viết có từ khóa
+    q: String
+    # Bài viết trong sub-reddit
+    r: String
+    # Bài viết của user-reddit nào
+    u: String
+  }
+
   type PostConnection {
     edges: [PostEdge]
     pageInfo: PageInfo!
@@ -7,12 +21,14 @@ const Post = `
   type PostEdge {
     cursor: String!
     node: Post!
+    totalCount: Int
   }
 
   # Bài viết
-  type Post @cacheControl(maxAge: 60) {
-    # Mã bài viết
+  type Post implements Node @cacheControl(maxAge: 60) {
+    id: ID!
     _id: String
+
     # Thành viên viết bài
     user: User
     # Sub-reddit

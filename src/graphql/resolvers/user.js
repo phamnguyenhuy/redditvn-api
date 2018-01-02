@@ -1,23 +1,28 @@
-const getProjection = require('../getProjection');
 const { Post, User, Comment } = require('../../models');
 const connectionFromModel = require('../connectionFromModel');
 const { regexpEscape } = require('../../helpers/util');
+const { toGlobalId } = require('graphql-relay');
+
+function buildUserFilters({ OR = [], q }) {
+  const filter = q ? { posts_count: { $gt: 0 } } : null;
+
+  if (q) filter.name = { $regex: new RegExp(regexpEscape(q)), $options: 'i' };
+
+  let filters = filter ? [filter] : [];
+  for (let i = 0; i < OR.length; i++) {
+    filters = filters.concat(buildUserFilters(OR[i]));
+  }
+  return filters;
+}
 
 const UserResolver = {
   Query: {
-    user(root, { id }, context, info) {
-      const projection = getProjection(info.fieldNodes[0]);
-      return User.findById(id, projection).exec();
-    },
-    async users(root, { q, first, last, before, after }, context, info) {
-      const filter = { posts_count: { $gt: 0 } };
-      if (q) {
-        q = regexpEscape(q);
-        filter.name = { $regex: new RegExp(q), $options: 'i' };
-      }
+    async users(root, { filter, first, last, before, after }, context, info) {
+      const userFilters = filter ? { $or: buildUserFilters(filter) } : { posts_count: { $gt: 0 } };
+
       return connectionFromModel({
         dataPromiseFunc: User.find.bind(User),
-        filter,
+        filter: userFilters,
         after,
         before,
         first,
@@ -28,6 +33,12 @@ const UserResolver = {
     }
   },
   User: {
+    __isTypeOf(user, args, context, info) {
+      return user instanceof User;
+    },
+    id(user, args, context, info) {
+      return toGlobalId('User', user._id);
+    },
     profile_pic(user, { size }, context, info) {
       return `https://graph.facebook.com/${user._id}/picture?type=square&redirect=true&width=${size}&height=${size}`;
     },

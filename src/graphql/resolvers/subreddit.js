@@ -1,14 +1,13 @@
-const getProjection = require('../getProjection');
 const { Post, Comment, User } = require('../../models');
 const moment = require('moment');
 const { subreddit } = require('../../services');
 const { findSubreddits } = subreddit;
 const snoowrap = require('snoowrap');
 
-let r;
+let redditClient;
 if (process.env.REDDIT_USER_AGENT && process.env.REDDIT_CLIENT_ID && process.env.REDDIT_CLIENT_SECRET) {
   if (process.env.REDDIT_REFRESH_TOKEN) {
-    r = new snoowrap({
+    redditClient = new snoowrap({
       userAgent: process.env.REDDIT_USER_AGENT,
       clientId: process.env.REDDIT_CLIENT_ID,
       clientSecret: process.env.REDDIT_CLIENT_SECRET,
@@ -16,7 +15,7 @@ if (process.env.REDDIT_USER_AGENT && process.env.REDDIT_CLIENT_ID && process.env
     });
   }
   else if (process.env.REDDIT_USERNAME && process.env.REDDIT_PASSWORD) {
-    r = new snoowrap({
+    redditClient = new snoowrap({
       userAgent: process.env.REDDIT_USER_AGENT,
       clientId: process.env.REDDIT_CLIENT_ID,
       clientSecret: process.env.REDDIT_CLIENT_SECRET,
@@ -32,15 +31,14 @@ const SubRedditResolver = {
       return (await findSubreddits(since, until)).map(r => r._id);
     },
     async r(root, { displayName }, context, info) {
-      if (!r) throw Error('Reddit API not config.')
-      return await r.getSubreddit(displayName).fetch();
+      if (!redditClient) throw Error('Reddit API not config.')
+      return await redditClient.getSubreddit(displayName).fetch();
     },
     async u(root, { name }, context, info) {
-      if (!r) throw Error('Reddit API not config.')
-      return await r.getUser(name).fetch();
+      if (!redditClient) throw Error('Reddit API not config.')
+      return await redditClient.getUser(name).fetch();
     }
   },
-  SubRedditConnection: {},
   SubRedditEdge: {
     cursor(subreddit) {
       return { value: subreddit._id.toString() };
@@ -48,8 +46,7 @@ const SubRedditResolver = {
     node(subreddit) {
       return subreddit;
     }
-  },
-  SubReddit: {}
+  }
 };
 
 module.exports = SubRedditResolver;

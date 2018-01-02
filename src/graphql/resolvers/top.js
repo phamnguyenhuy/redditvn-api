@@ -5,7 +5,6 @@ const moment = require('moment');
 const { subreddit } = require('../../services');
 const { findSubredditTop } = subreddit;
 
-const getProjection = require('../getProjection');
 const _ = require('lodash');
 
 const TopResolver = {

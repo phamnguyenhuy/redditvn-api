@@ -1,8 +1,7 @@
 const moment = require('moment');
 const _ = require('lodash');
 const git = require('git-last-commit');
-
-const getProjection = require('../getProjection');
+const { fromGlobalId } = require('graphql-relay');
 
 const { Post, Comment, User } = require('../../models');
 
@@ -16,7 +15,41 @@ const { stats } = require('../../services');
 const { findStatsChart } = stats;
 
 const QueryResolver = {
+  Node: {
+    __resolveType(data) {
+      if (data instanceof Post) return 'Post';
+      if (data instanceof Comment) return 'Comment';
+      if (data instanceof User) return 'User';
+      return data.__typename || data.typename.name;
+    }
+  },
   Query: {
+    async node(root, { id }, context, info) {
+      const globalID = fromGlobalId(id);
+      switch (globalID.type) {
+        case 'Post':
+          return Post.findById(globalID.id).exec();
+        case 'User':
+          return User.findById(globalID.id).exec();
+        case 'Comment':
+          return Comment.findById(globalID.id).exec();
+
+        default:
+          return null;
+      }
+    },
+    async nodes(root, { ids }, context, info) {
+      const globalIDs = ids.map(value => fromGlobalId(value));
+      const postIDs = globalIDs.filter(value => value.type === 'Post').map(value => value.id);
+      const userIDs = globalIDs.filter(value => value.type === 'User').map(value => value.id);
+      const commentIDs = globalIDs.filter(value => value.type === 'Comment').map(value => value.id);
+
+      const posts = await Post.find({ _id: { $in: postIDs } }).exec();
+      const users = await User.find({ _id: { $in: userIDs } }).exec();
+      const comments = await Comment.find({ _id: { $in: commentIDs } }).exec();
+
+      return [...posts, ...users, ...comments];
+    },
     async count(root, { type, since, until }, context, { cacheControl }) {
       if (cacheControl) cacheControl.setCacheHint({ maxAge: 60 });
 

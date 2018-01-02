@@ -7,6 +7,7 @@ const Attachment = `
   type AttachmentEdge {
     cursor: String!
     node: Attachment!
+    totalCount: Int
   }
 
   # Đính kèm trong bài viết

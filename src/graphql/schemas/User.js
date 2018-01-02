@@ -1,4 +1,10 @@
 const User = `
+  input UserFilter {
+    OR: [UserFilter!]
+    # Tìm kiếm theo tên thành viên
+    q: String
+  }
+
   type UserConnection {
     edges: [UserEdge]
     pageInfo: PageInfo!
@@ -7,12 +13,14 @@ const User = `
   type UserEdge {
     cursor: String!
     node: User!
+    totalCount: Int
   }
 
   # Thành viên
-  type User @cacheControl(maxAge: 240) {
-    # Mã thành viên
-    _id: String # id of user
+  type User implements Node @cacheControl(maxAge: 240) {
+    id: ID!
+    _id: String
+
     # Tên thành viên
     name: String # name of user
     # Ảnh đại diện
