@@ -102,7 +102,7 @@ const fetchConnectionFromArray = async ({ dataPromiseFunc, filter, after, before
   let matchCondition = {};
   let totalCount = 0;
 
-  if (first && last) {
+  if (first > 0 && last > 0) {
     throw Error('Can not set both first and last');
   }
 
