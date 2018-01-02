@@ -20,7 +20,7 @@ const Chart = `
   }
 
   # Kết quả biểu đồ
-  type ChartResult {
+  type ChartResult @cacheControl(maxAge: 240) {
     # Nhãn
     label: [String]
     # Số liệu

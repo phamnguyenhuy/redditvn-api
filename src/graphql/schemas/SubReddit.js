@@ -11,14 +11,14 @@ const SubReddit = `
     totalCount: Int
   }
 
-  type SubReddit {
+  type SubReddit @cacheControl(maxAge: 240) {
     # Mã sub-reddit
     _id: String,
     # Số lượng bài viết
     posts_count: Int
   }
 
-  type R {
+  type R @cacheControl(maxAge: 240) {
     display_name: String
     accounts_active: Int
     icon_img: String

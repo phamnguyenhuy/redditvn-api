@@ -11,7 +11,7 @@ const Comment = `
   }
 
   # Bình luận
-  type Comment implements Node {
+  type Comment implements Node @cacheControl(maxAge: 240) {
     id: ID!
     _id: String
 

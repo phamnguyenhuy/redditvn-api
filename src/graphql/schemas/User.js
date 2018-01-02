@@ -17,7 +17,7 @@ const User = `
   }
 
   # Thành viên
-  type User implements Node @cacheControl(maxAge: 240) {
+  type User implements Node @cacheControl(maxAge: 60) {
     id: ID!
     _id: String
 
@@ -45,7 +45,7 @@ const User = `
     ): CommentConnection
   }
 
-  type U {
+  type U @cacheControl(maxAge: 240) {
     comment_karma: Int
     icon_img: String
     link_karma: Int

@@ -82,19 +82,21 @@ const loaders = require('./graphql/loader');
 app.use(
   GRAPHQL_PATH,
   graphqlExpress(req => {
-
-    const dataloaders = Object.keys(loaders).reduce((dataloaders, loaderKey) => ({
-      ...dataloaders,
-      [loaderKey]: loaders[loaderKey].getLoader(),
-    }), {});
+    const dataloaders = Object.keys(loaders).reduce(
+      (dataloaders, loaderKey) => ({
+        ...dataloaders,
+        [loaderKey]: loaders[loaderKey].getLoader()
+      }),
+      {}
+    );
 
     return {
       context: {
         dataloaders
       },
       schema: executableSchema,
-      tracing: false,
-      cacheControl: false
+      tracing: true,
+      cacheControl: true
     };
   })
 );
@@ -141,7 +143,8 @@ app.use(
       }
     }
   }
-  }`})
+}`
+  })
 );
 
 // Catch 404 and forward to error handler
