@@ -1,5 +1,5 @@
 const moment = require('moment');
-const { Post, Comment, User } = require('../../models');
+const { Comment } = require('../../models');
 const connectionFromModel = require('../connectionFromModel');
 const _ = require('lodash');
 const { toGlobalId } = require('graphql-relay');
@@ -12,15 +12,15 @@ const CommentResolver = {
     id(comment, args, context, info) {
       return toGlobalId('Comment', comment._id);
     },
-    post(comment, args, context, info) {
-      return Post.findById(comment.post, projection).exec();
+    post(comment, args, { postLoader }, info) {
+      return postLoader.load(comment.post);
     },
-    user(comment, args, context, info) {
-      return User.findById(comment.user, projection).exec();
+    user(comment, args, { userLoader }, info) {
+      return userLoader.load(comment.user);
     },
-    parent(comment, args, context, info) {
+    parent(comment, args, { commentLoader }, info) {
       if (!comment.parent) return null;
-      return Comment.findById(comment.parent, projection).exec();
+      return commentLoader.load(comment.parent);
     },
     replies(comment, { since, until, first, last, before, after }, context, info) {
       const filter = {

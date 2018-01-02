@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 
 const log = require('../helpers/log');
 
+if (process.env.NODE_ENV === 'development') {
+  mongoose.set('debug', true);
+}
 mongoose.Promise = Promise;
 
 const dbURI = process.env.DATABASE_URI;

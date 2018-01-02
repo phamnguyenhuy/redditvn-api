@@ -76,36 +76,67 @@ app.use(
   })
 );
 
+const loader = require('./graphql/loader');
+
 app.use(
   GRAPHQL_PATH,
-  graphqlExpress(req => ({
-    schema: executableSchema,
-    tracing: true,
-    cacheControl: false
-  }))
+  graphqlExpress(req => {
+    return {
+      context: {
+        commentLoader: loader.commentLoader(),
+        postLoader: loader.postLoader(),
+        userLoader: loader.userLoader(),
+      },
+      schema: executableSchema,
+      tracing: true,
+      cacheControl: false
+    };
+  })
 );
 
 app.use(
   GRAPHIQL_PATH,
   graphiqlExpress({
     endpointURL: GRAPHQL_PATH,
-    query: `query {
-  posts(first: 2) {
-    edges {
-      node {
+    query: `query getPost {
+  node(id: "UG9zdDo0NDc2MTU5MDU2MzU4MTc=") {
+    id
+    __typename
+    ... on Post {
+      _id
+      user {
         _id
-        r
-        u
-        message
-        created_time
-        comments_count
-        likes_count
-        is_deleted
+        name
+        profile_pic
+      }
+      r
+      u
+      message
+      created_time
+      attachments {
+        edges {
+          node {
+            url
+            src
+            type
+          }
+        }
+      }
+      comments(first: 10) {
+        edges {
+          node {
+            id
+            user {
+              _id
+              name
+            }
+            message
+          }
+        }
       }
     }
   }
-}`
-  })
+  }`})
 );
 
 // Catch 404 and forward to error handler

@@ -64,8 +64,8 @@ const PostResolver = {
       if (limit) return post.message.substr(0, limit);
       return post.message;
     },
-    user(post, args, context, info) {
-      return User.findById(post.user, projection).exec();
+    user(post, args, { userLoader }, info) {
+      return userLoader.load(post.user);
     },
     async attachments(post, args, context, info) {
       try {
