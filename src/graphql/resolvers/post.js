@@ -32,7 +32,8 @@ function buildPostFilters({ OR = [], since, until, r, q, u, user }) {
 const PostResolver = {
   Query: {
     posts(root, { filter, first, last, before, after }, context, info) {
-      const postFilters = filter ? { $or: buildPostFilters(filter) } : { is_deleted: { $ne: true } };
+      const buildFilters = buildPostFilters(filter)
+      const postFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { is_deleted: { $ne: true } };
       return postLoader.loadPosts(context, postFilters, { first, last, before, after }, 'created_time', -1);
       // return connectionFromModel({
       //   dataPromiseFunc: Post.find.bind(Post),
@@ -46,7 +47,8 @@ const PostResolver = {
       // });
     },
     async random(root, { filter }, context, info) {
-      const postFilters = filter ? { $or: buildPostFilters(filter) } : { is_deleted: { $ne: true } };
+      const buildFilters = buildPostFilters(filter)
+      const postFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { is_deleted: { $ne: true } };
       const count = await Post.count(postFilters);
       const random = Math.floor(Math.random() * count);
       return Post.findOne(postFilters)
