@@ -34,7 +34,7 @@ function buildPostFilters({ OR = [], since, until, r, q, u, user }) {
 const PostResolver = {
   Query: {
     posts(root, { filter, first, last, before, after }, context, info) {
-      const buildFilters = buildPostFilters(filter)
+      const buildFilters = filter ? buildPostFilters(filter) : []
       const postFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { is_deleted: { $ne: true } };
       return postLoader.loadPosts(context, postFilters, { first, last, before, after }, 'created_time', -1);
       // return connectionFromModel({
