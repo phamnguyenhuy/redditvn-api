@@ -11,6 +11,7 @@ const morgan = require('morgan');
 const log = require('./helpers/log');
 const passport = require('passport');
 const databases = require('./databases');
+
 const { ServerError } = require('./helpers/server');
 const compression = require('compression');
 
@@ -76,16 +77,20 @@ app.use(
   })
 );
 
-const loader = require('./graphql/loader');
+const loaders = require('./graphql/loader');
 
 app.use(
   GRAPHQL_PATH,
   graphqlExpress(req => {
+
+    const dataloaders = Object.keys(loaders).reduce((dataloaders, loaderKey) => ({
+      ...dataloaders,
+      [loaderKey]: loaders[loaderKey].getLoader(),
+    }), {});
+
     return {
       context: {
-        commentLoader: loader.commentLoader(),
-        postLoader: loader.postLoader(),
-        userLoader: loader.userLoader(),
+        dataloaders
       },
       schema: executableSchema,
       tracing: true,

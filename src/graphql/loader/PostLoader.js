@@ -1,8 +1,23 @@
 const DataLoader = require('dataloader');
+const mongooseLoader = require('./MongooseLoader');
 const { Post } = require('../../models');
 
-async function batchPosts(keys) {
-  return await Post.find({ _id: { $in: keys } }).exec();
-}
+module.exports.getLoader = () => new DataLoader(ids => mongooseLoader(Post, ids));
 
-module.exports = () => new DataLoader(keys => batchPosts(keys), { cacheKeyFn: key => key.toString() });
+module.exports.load = async (context, id) => {
+  if (!id) {
+    return null;
+  }
+
+  let data;
+  try {
+    data = await context.dataloaders.postLoader.load(id);
+  } catch (err) {
+    return null;
+  }
+  return data;
+};
+
+module.exports.clearCache = (context, id) => {
+  return context.dataloaders.postLoader.clear(id.toString());
+};

@@ -6,6 +6,7 @@ const { toGlobalId } = require('graphql-relay');
 const { facebook } = require('../../services');
 const { findAttachmentsByPostId } = facebook;
 const _ = require('lodash');
+const { userLoader } = require('../loader');
 
 function buildPostFilters({ OR = [], since, until, r, q, u, user }) {
   const filter = since || until || r || q || u || user ? { is_deleted: { $ne: true } } : null;
@@ -64,8 +65,8 @@ const PostResolver = {
       if (limit) return post.message.substr(0, limit);
       return post.message;
     },
-    user(post, args, { userLoader }, info) {
-      return userLoader.load(post.user);
+    user(post, args, context, info) {
+      return userLoader.load(context, post.user);
     },
     async attachments(post, args, context, info) {
       try {

@@ -1,13 +1,7 @@
 const _ = require('lodash');
-const { Base64 } = require('js-base64');
 
-const decodeBase64 = ({ encodedStr }) => {
-  return Base64.decode(encodedStr);
-};
-
-const encodeBase64 = ({ value }) => {
-  return Base64.encodeURI(value);
-};
+const decodeBase64 = (str) => new Buffer(str, 'ascii').toString('base64');
+const encodeBase64 = (b64) => new Buffer(b64, 'base64').toString('ascii');
 
 const lazyLoadingCondition = async ({ matchCondition, lastId, orderFieldName, orderLastValue, sortType }) => {
   if (!('$or' in matchCondition) || matchCondition || matchCondition['$or'] === undefined) {
@@ -67,7 +61,7 @@ const lazyLoadingResponseFromArray = async ({ result, orderFieldName, hasNextPag
         orderLastValue: _.get(record, orderFieldName)
       });
       edge = {
-        cursor: encodeBase64({ value }),
+        cursor: encodeBase64(value),
         node: record
       };
       edges.push(edge);
@@ -89,7 +83,7 @@ const getMatchCondition = async ({ filter, cursor, orderFieldName, sortType }) =
   let matchCondition = {};
 
   if (cursor) {
-    let unserializedAfter = JSON.parse(decodeBase64({ encodedStr: cursor }));
+    let unserializedAfter = JSON.parse(decodeBase64(cursor));
     let lastId = unserializedAfter.lastId;
     let orderLastValue = unserializedAfter.orderLastValue;
     await lazyLoadingCondition({ matchCondition, lastId, orderFieldName, orderLastValue, sortType });
