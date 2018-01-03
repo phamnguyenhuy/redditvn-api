@@ -45,10 +45,10 @@ const UserResolver = {
 
       const ob = orderByPostBuilder(orderBy);
 
-      return postLoader.loadPosts(context, postFilters, { first, last, before, after }, orderFieldName, sortType);
+      return postLoader.loadPosts(context, postFilters, { first, last, before, after }, ob.orderFieldName, ob.sortType);
 
     },
-    async comments(user, { first, last, before, after }, context, info) {
+    async comments(user, { filter, first, last, before, after }, context, info) {
       _.set(filter, 'user', user._id);
 
       const buildFilters = filter ? buildCommentFilters(filter) : []
