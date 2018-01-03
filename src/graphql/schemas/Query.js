@@ -13,8 +13,7 @@ const Query = `
     count(
       # Loại thống kê
       type: CountType!
-      since: Int
-      until: Int
+      filter: CountFilter
     ): Int
 
     # Lấy thời gian lần cuối cập nhập bài viết

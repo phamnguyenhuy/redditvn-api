@@ -16,6 +16,11 @@ const Count = `
     # Đếm sub-reddit
     SUBREDDITS
   }
+
+  input CountFilter {
+    since: Int
+    until: Int
+  }
 `;
 
 module.exports = () => [Count];

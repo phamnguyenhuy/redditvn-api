@@ -78,34 +78,30 @@ const QueryResolver = {
 
       return [...posts, ...users, ...comments];
     },
-    async count(root, { type, since, until }, context, { cacheControl }) {
+    async count(root, { type, filter }, context, { cacheControl }) {
       if (cacheControl) cacheControl.setCacheHint({ maxAge: 60 });
 
       switch (type) {
         case 'POSTS': {
-          const filter = {
-            is_deleted: { $ne: true }
-          };
-          if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
-          if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
+          const postFilter = { is_deleted: { $ne: true } };
+          if (filter && filter.since) _.set(postFilter, 'created_time.$gte', moment.unix(filter.since).toDate());
+          if (filter && filter.until) _.set(postFilter, 'created_time.$lt', moment.unix(filter.until).toDate());
 
-          return Post.count(filter).exec();
+          return Post.count(postFilter).exec();
         }
 
         case 'LIKES': {
-          const filter = {
-            is_deleted: { $ne: true }
-          };
-          if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
-          if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
-          const likes = await Post.aggregate([{ $match: filter }, { $group: { _id: null, count: { $sum: '$likes_count' } } }]).exec();
+          const likeFilter = { is_deleted: { $ne: true } };
+          if (filter && filter.since) _.set(likeFilter, 'created_time.$gte', moment.unix(filter.since).toDate());
+          if (filter && filter.until) _.set(likeFilter, 'created_time.$lt', moment.unix(filter.until).toDate());
+          const likes = await Post.aggregate([{ $match: likeFilter }, { $group: { _id: null, count: { $sum: '$likes_count' } } }]).exec();
           return likes[0].count;
         }
         case 'COMMENTS': {
-          const filter = {};
-          if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
-          if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
-          return Comment.count(filter).exec();
+          const commentFilter = {};
+          if (filter && filter.since) _.set(commentFilter, 'created_time.$gte', moment.unix(filter.since).toDate());
+          if (filter && filter.until) _.set(commentFilter, 'created_time.$lt', moment.unix(filter.until).toDate());
+          return Comment.count(commentFilter).exec();
         }
 
         case 'USERS':
@@ -118,7 +114,7 @@ const QueryResolver = {
           return User.count({ comments_count: { $gt: 0 } }).exec();
 
         case 'SUBREDDITS':
-          const src = await findSubredditsCount(since, until);
+          const src = await findSubredditsCount(filter.since, filter.until);
           return src.length;
         default:
           return null;

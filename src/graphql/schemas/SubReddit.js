@@ -1,6 +1,6 @@
 const SubReddit = `
   input SubRedditFilter {
-    OR: [UserFilter!]
+    OR: [SubRedditFilter!]
     since: Int
     until: Int
   }
