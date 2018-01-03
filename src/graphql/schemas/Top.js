@@ -7,13 +7,6 @@ const Top = `
       since: Int
       until: Int
     ): UserConnection
-
-    # Sub-reddit nhiều bài nhất
-    subreddit(
-      first: Int
-      since: Int
-      until: Int
-    ): SubRedditConnection
   }
 `;
 

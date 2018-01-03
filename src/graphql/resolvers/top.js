@@ -1,11 +1,7 @@
 const connectionFromModel = require('../loader/ConnectionFromModel');
 const { User, Post } = require('../../models');
 const moment = require('moment');
-
-const { subreddit } = require('../../services');
-const { findSubredditTop } = subreddit;
 const { postLoader } = require('../loader');
-
 const _ = require('lodash');
 
 const TopResolver = {
@@ -44,15 +40,6 @@ const TopResolver = {
       );
       return {
         edges: edges,
-        pageInfo: {
-          hasNextPage: false,
-          hasPreviousPage: false
-        }
-      };
-    },
-    async subreddit(top, { since, until, first = 5 }, context, info) {
-      return {
-        edges: await findSubredditTop(since, until, first),
         pageInfo: {
           hasNextPage: false,
           hasPreviousPage: false

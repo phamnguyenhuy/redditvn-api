@@ -1,5 +1,10 @@
 const SubReddit = `
-#  Sub-reddit
+  input SubRedditFilter {
+    OR: [UserFilter!]
+    since: Int
+    until: Int
+  }
+
   type SubRedditConnection {
     edges: [SubRedditEdge]
     pageInfo: PageInfo!

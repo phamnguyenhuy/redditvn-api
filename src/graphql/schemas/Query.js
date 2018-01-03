@@ -41,9 +41,12 @@ const Query = `
 
     # Lấy danh sách các sub-reddit
     subreddits(
-      since: Int
-      until: Int
-    ): [String]
+      filter: SubRedditFilter
+      first: Int
+      after: String
+      last: Int
+      before: String
+    ): SubRedditConnection
 
     # Lấy danh sách top
     top: Top
