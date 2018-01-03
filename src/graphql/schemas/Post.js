@@ -11,6 +11,14 @@ const Post = `
     r: String
     # Bài viết của user-reddit nào
     u: String
+    is_deleted: Boolean
+  }
+
+  enum PostOrderBy {
+    created_time_ASC,
+    created_time_DESC,
+    likes_count_DESC,
+    comments_count_DESC
   }
 
   type PostConnection {

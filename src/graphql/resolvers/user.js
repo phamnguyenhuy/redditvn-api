@@ -3,6 +3,7 @@ const connectionFromModel = require('../loader/ConnectionFromModel');
 const { regexpEscape } = require('../../helpers/util');
 const { toGlobalId } = require('graphql-relay');
 const { userLoader, postLoader, commentLoader } = require('../loader');
+const snoowrap = require('snoowrap');
 
 function buildUserFilters({ OR = [], q }) {
   const filter = q ? { posts_count: { $gt: 0 } } : null;
@@ -20,10 +21,19 @@ function buildUserFilters({ OR = [], q }) {
 
 const UserResolver = {
   Query: {
-    users(root, { filter, first, last, before, after }, context, info) {
+    users(root, { filter, orderBy, first, last, before, after }, context, info) {
       const buildFilters = filter ? buildUserFilters(filter) : []
       const userFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { posts_count: { $gt: 0 } };
-      return userLoader.loadUsers(context, userFilters, { first, last, before, after }, 'posts_count', -1);
+
+      let orderFieldName = 'posts_count';
+      let sortType = -1;
+      if (orderBy) {
+        const lastDash = orderBy.lastIndexOf('_');
+        orderFieldName = orderBy.substr(0, lastDash);
+        sortType = orderBy.substr(lastDash + 1) === 'ASC' ? 1 : -1;
+      }
+
+      return userLoader.loadUsers(context, userFilters, { first, last, before, after }, orderFieldName, sortType);
       // return connectionFromModel({
       //   dataPromiseFunc: User.find.bind(User),
       //   filter: userFilters,
@@ -34,6 +44,14 @@ const UserResolver = {
       //   orderFieldName: 'posts_count',
       //   sortType: -1
       // });
+    }
+  },
+  U: {
+    __isTypeOf(u, args, context, info) {
+      return u instanceof snoowrap.objects.RedditUser;
+    },
+    id(u, args, context, info) {
+      return toGlobalId('U', u.name);
     }
   },
   User: {

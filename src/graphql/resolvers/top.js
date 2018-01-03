@@ -15,42 +15,6 @@ const TopResolver = {
     }
   },
   Top: {
-    likes(top, { since, until, first, last, before, after }, context, info) {
-      const filter = {
-        is_deleted: { $ne: true }
-      };
-      if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
-      if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
-      return postLoader.loadPosts(context, filter, { first, last, before, after }, 'likes_count', -1);
-      // return connectionFromModel({
-      //   dataPromiseFunc: Post.find.bind(Post),
-      //   filter,
-      //   after,
-      //   before,
-      //   first,
-      //   last,
-      //   orderFieldName: 'likes_count',
-      //   sortType: -1
-      // });
-    },
-    comments(top, { since, until, first, last, before, after }, context, info) {
-      const filter = {
-        is_deleted: { $ne: true }
-      };
-      if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
-      if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
-      return postLoader.loadPosts(context, filter, { first, last, before, after }, 'comments_count', -1);
-      // return connectionFromModel({
-      //   dataPromiseFunc: Post.find.bind(Post),
-      //   filter,
-      //   after,
-      //   before,
-      //   first,
-      //   last,
-      //   orderFieldName: 'comments_count',
-      //   sortType: -1
-      // });
-    },
     async posts_count(top, { since, until, first = 5 }, context, info) {
       const filter = {
         is_deleted: { $ne: true }

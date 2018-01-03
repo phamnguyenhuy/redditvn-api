@@ -18,7 +18,8 @@ const SubReddit = `
     posts_count: Int
   }
 
-  type R @cacheControl(maxAge: 240) {
+  type R implements Node @cacheControl(maxAge: 240) {
+    id: ID!
     display_name: String
     accounts_active: Int
     icon_img: String

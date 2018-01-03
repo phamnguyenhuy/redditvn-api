@@ -5,6 +5,11 @@ const User = `
     q: String
   }
 
+  enum UserOrderBy {
+    posts_count_DESC,
+    comments_count_DESC
+  }
+
   type UserConnection {
     edges: [UserEdge]
     pageInfo: PageInfo!
@@ -45,7 +50,8 @@ const User = `
     ): CommentConnection
   }
 
-  type U @cacheControl(maxAge: 240) {
+  type U implements Node @cacheControl(maxAge: 240) {
+    id: ID!
     comment_karma: Int
     icon_img: String
     link_karma: Int

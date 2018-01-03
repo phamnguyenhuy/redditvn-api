@@ -33,10 +33,19 @@ function buildPostFilters({ OR = [], since, until, r, q, u, user }) {
 
 const PostResolver = {
   Query: {
-    posts(root, { filter, first, last, before, after }, context, info) {
+    posts(root, { filter, orderBy, first, last, before, after }, context, info) {
       const buildFilters = filter ? buildPostFilters(filter) : []
       const postFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { is_deleted: { $ne: true } };
-      return postLoader.loadPosts(context, postFilters, { first, last, before, after }, 'created_time', -1);
+
+      let orderFieldName = 'created_time';
+      let sortType = -1;
+      if (orderBy) {
+        const lastDash = orderBy.lastIndexOf('_');
+        orderFieldName = orderBy.substr(0, lastDash);
+        sortType = orderBy.substr(lastDash + 1) === 'ASC' ? 1 : -1;
+      }
+
+      return postLoader.loadPosts(context, postFilters, { first, last, before, after }, orderFieldName, sortType);
       // return connectionFromModel({
       //   dataPromiseFunc: Post.find.bind(Post),
       //   filter: postFilters,

@@ -2,17 +2,38 @@ const moment = require('moment');
 const _ = require('lodash');
 const git = require('git-last-commit');
 const { fromGlobalId } = require('graphql-relay');
-
+const snoowrap = require('snoowrap');
 const { Post, Comment, User } = require('../../models');
 
 const { subreddit } = require('../../services');
 const { findSubredditsCount } = subreddit;
-
 const { setting } = require('../../services');
 const { findLastUpdated } = setting;
-
 const { stats } = require('../../services');
 const { findStatsChart } = stats;
+
+
+
+let redditClient;
+if (process.env.REDDIT_USER_AGENT && process.env.REDDIT_CLIENT_ID && process.env.REDDIT_CLIENT_SECRET) {
+  if (process.env.REDDIT_REFRESH_TOKEN) {
+    redditClient = new snoowrap({
+      userAgent: process.env.REDDIT_USER_AGENT,
+      clientId: process.env.REDDIT_CLIENT_ID,
+      clientSecret: process.env.REDDIT_CLIENT_SECRET,
+      refreshToken: process.env.REDDIT_REFRESH_TOKEN
+    });
+  }
+  else if (process.env.REDDIT_USERNAME && process.env.REDDIT_PASSWORD) {
+    redditClient = new snoowrap({
+      userAgent: process.env.REDDIT_USER_AGENT,
+      clientId: process.env.REDDIT_CLIENT_ID,
+      clientSecret: process.env.REDDIT_CLIENT_SECRET,
+      username: process.env.REDDIT_USERNAME,
+      password: process.env.REDDIT_PASSWORD
+    });
+  }
+}
 
 const QueryResolver = {
   Node: {
@@ -20,6 +41,8 @@ const QueryResolver = {
       if (data instanceof Post) return 'Post';
       if (data instanceof Comment) return 'Comment';
       if (data instanceof User) return 'User';
+      if (data instanceof snoowrap.objects.Subreddit) return 'R';
+      if (data instanceof snoowrap.objects.RedditUser) return 'U';
       return data.__typename || data.typename.name;
     }
   },
@@ -33,7 +56,12 @@ const QueryResolver = {
           return User.findById(globalID.id).exec();
         case 'Comment':
           return Comment.findById(globalID.id).exec();
-
+        case 'R':
+          if (!redditClient) throw Error('Reddit API not config.')
+          return await redditClient.getSubreddit(globalID.id).fetch();
+        case 'U':
+          if (!redditClient) throw Error('Reddit API not config.')
+          return await redditClient.getUser(globalID.id).fetch();
         default:
           return null;
       }

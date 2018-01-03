@@ -1,22 +1,33 @@
 const Query = `
   # Truy vấn
   type Query {
+    # Lấy dữ liệu để vẽ biểu đồ
+    chart(
+      # Nhóm theo bài viết hoặc bình luận
+      type: ChartType!
+      # Nhóm theo giờ, ngày trong tuần, ngày trong tháng, tháng
+      group: ChartGroup!
+    ): ChartResult
+
+    # Thống kê
+    count(
+      # Loại thống kê
+      type: CountType!
+      since: Int
+      until: Int
+    ): Int
+
+    # Lấy thời gian lần cuối cập nhập bài viết
+    lastUpdated: Date
+
     node(id: ID!): Node
 
     nodes(ids: [ID!]!): [Node]!
 
-    # Lấy danh sách thành viên
-    users(
-      filter: UserFilter
-      first: Int
-      after: String
-      last: Int
-      before: String
-    ): UserConnection
-
     # Lấy danh sách bài viết
     posts(
       filter: PostFilter
+      orderBy: PostOrderBy
       first: Int
       after: String
       last: Int
@@ -28,14 +39,6 @@ const Query = `
       filter: PostFilter
     ): Post
 
-    # Thống kê
-    count(
-      # Loại thống kê
-      type: CountType!
-      since: Int
-      until: Int
-    ): Int
-
     # Lấy danh sách các sub-reddit
     subreddits(
       since: Int
@@ -45,25 +48,18 @@ const Query = `
     # Lấy danh sách top
     top: Top
 
-    # Lấy dữ liệu để vẽ biểu đồ
-    chart(
-      # Nhóm theo bài viết hoặc bình luận
-      type: ChartType! = POSTS
-      # Nhóm theo giờ, ngày trong tuần, ngày trong tháng, tháng
-      group: ChartGroup! = MONTH
-    ): ChartResult
-
-    # Lấy thông tin subreddit
-    r(displayName: String!): R
-
-    # Lấy thông tin user
-    u(name: String!): U
-
-    # Lấy thời gian lần cuối cập nhập bài viết
-    lastUpdated: Date
+    # Lấy danh sách thành viên
+    users(
+      filter: UserFilter
+      orderBy: UserOrderBy
+      first: Int
+      after: String
+      last: Int
+      before: String
+    ): UserConnection
 
     # Lấy commit hiện tại (debug)
-    version: String
+    version: String @deprecated
   }
 `;
 
