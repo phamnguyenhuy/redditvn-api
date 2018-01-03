@@ -6,6 +6,7 @@ const { userLoader, postLoader, commentLoader } = require('../loader');
 const snoowrap = require('snoowrap');
 const { buildUserFilters, buildPostFilters, buildCommentFilters } = require('../../helpers/filterBuilder');
 const { orderByUserBuilder, orderByPostBuilder } = require('../../helpers/orderByBuilder');
+const _ = require('lodash');
 
 const UserResolver = {
   Query: {
