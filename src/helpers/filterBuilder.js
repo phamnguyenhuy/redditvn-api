@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 function buildUserFilters({ OR = [], q }) {
   const filter = q ? { posts_count: { $gt: 0 } } : null;
 
@@ -60,4 +62,4 @@ module.exports = {
   buildUserFilters,
   buildPostFilters,
   buildCommentFilters
-}
+};
