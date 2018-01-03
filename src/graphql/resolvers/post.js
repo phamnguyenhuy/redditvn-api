@@ -7,7 +7,7 @@ const { facebook } = require('../../services');
 const { findAttachmentsByPostId } = facebook;
 const _ = require('lodash');
 const { userLoader, postLoader, commentLoader } = require('../loader');
-const { buildUserFilters } = require('../../helpers/filterBuilder');
+const { buildPostFilters } = require('../../helpers/filterBuilder');
 const { orderByPostBuilder } = require('../../helpers/orderByBuilder');
 
 const PostResolver = {
