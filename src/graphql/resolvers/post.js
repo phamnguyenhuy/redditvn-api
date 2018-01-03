@@ -58,8 +58,9 @@ const PostResolver = {
       // });
     },
     async random(root, { filter }, context, info) {
-      const buildFilters = buildPostFilters(filter)
+      const buildFilters = filter ? buildPostFilters(filter) : []
       const postFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { is_deleted: { $ne: true } };
+
       const count = await Post.count(postFilters);
       const random = Math.floor(Math.random() * count);
       return Post.findOne(postFilters)
