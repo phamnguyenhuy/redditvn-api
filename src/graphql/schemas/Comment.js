@@ -1,4 +1,12 @@
 const Comment = `
+  input CommentFilter {
+    OR: [CommentFilter!]
+    since: Int
+    until: Int
+    user: String
+    q: String
+  }
+
   type CommentConnection {
     edges: [CommentEdge]
     pageInfo: PageInfo!

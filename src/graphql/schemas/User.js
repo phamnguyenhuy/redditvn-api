@@ -36,6 +36,8 @@ const User = `
     comments_count: Int
     # Danh sách bài viết
     posts(
+      filter: PostFilter
+      orderBy: PostOrderBy
       first: Int
       after: String
       last: Int
@@ -43,6 +45,7 @@ const User = `
     ): PostConnection
     # Bình luận của thành viên
     comments(
+      filter: CommentFilter
       first: Int
       after: String
       last: Int

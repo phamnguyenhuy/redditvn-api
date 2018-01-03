@@ -4,20 +4,8 @@ const { regexpEscape } = require('../../helpers/util');
 const { toGlobalId } = require('graphql-relay');
 const { userLoader, postLoader, commentLoader } = require('../loader');
 const snoowrap = require('snoowrap');
-
-function buildUserFilters({ OR = [], q }) {
-  const filter = q ? { posts_count: { $gt: 0 } } : null;
-
-  if (filter) {
-    if (q) filter.name = { $regex: new RegExp(regexpEscape(q)), $options: 'i' };
-  }
-
-  let filters = filter ? [filter] : [];
-  for (let i = 0; i < OR.length; i++) {
-    filters = filters.concat(buildUserFilters(OR[i]));
-  }
-  return filters;
-}
+const { buildUserFilters, buildPostFilters, buildCommentFilters } = require('../../helpers/filterBuilder');
+const { orderByUserBuilder, orderByPostBuilder } = require('../../helpers/orderByBuilder');
 
 const UserResolver = {
   Query: {
@@ -25,25 +13,9 @@ const UserResolver = {
       const buildFilters = filter ? buildUserFilters(filter) : []
       const userFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { posts_count: { $gt: 0 } };
 
-      let orderFieldName = 'posts_count';
-      let sortType = -1;
-      if (orderBy) {
-        const lastDash = orderBy.lastIndexOf('_');
-        orderFieldName = orderBy.substr(0, lastDash);
-        sortType = orderBy.substr(lastDash + 1) === 'ASC' ? 1 : -1;
-      }
+      const ob = orderByUserBuilder(orderBy);
 
-      return userLoader.loadUsers(context, userFilters, { first, last, before, after }, orderFieldName, sortType);
-      // return connectionFromModel({
-      //   dataPromiseFunc: User.find.bind(User),
-      //   filter: userFilters,
-      //   after,
-      //   before,
-      //   first,
-      //   last,
-      //   orderFieldName: 'posts_count',
-      //   sortType: -1
-      // });
+      return userLoader.loadUsers(context, userFilters, { first, last, before, after }, ob.orderFieldName, ob.sortType);
     }
   },
   U: {
@@ -64,33 +36,24 @@ const UserResolver = {
     profile_pic(user, { size }, context, info) {
       return `https://graph.facebook.com/${user._id}/picture?type=square&redirect=true&width=${size}&height=${size}`;
     },
-    posts(user, { first, last, before, after }, context, info) {
-      const filter = { user: user._id };
-      return postLoader.loadPosts(context, filter, { first, last, before, after }, 'created_time', -1);
-      // return connectionFromModel({
-      //   dataPromiseFunc: Post.find.bind(Post),
-      //   filter,
-      //   after,
-      //   before,
-      //   first,
-      //   last,
-      //   orderFieldName: 'created_time',
-      //   sortType: -1
-      // });
+    posts(user, { filter, orderBy, first, last, before, after }, context, info) {
+      _.set(filter, 'user', user._id);
+
+      const buildFilters = filter ? buildPostFilters(filter) : []
+      const postFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { user: user._id };
+
+      const ob = orderByPostBuilder(orderBy);
+
+      return postLoader.loadPosts(context, postFilters, { first, last, before, after }, orderFieldName, sortType);
+
     },
     async comments(user, { first, last, before, after }, context, info) {
-      const filter = { user: user._id };
-      return commentLoader.loadComments(context, filter, { first, last, before, after }, 'created_time', -1);
-      // return connectionFromModel({
-      //   dataPromiseFunc: Comment.find.bind(Comment),
-      //   filter,
-      //   after,
-      //   before,
-      //   first,
-      //   last,
-      //   orderFieldName: 'created_time',
-      //   sortType: -1
-      // });
+      _.set(filter, 'user', user._id);
+
+      const buildFilters = filter ? buildCommentFilters(filter) : []
+      const commentFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { user: user._id };
+
+      return commentLoader.loadComments(context, commentFilters, { first, last, before, after }, 'created_time', -1);
     }
   }
 };

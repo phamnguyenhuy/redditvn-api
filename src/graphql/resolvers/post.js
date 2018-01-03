@@ -7,29 +7,8 @@ const { facebook } = require('../../services');
 const { findAttachmentsByPostId } = facebook;
 const _ = require('lodash');
 const { userLoader, postLoader, commentLoader } = require('../loader');
-
-function buildPostFilters({ OR = [], since, until, r, q, u, user }) {
-  const filter = since || until || r || q || u || user ? { is_deleted: { $ne: true } } : null;
-
-  if (filter) {
-    if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
-    if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
-    if (r) filter.r = { $regex: `^${r}$`, $options: 'i' };
-    if (u) filter.u = { $regex: `^${u}$`, $options: 'i' };
-    if (q) {
-      if (q.startsWith('regex:')) q = q.substr(6);
-      else q = regexpEscape(q);
-      filter.message = { $regex: new RegExp(q), $options: 'i' };
-    }
-    if (user) filter.user = user;
-  }
-
-  let filters = filter ? [filter] : [];
-  for (let i = 0; i < OR.length; i++) {
-    filters = filters.concat(buildPostFilters(OR[i]));
-  }
-  return filters;
-}
+const { buildUserFilters } = require('../../helpers/filterBuilder');
+const { orderByPostBuilder } = require('../../helpers/orderByBuilder');
 
 const PostResolver = {
   Query: {
@@ -37,25 +16,9 @@ const PostResolver = {
       const buildFilters = filter ? buildPostFilters(filter) : []
       const postFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { is_deleted: { $ne: true } };
 
-      let orderFieldName = 'created_time';
-      let sortType = -1;
-      if (orderBy) {
-        const lastDash = orderBy.lastIndexOf('_');
-        orderFieldName = orderBy.substr(0, lastDash);
-        sortType = orderBy.substr(lastDash + 1) === 'ASC' ? 1 : -1;
-      }
+      const ob = orderByPostBuilder(orderBy);
 
-      return postLoader.loadPosts(context, postFilters, { first, last, before, after }, orderFieldName, sortType);
-      // return connectionFromModel({
-      //   dataPromiseFunc: Post.find.bind(Post),
-      //   filter: postFilters,
-      //   after,
-      //   before,
-      //   first,
-      //   last,
-      //   orderFieldName: 'created_time',
-      //   sortType: -1
-      // });
+      return postLoader.loadPosts(context, postFilters, { first, last, before, after }, ob.orderFieldName, ob.sortType);
     },
     async random(root, { filter }, context, info) {
       const buildFilters = filter ? buildPostFilters(filter) : []
