@@ -12,7 +12,7 @@ const UserResolver = {
   Query: {
     users(root, { filter, orderBy, first, last, before, after }, context, info) {
       const buildFilters = filter ? buildUserFilters(filter) : []
-      const userFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { posts_count: { $gt: 0 } };
+      const userFilters = buildFilters.length > 0 ? { $or: buildFilters } : { posts_count: { $gt: 0 } };
 
       const ob = orderByUserBuilder(orderBy);
 
@@ -41,7 +41,7 @@ const UserResolver = {
       _.set(filter, 'user', user._id);
 
       const buildFilters = filter ? buildPostFilters(filter) : []
-      const postFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { user: user._id };
+      const postFilters = buildFilters.length > 0 ? { $or: buildFilters } : { user: user._id };
 
       const ob = orderByPostBuilder(orderBy);
 
@@ -52,7 +52,7 @@ const UserResolver = {
       _.set(filter, 'user', user._id);
 
       const buildFilters = filter ? buildCommentFilters(filter) : []
-      const commentFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { user: user._id };
+      const commentFilters = buildFilters.length > 0 ? { $or: buildFilters } : { user: user._id };
 
       return commentLoader.loadComments(context, commentFilters, { first, last, before, after }, 'created_time', -1);
     }

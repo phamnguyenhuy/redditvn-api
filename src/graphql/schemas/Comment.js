@@ -40,12 +40,11 @@ const Comment = `
 
     # Bình luận phản hồi
     replies(
+      filter: CommentFilter
       first: Int
       after: String
       last: Int
       before: String
-      since: Int
-      until: Int
     ): CommentConnection
   }
 `;

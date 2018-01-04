@@ -57,12 +57,11 @@ const Post = `
     attachments: AttachmentConnection
     # Bình luận trong bài viết
     comments(
+      filter: CommentFilter
       first: Int
       after: String
       last: Int
       before: String
-      since: Int
-      until: Int
     ): CommentConnection
   }
 `;

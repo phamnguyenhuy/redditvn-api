@@ -22,7 +22,7 @@ const SubRedditResolver = {
   Query: {
     subreddits(root, { filter, first, last, before, after }, context, info) {
       const buildFilters = filter ? buildSubRedditFilters(filter) : []
-      const subredditFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { is_deleted: { $ne: true }, r: { $ne: null } };
+      const subredditFilters = buildFilters.length > 0 ? { $or: buildFilters } : { is_deleted: { $ne: true }, r: { $ne: null } };
 
       const subredditArray = Post.aggregate([
         { $match: subredditFilters },

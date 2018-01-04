@@ -7,14 +7,14 @@ const { facebook } = require('../../services');
 const { findAttachmentsByPostId } = facebook;
 const _ = require('lodash');
 const { userLoader, postLoader, commentLoader } = require('../loader');
-const { buildPostFilters } = require('../../helpers/filterBuilder');
+const { buildPostFilters, buildCommentFilters } = require('../../helpers/filterBuilder');
 const { orderByPostBuilder } = require('../../helpers/orderByBuilder');
 
 const PostResolver = {
   Query: {
     posts(root, { filter, orderBy, first, last, before, after }, context, info) {
       const buildFilters = filter ? buildPostFilters(filter) : []
-      const postFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { is_deleted: { $ne: true } };
+      const postFilters = buildFilters.length > 0 ? { $or: buildFilters } : { is_deleted: { $ne: true } };
 
       const ob = orderByPostBuilder(orderBy);
 
@@ -22,7 +22,7 @@ const PostResolver = {
     },
     async random(root, { filter }, context, info) {
       const buildFilters = filter ? buildPostFilters(filter) : []
-      const postFilters = (filter && buildFilters.length > 0) ? { $or: buildFilters } : { is_deleted: { $ne: true } };
+      const postFilters = buildFilters.length > 0 ? { $or: buildFilters } : { is_deleted: { $ne: true } };
 
       const count = await Post.count(postFilters);
       const random = Math.floor(Math.random() * count);
@@ -59,23 +59,13 @@ const PostResolver = {
       }
     },
     comments(post, { since, until, first, last, before, after }, context, info) {
-      const filter = {
-        post: post._id,
-        parent: { $eq: null }
-      };
-      if (since) _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
-      if (until) _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
-      return commentLoader.loadComments(context, filter, { first, last, before, after }, 'created_time', 1);
-      // return connectionFromModel({
-      //   dataPromiseFunc: Comment.find.bind(Comment),
-      //   filter,
-      //   after,
-      //   before,
-      //   first,
-      //   last,
-      //   orderFieldName: 'created_time',
-      //   sortType: 1
-      // });
+      _.set(filter, 'post', post._id);
+      _.set(filter, 'parent', { $eq: null });
+
+      const buildFilters = filter ? buildCommentFilters(filter) : []
+      const commentFilters = buildFilters.length > 0 ? { $or: buildFilters } : { user: user._id };
+
+      return commentLoader.loadComments(context, commentFilters, { first, last, before, after }, 'created_time', 1);
     }
   }
 };

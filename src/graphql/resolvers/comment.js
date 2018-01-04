@@ -4,6 +4,7 @@ const connectionFromModel = require('../loader/ConnectionFromModel');
 const _ = require('lodash');
 const { toGlobalId } = require('graphql-relay');
 const { postLoader, commentLoader, userLoader } = require('../loader');
+const { buildCommentFilters } = require('../../helpers/filterBuilder');
 
 const CommentResolver = {
   Comment: {
@@ -23,27 +24,13 @@ const CommentResolver = {
       if (!comment.parent) return null;
       return commentLoader.load(context, comment.parent);
     },
-    replies(comment, { since, until, first, last, before, after }, context, info) {
-      const filter = {
-        parent: comment._id
-      };
-      if (since) {
-        _.set(filter, 'created_time.$gte', moment.unix(since).toDate());
-      }
-      if (until) {
-        _.set(filter, 'created_time.$lt', moment.unix(until).toDate());
-      }
-      return commentLoader.loadComments(context, filter, { first, last, before, after }, 'created_time', 1);
-      // return connectionFromModel({
-      //   dataPromiseFunc: Comment.find.bind(Comment),
-      //   filter,
-      //   after,
-      //   before,
-      //   first,
-      //   last,
-      //   orderFieldName: 'created_time',
-      //   sortType: 1
-      // });
+    replies(comment, { filter, first, last, before, after }, context, info) {
+      _.set(filter, 'parent', comment._id);
+
+      const buildFilters = filter ? buildCommentFilters(filter) : []
+      const commentFilters = buildFilters.length > 0 ? { $or: buildFilters } : { user: user._id };
+
+      return commentLoader.loadComments(context, commentFilters, { first, last, before, after }, 'created_time', 1);
     }
   }
 };
